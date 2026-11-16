@@ -1,0 +1,452 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle, AlertCircle, Loader2, ArrowLeft, Trophy } from 'lucide-react';
+import { motion } from 'framer-motion';
+import ArtistProfileForm from '../components/participate/ArtistProfileForm';
+import VideoSubmission from '../components/participate/VideoSubmission';
+import PaymentStep from '../components/participate/PaymentStep';
+import PaymentConfirmation from '../components/participate/PaymentConfirmation';
+
+// Helper function to extract YouTube video ID
+const extractYouTubeVideoId = (url) => {
+  const regExp = /(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|)([\w-]{11})(?:\S+)?/;
+  const match = url.match(regExp);
+  return (match && match[1]) ? match[1] : null;
+};
+
+export default function Participate() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const contestId = searchParams.get('contestId');
+
+  const [user, setUser] = useState(null);
+  const [contest, setContest] = useState(null);
+  const [step, setStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [profileData, setProfileData] = useState(null);
+  const [videoData, setVideoData] = useState(null);
+  const [paymentData, setPaymentData] = useState(null);
+
+  useEffect(() => {
+    loadData();
+  }, [contestId]);
+
+  useEffect(() => {
+    // CLEANUP: Si el usuario abandona la página en medio del proceso
+    const handleBeforeUnload = (e) => {
+      // Warn user if they are between step 2 (video) and step 4 (proof submission)
+      // and have not successfully completed the registration.
+      if (step >= 2 && step < 4 && !success) {
+        e.preventDefault();
+        e.returnValue = '¿Estás seguro que quieres salir? Perderás tu progreso de inscripción.';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [step, success]);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const userData = await base44.auth.me();
+      
+      if (userData.user_type !== 'artist' && userData.role !== 'admin') {
+        alert('Solo los artistas pueden inscribirse en convocatorias. Por favor, selecciona el rol de artista en tu perfil.');
+        navigate(createPageUrl('SelectRole'));
+        return;
+      }
+
+      setUser(userData);
+
+      if (!contestId) {
+        setError('no_contest_selected');
+        setIsLoading(false);
+        return;
+      }
+
+      const contests = await base44.entities.Contest.filter({ id: contestId });
+      
+      if (!contests || contests.length === 0) {
+        setError('Convocatoria no encontrada.');
+        setIsLoading(false);
+        return;
+      }
+
+      const contestData = contests[0];
+
+      if (contestData.status !== 'open' && contestData.status !== 'voting') {
+        setError('Esta convocatoria no está aceptando inscripciones en este momento.');
+        setIsLoading(false);
+        return;
+      }
+
+      setContest(contestData);
+
+      // VERIFICAR SI YA ESTÁ INSCRITO (incluyendo pendientes)
+      const existingParticipants = await base44.entities.Participant.filter({
+        contest_id: contestId,
+        artist_id: userData.id
+      });
+
+      if (existingParticipants && existingParticipants.length > 0) {
+        const participant = existingParticipants[0];
+        
+        if (participant.status === 'active' || participant.status === 'pending_payment') {
+          setError(`Ya tienes una participación en esta convocatoria (Estado: ${participant.status === 'active' ? 'Activa' : 'Pendiente de Pago'}). No puedes inscribirte dos veces.`);
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      const isProfileComplete = userData.artist_name && 
+                                userData.bio && 
+                                userData.profile_image && 
+                                userData.country && 
+                                userData.phone &&
+                                userData.social_instagram &&
+                                userData.social_facebook &&
+                                userData.social_tiktok;
+
+      if (isProfileComplete) {
+        setStep(2);
+        setProfileData({
+          artist_name: userData.artist_name,
+          bio: userData.bio,
+          profile_image: userData.profile_image,
+          country: userData.country,
+          phone: userData.phone,
+          social_instagram: userData.social_instagram,
+          social_facebook: userData.social_facebook,
+          social_tiktok: userData.social_tiktok
+        });
+      }
+
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setError('Error al cargar datos. Por favor, recarga la página.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleProfileComplete = (data) => {
+    setProfileData(data);
+    setStep(2);
+  };
+
+  const handleVideoComplete = (data) => {
+    setVideoData(data);
+    setStep(3);
+  };
+
+  const handlePaymentStart = () => {
+    setPaymentData({ payment_method: 'passline' });
+    setStep(4);
+  };
+
+  const handlePaymentComplete = async () => {
+    setIsSubmitting(true);
+    setError(null); // Clear previous errors
+
+    try {
+      // Use user and contest from state, already loaded and validated by loadData
+      // Re-validate user type in case something changed or a race condition occurred
+      if (user.user_type !== 'artist' && user.role !== 'admin') {
+        alert('Solo los artistas pueden participar en convocatorias');
+        navigate(createPageUrl('SelectRole'));
+        return;
+      }
+
+      // Re-check for existing participation (safety check)
+      const existingParticipations = await base44.entities.Participant.filter({
+        contest_id: contest.id,
+        artist_id: user.id
+      });
+
+      if (existingParticipations && existingParticipations.length > 0) {
+        const participant = existingParticipations[0];
+        if (participant.status === 'active' || participant.status === 'pending_payment') {
+          alert('❌ Ya tienes una inscripción activa o pendiente en esta convocatoria. No puedes inscribirte dos veces.');
+          navigate(createPageUrl('ArtistDashboard')); // or VotingRoom if active
+          return;
+        }
+      }
+
+      let videoFinalUrl = '';
+      let youtubeFinalVideoId = '';
+
+      if (videoData.youtube_url) {
+        videoFinalUrl = videoData.youtube_url;
+        youtubeFinalVideoId = videoData.youtube_video_id || extractYouTubeVideoId(videoData.youtube_url);
+      } else if (videoData.video_url) {
+        videoFinalUrl = videoData.video_url;
+      }
+
+      const entryPrice = parseFloat(contest.entry_price) || 10;
+
+      // PAGO CON PASSLine (el comprobante queda como ticket dentro de Passline)
+      {
+        // Registrar transacción PENDIENTE
+        await base44.entities.Transaction.create({
+          user_id: user.id,
+          type: 'contest_entry',
+          amount: entryPrice,
+          description: `Inscripción: ${contest.name} - Pendiente de verificación en Passline (${user.email})`,
+          payment_method: 'passline',
+          status: 'pending',
+          related_contest_id: contest.id,
+          video_url: videoFinalUrl
+        });
+        console.log('✅ Transacción pendiente de aprobación');
+
+        // Crear participante (PENDIENTE hasta que pague y sea verificado)
+        await base44.entities.Participant.create({
+          contest_id: contest.id,
+          artist_id: user.id,
+          artist_name: profileData.artist_name,
+          artist_image: profileData.profile_image,
+          artist_bio: profileData.bio,
+          artist_country: profileData.country,
+          social_instagram: profileData.social_instagram,
+          social_facebook: profileData.social_facebook,
+          social_tiktok: profileData.social_tiktok,
+          youtube_url: videoData.youtube_url || '',
+          youtube_video_id: youtubeFinalVideoId,
+          video_url: videoData.video_url || '',
+          song_title: videoData.song_title,
+          total_votes: 0,
+          average_rating: 0,
+          payment_verified: false,
+          payment_method: 'passline',
+          status: 'pending_payment'
+        });
+        console.log('✅ Participante creado como PENDIENTE');
+
+        // Notificar
+        await base44.entities.Notification.create({
+          user_id: user.id,
+          title: '⏳ Inscripción Pendiente',
+          message: `Tu inscripción en "${contest.name}" está pendiente de aprobación. Te notificaremos cuando se apruebe y tu video esté activo.`,
+          type: 'contest_pending',
+          link: createPageUrl('ArtistDashboard')
+        });
+      }
+
+      console.log('🎉 ¡Inscripción completada exitosamente!');
+
+      // Check for badge eligibility
+      try {
+        const { checkBadgeEligibility } = await import('../components/gamification/BadgeSystem');
+        await checkBadgeEligibility(user.id);
+      } catch (badgeError) {
+        console.warn('⚠️ Error checking badges:', badgeError);
+      }
+
+      setSuccess(true);
+      setTimeout(() => {
+        navigate(createPageUrl('ArtistDashboard'));
+      }, 3000);
+
+    } catch (error) {
+      console.error('❌ Error al inscribirse:', error);
+      
+      const errorString = JSON.stringify(error).toLowerCase();
+      if (errorString.includes('unique') || errorString.includes('duplicate')) {
+        alert('❌ Ya tienes una inscripción activa o pendiente en esta convocatoria. No puedes inscribirte dos veces.');
+        navigate(createPageUrl('ArtistDashboard'));
+        return;
+      }
+      
+      alert('❌ Error: ' + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-12 text-center">
+            <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin text-purple-600" />
+            <p className="text-gray-600">Cargando...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error === 'no_contest_selected') {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-2xl mx-auto">
+          <Card className="text-center p-12">
+            <Trophy className="w-16 h-16 mx-auto mb-6 text-purple-600" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Selecciona una Convocatoria
+            </h2>
+            <p className="text-gray-600 mb-8">
+              Para participar, primero debes seleccionar una convocatoria desde la página de Convocatorias Activas.
+            </p>
+            <Button 
+              onClick={() => navigate(createPageUrl('Contests'))}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              Ver Convocatorias Activas
+            </Button>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-2xl mx-auto">
+          <Button variant="outline" onClick={() => navigate(createPageUrl('Contests'))} className="mb-6">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Volver a Convocatorias
+          </Button>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-base">{error}</AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <Card className="w-full max-w-md">
+            <CardContent className="p-12 text-center">
+              <CheckCircle className="h-20 w-20 mx-auto mb-6 text-green-600" />
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                ¡Inscripción Enviada!
+              </h2>
+              <p className="text-gray-600 text-lg mb-6">
+                Registramos tu inscripción a la convocatoria{' '}
+                <strong className="text-purple-600">{contest.name}</strong>. Verificaremos tu pago de Passline y
+                activaremos tu video.
+              </p>
+              <p className="text-gray-500 text-sm">
+                Redirigiendo...
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <Button variant="outline" onClick={() => navigate(createPageUrl('Contests'))}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Volver a Convocatorias
+          </Button>
+        </div>
+
+        <Card className="mb-8">
+          <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+            <CardTitle className="text-2xl">Inscripción a la Convocatoria</CardTitle>
+            <p className="text-purple-100 text-sm mt-2">
+              {contest.name} • {contest.genre} • Inscripción ${(parseFloat(contest.entry_price) || 10).toFixed(2)} USD (Passline)
+            </p>
+          </CardHeader>
+          <CardContent className="p-6">
+            {/* INDICADOR DE 4 PASOS */}
+            <div className="flex items-center justify-center mb-8">
+              <div className={`flex items-center ${step >= 1 ? 'text-purple-600' : 'text-gray-400'}`}>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-lg ${step >= 1 ? 'bg-purple-600 text-white' : 'bg-gray-300'}`}>
+                  1
+                </div>
+                <span className="ml-2 hidden sm:inline font-medium">Perfil</span>
+              </div>
+              <div className={`mx-3 h-1 w-12 sm:w-20 ${step >= 2 ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
+              
+              <div className={`flex items-center ${step >= 2 ? 'text-purple-600' : 'text-gray-400'}`}>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-lg ${step >= 2 ? 'bg-purple-600 text-white' : 'bg-gray-300'}`}>
+                  2
+                </div>
+                <span className="ml-2 hidden sm:inline font-medium">Video</span>
+              </div>
+              <div className={`mx-3 h-1 w-12 sm:w-20 ${step >= 3 ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
+              
+              <div className={`flex items-center ${step >= 3 ? 'text-purple-600' : 'text-gray-400'}`}>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-lg ${step >= 3 ? 'bg-purple-600 text-white' : 'bg-gray-300'}`}>
+                  3
+                </div>
+                <span className="ml-2 hidden sm:inline font-medium">Pago</span>
+              </div>
+              <div className={`mx-3 h-1 w-12 sm:w-20 ${step >= 4 ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
+              
+              <div className={`flex items-center ${step >= 4 ? 'text-purple-600' : 'text-gray-400'}`}>
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-lg ${step >= 4 ? 'bg-purple-600 text-white' : 'bg-gray-300'}`}>
+                  4
+                </div>
+                <span className="ml-2 hidden sm:inline font-medium">Confirmar</span>
+              </div>
+            </div>
+
+            {/* PASO 1: PERFIL */}
+            {step === 1 && (
+              <ArtistProfileForm 
+                onComplete={handleProfileComplete}
+              />
+            )}
+
+            {/* PASO 2: VIDEO */}
+            {step === 2 && (
+              <VideoSubmission
+                onSubmit={handleVideoComplete}
+                isSubmitting={isSubmitting}
+              />
+            )}
+
+            {/* PASO 3: PAGO */}
+            {step === 3 && (
+              <PaymentStep
+                contest={contest}
+                onPaymentStart={handlePaymentStart}
+              />
+            )}
+
+            {/* PASO 4: CONFIRMACIÓN DEL PAGO EN PASSLINE */}
+            {step === 4 && (
+              <PaymentConfirmation
+                contest={contest}
+                userEmail={user?.email}
+                onComplete={handlePaymentComplete}
+                isSubmitting={isSubmitting}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
