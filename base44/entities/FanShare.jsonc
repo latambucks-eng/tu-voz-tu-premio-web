@@ -1,0 +1,69 @@
+{
+  "name": "FanShare",
+  "type": "object",
+  "properties": {
+    "fan_id": {
+      "type": "string",
+      "description": "ID del fan que comparti\u00f3"
+    },
+    "fan_name": {
+      "type": "string",
+      "description": "Nombre del fan"
+    },
+    "artist_id": {
+      "type": "string",
+      "description": "ID del artista compartido"
+    },
+    "artist_name": {
+      "type": "string",
+      "description": "Nombre del artista"
+    },
+    "share_platform": {
+      "type": "string",
+      "enum": [
+        "whatsapp",
+        "facebook",
+        "instagram",
+        "twitter",
+        "telegram",
+        "copy_link",
+        "other"
+      ],
+      "default": "copy_link",
+      "description": "Plataforma donde se comparti\u00f3"
+    }
+  },
+  "required": [
+    "fan_id",
+    "artist_id"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "fan_id": "{{user.id}}"
+        },
+        {
+          "artist_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

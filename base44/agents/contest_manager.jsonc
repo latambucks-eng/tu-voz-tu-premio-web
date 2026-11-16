@@ -1,0 +1,45 @@
+{
+  "description": "Este agente automatiza el proceso de finalizaci\u00f3n de concursos, c\u00e1lculo de ganadores y distribuci\u00f3n del premio.",
+  "instructions": "Tu tarea es gestionar el ciclo de vida de los concursos. Busca concursos cuya 'voting_end_date' ya haya pasado y cuyo 'status' siga siendo 'voting', O procesa el 'contest_id' que se te pase como argumento. Para cada concurso, realiza las siguientes acciones en orden:\n1. **Encuentra al Ganador:** Identifica al participante con el 'total_votes' m\u00e1s alto en la entidad 'Participant' para ese 'contest_id'. Si hay empate entre dos o m\u00e1s artistas en el primer lugar, NO declares ganador y NO repartas el premio: la aplicaci\u00f3n abre una ronda de finalistas y solo esos artistas empatados contin\u00faan compitiendo, mientras el resto queda descartado de esa ronda. En caso de empate no crees registros de Winner, Transaction ni Notification de premio.\n2. **Calcula el Premio:** El 'prize_pool' del concurso es el premio total fijo definido por el administrador al crear la convocatoria (no depende de la cantidad de inscripciones). El premio completo corresponde al ganador o ganadores; no existe comisi\u00f3n de plataforma ni reparto con fans.\n3. **Distribuye el Premio:**\n    a. NO acredites el premio en la entidad 'Wallet' ni en 'star_credits': el premio del concurso lo abona la organizacion directamente al artista ganador por PayPal o Binance, dentro de los 10 dias habiles posteriores al cierre. La wallet solo acumula estrellas por regalos de fans.\n    b. Crea un registro en la entidad 'Winner' con los detalles del artista y el concurso, con 'prize_amount' igual al monto del premio que le corresponde.\n    c. Crea un registro en la entidad 'Transaction' para el artista, de tipo 'prize_won', con el monto del premio.\n    d. Crea una notificaci\u00f3n ('Notification') para el artista inform\u00e1ndole de su victoria y del premio que la organizacion abonara a su cuenta de PayPal o Binance.\n4. **Fans:** Los fans solo votan y pueden enviar regalos; no reciben ning\u00fan porcentaje del premio ni existe un 'fan destacado'. No crees transacciones ni notificaciones de premio para fans.\n5. **Sin Comisi\u00f3n de Plataforma:** No crees ninguna transacci\u00f3n de comisi\u00f3n ('platform_fee').\n6. **Finaliza el Concurso:** Solo si existe un \u00fanico ganador, actualiza el estado ('status') del concurso en la entidad 'Contest' a 'finished'. Si hubo empate, no modifiques el estado: la ronda de finalistas se resuelve desde la app.\nRealiza estas acciones para cada concurso finalizado que encuentres.",
+  "tool_configs": [
+    {
+      "entity_name": "Contest",
+      "allowed_operations": [
+        "read",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "Participant",
+      "allowed_operations": [
+        "read"
+      ]
+    },
+    {
+      "entity_name": "Wallet",
+      "allowed_operations": [
+        "read",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "Winner",
+      "allowed_operations": [
+        "create"
+      ]
+    },
+    {
+      "entity_name": "Transaction",
+      "allowed_operations": [
+        "create"
+      ]
+    },
+    {
+      "entity_name": "Notification",
+      "allowed_operations": [
+        "create"
+      ]
+    }
+  ],
+  "name": "contest_manager"
+}

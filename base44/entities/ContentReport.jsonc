@@ -1,0 +1,94 @@
+{
+  "name": "ContentReport",
+  "type": "object",
+  "properties": {
+    "reporter_id": {
+      "type": "string",
+      "description": "ID del usuario que reporta"
+    },
+    "reporter_name": {
+      "type": "string",
+      "description": "Nombre del reportero"
+    },
+    "reported_content_type": {
+      "type": "string",
+      "enum": [
+        "profile",
+        "video",
+        "comment",
+        "external_use"
+      ],
+      "description": "Tipo de contenido reportado"
+    },
+    "reported_content_id": {
+      "type": "string",
+      "description": "ID del contenido reportado"
+    },
+    "reported_user_id": {
+      "type": "string",
+      "description": "ID del usuario reportado (si aplica)"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "copyright_infringement",
+        "inappropriate_content",
+        "spam",
+        "harassment",
+        "fake_profile",
+        "external_theft",
+        "other"
+      ],
+      "description": "Raz\u00f3n del reporte"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n detallada del reporte"
+    },
+    "evidence_url": {
+      "type": "string",
+      "description": "URL de evidencia (screenshot, enlace externo, etc.)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "under_review",
+        "resolved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Estado del reporte"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Notas del administrador"
+    },
+    "resolution_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha de resoluci\u00f3n"
+    }
+  },
+  "required": [
+    "reporter_id",
+    "reported_content_type",
+    "reason",
+    "description"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "reporter_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {}
+  }
+}

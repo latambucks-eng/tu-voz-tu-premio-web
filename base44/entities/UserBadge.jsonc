@@ -1,0 +1,51 @@
+{
+  "name": "UserBadge",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID del usuario"
+    },
+    "badge_type": {
+      "type": "string",
+      "enum": [
+        "first_participation",
+        "first_vote",
+        "first_win",
+        "super_sharer",
+        "loyal_fan",
+        "rising_star",
+        "veteran_artist",
+        "top_voter"
+      ],
+      "description": "Tipo de insignia"
+    },
+    "badge_name": {
+      "type": "string",
+      "description": "Nombre de la insignia"
+    },
+    "badge_description": {
+      "type": "string",
+      "description": "Descripci\u00f3n del logro"
+    },
+    "earned_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha en que se gan\u00f3"
+    },
+    "is_displayed": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si se muestra en el perfil"
+    }
+  },
+  "required": [
+    "user_id",
+    "badge_type",
+    "badge_name"
+  ],
+  "rls": {
+    "read": {},
+    "write": {}
+  }
+}

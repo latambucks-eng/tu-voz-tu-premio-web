@@ -1,0 +1,87 @@
+{
+  "name": "WithdrawalRequest",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Monto a retirar en USD"
+    },
+    "withdrawal_method": {
+      "type": "string",
+      "enum": [
+        "paypal",
+        "binance"
+      ],
+      "description": "M\u00e9todo de pago del premio: PayPal o Binance"
+    },
+    "account_type": {
+      "type": "string",
+      "description": "Plataforma de pago elegida (PayPal / Binance)"
+    },
+    "alias_cbu": {
+      "type": "string",
+      "description": "Email de PayPal o ID/email de Binance informado por el usuario"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Nombre completo del titular de la cuenta"
+    },
+    "additional_info": {
+      "type": "string",
+      "description": "Informaci\u00f3n adicional para el pago (titular, red de Binance, etc.)"
+    },
+    "status": {
+      "type": "string",
+      "default": "pending",
+      "enum": [
+        "pending",
+        "processing",
+        "completed",
+        "rejected"
+      ]
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "processing_time": {
+      "type": "string",
+      "description": "Tiempo estimado de procesamiento"
+    }
+  },
+  "required": [
+    "user_id",
+    "amount",
+    "withdrawal_method",
+    "alias_cbu",
+    "full_name"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

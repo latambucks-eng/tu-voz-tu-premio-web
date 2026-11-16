@@ -1,0 +1,81 @@
+{
+  "name": "ContentRegistration",
+  "type": "object",
+  "properties": {
+    "artist_id": {
+      "type": "string",
+      "description": "ID del artista propietario"
+    },
+    "content_type": {
+      "type": "string",
+      "enum": [
+        "video",
+        "image",
+        "profile",
+        "audio"
+      ],
+      "description": "Tipo de contenido registrado"
+    },
+    "content_id": {
+      "type": "string",
+      "description": "ID del contenido (participation_id, user_id, etc.)"
+    },
+    "content_url": {
+      "type": "string",
+      "description": "URL del contenido"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo del contenido"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n del contenido"
+    },
+    "copyright_holder": {
+      "type": "string",
+      "description": "Nombre del titular de derechos de autor"
+    },
+    "registration_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha de registro"
+    },
+    "fingerprint": {
+      "type": "string",
+      "description": "Huella digital del contenido (hash)"
+    }
+  },
+  "required": [
+    "artist_id",
+    "content_type",
+    "title",
+    "copyright_holder"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "artist_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {
+      "$or": [
+        {
+          "artist_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

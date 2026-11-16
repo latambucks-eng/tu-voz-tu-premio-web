@@ -1,0 +1,127 @@
+{
+  "name": "SupportTicket",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID del usuario que hace la consulta"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Nombre del usuario"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email del usuario"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Asunto de la consulta"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "consulta_general",
+        "problema_tecnico",
+        "pagos_y_estrellas",
+        "reembolso_arrepentimiento",
+        "reporte_conducta"
+      ],
+      "enumColors": [
+        "gray",
+        "blue",
+        "yellow",
+        "red",
+        "purple"
+      ],
+      "default": "consulta_general",
+      "description": "Categor\u00eda de la consulta. Incluye solicitudes de reembolso o arrepentimiento."
+    },
+    "conversation": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Historial completo de la conversaci\u00f3n"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Estado del ticket"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal",
+      "description": "Prioridad del ticket"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Notas internas del administrador"
+    },
+    "resolved_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Fecha de resoluci\u00f3n"
+    }
+  },
+  "required": [
+    "user_id",
+    "user_name",
+    "user_email",
+    "subject"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {
+      "$or": [
+        {
+          "user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

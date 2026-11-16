@@ -1,0 +1,58 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID del usuario destinatario"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo de la notificaci\u00f3n"
+    },
+    "message": {
+      "type": "string",
+      "description": "Contenido del mensaje"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "vote",
+        "winner",
+        "withdrawal_requested",
+        "withdrawal_processing",
+        "withdrawal_completed",
+        "profile_incomplete",
+        "contest_reminder",
+        "support_response",
+        "credit_purchase",
+        "gift_received"
+      ],
+      "description": "Tipo de notificaci\u00f3n"
+    },
+    "link": {
+      "type": "string",
+      "description": "URL a la que redirige la notificaci\u00f3n"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Datos adicionales de la notificaci\u00f3n"
+    }
+  },
+  "required": [
+    "user_id",
+    "title",
+    "message",
+    "type"
+  ],
+  "rls": {
+    "read": {
+      "user_id": "{{user.id}}"
+    },
+    "write": {}
+  }
+}

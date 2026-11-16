@@ -1,0 +1,218 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "artist_name": {
+      "type": "string",
+      "description": "Nombre art\u00edstico del cantante"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Biograf\u00eda del artista"
+    },
+    "profile_image": {
+      "type": "string",
+      "description": "URL de la imagen de perfil"
+    },
+    "cover_image": {
+      "type": "string",
+      "description": "URL de la imagen de portada del perfil"
+    },
+    "social_instagram": {
+      "type": "string"
+    },
+    "social_facebook": {
+      "type": "string"
+    },
+    "social_tiktok": {
+      "type": "string"
+    },
+    "social_youtube": {
+      "type": "string",
+      "description": "Canal de YouTube"
+    },
+    "social_spotify": {
+      "type": "string",
+      "description": "Perfil de Spotify"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "user_type": {
+      "type": "string",
+      "enum": [
+        "fan",
+        "artist"
+      ],
+      "default": "fan",
+      "description": "Tipo de usuario: fan o artista"
+    },
+    "profile_visible_in_community": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si el perfil del artista es visible en la comunidad p\u00fablica"
+    },
+    "profile_videos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "youtube_url": {
+            "type": "string"
+          },
+          "youtube_video_id": {
+            "type": "string"
+          },
+          "video_url": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "is_featured": {
+            "type": "boolean",
+            "default": false,
+            "description": "Si es el video destacado"
+          }
+        }
+      },
+      "maxItems": 5,
+      "default": [],
+      "description": "Videos del perfil del artista (m\u00e1ximo 5)"
+    },
+    "discography": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "album_name": {
+            "type": "string"
+          },
+          "release_year": {
+            "type": "string"
+          },
+          "cover_image": {
+            "type": "string"
+          },
+          "spotify_link": {
+            "type": "string"
+          },
+          "youtube_link": {
+            "type": "string"
+          },
+          "apple_music_link": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "default": [],
+      "description": "Discograf\u00eda del artista (\u00e1lbumes, EPs, singles)"
+    },
+    "achievements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "image_url": {
+            "type": "string"
+          }
+        }
+      },
+      "default": [],
+      "description": "Logros y reconocimientos del artista"
+    },
+    "musical_genre": {
+      "type": "string",
+      "description": "G\u00e9nero musical principal"
+    },
+    "influences": {
+      "type": "string",
+      "description": "Influencias musicales"
+    },
+    "total_gifts_received": {
+      "type": "number",
+      "default": 0,
+      "description": "Total de regalos recibidos (valor en USD)"
+    },
+    "accepts_gifts": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si el artista acepta recibir regalos"
+    },
+    "withdrawal_method": {
+      "type": "string",
+      "enum": [
+        "paypal",
+        "binance",
+        ""
+      ],
+      "default": "",
+      "description": "M\u00e9todo de pago de premios: PayPal o Binance"
+    },
+    "withdrawal_account_type": {
+      "type": "string",
+      "description": "Plataforma de pago elegida (PayPal / Binance)"
+    },
+    "withdrawal_alias_cbu": {
+      "type": "string",
+      "description": "Email de PayPal o ID/email de Binance para recibir el premio"
+    },
+    "withdrawal_full_name": {
+      "type": "string",
+      "description": "Nombre completo del titular de la cuenta"
+    },
+    "withdrawal_additional_info": {
+      "type": "string",
+      "description": "Informaci\u00f3n adicional para el pago (titular, red de Binance, etc.)"
+    }
+  },
+  "required": [],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "profile_visible_in_community": true,
+          "user_type": "artist"
+        }
+      ]
+    },
+    "write": {
+      "$or": [
+        {
+          "id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

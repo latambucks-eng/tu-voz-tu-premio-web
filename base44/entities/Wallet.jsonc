@@ -1,0 +1,56 @@
+{
+  "name": "Wallet",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID del usuario propietario"
+    },
+    "balance": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "description": "Cr\u00e9ditos comprados con dinero. Se usan \u00fanicamente para enviar regalos a artistas. La inscripci\u00f3n en convocatorias NO se paga con cr\u00e9ditos: se abona por Passline. No se canjean por dinero."
+    },
+    "star_credits": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "description": "Saldo canjeable en USD (1 Estrella \u2b50 = 1 USD). Se compone \u00fanicamente de las estrellas \u2b50 recibidas por regalos de fans. El premio del concurso NO se acredita ac\u00e1: lo abona la organizaci\u00f3n directamente al ganador por PayPal o Binance."
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "unique": [
+    [
+      "user_id"
+    ]
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {
+      "$or": [
+        {
+          "user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "name": "GiftTransaction",
+  "type": "object",
+  "properties": {
+    "gift_id": {
+      "type": "string",
+      "description": "ID del regalo enviado"
+    },
+    "gift_name": {
+      "type": "string",
+      "description": "Nombre del regalo"
+    },
+    "gift_icon": {
+      "type": "string",
+      "description": "\u00cdcono del regalo"
+    },
+    "sender_id": {
+      "type": "string",
+      "description": "ID del fan que env\u00eda"
+    },
+    "sender_name": {
+      "type": "string",
+      "description": "Nombre del fan"
+    },
+    "recipient_id": {
+      "type": "string",
+      "description": "ID del artista que recibe"
+    },
+    "recipient_name": {
+      "type": "string",
+      "description": "Nombre del artista"
+    },
+    "amount_usd": {
+      "type": "number",
+      "description": "Monto pagado en USD"
+    },
+    "star_value": {
+      "type": "number",
+      "description": "Estrellas acreditadas al artista"
+    },
+    "message": {
+      "type": "string",
+      "description": "Mensaje opcional del fan"
+    },
+    "is_anonymous": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si el regalo es an\u00f3nimo"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "astropay",
+        "paypal",
+        "credits"
+      ],
+      "description": "M\u00e9todo de pago utilizado"
+    },
+    "payment_proof_url": {
+      "type": "string",
+      "description": "Comprobante de pago"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "gift_id",
+    "sender_id",
+    "recipient_id",
+    "amount_usd",
+    "star_value"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "sender_id": "{{user.id}}"
+        },
+        {
+          "recipient_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {}
+  }
+}

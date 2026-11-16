@@ -1,0 +1,58 @@
+{
+  "name": "PaymentLinkAccess",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID del usuario que accedi\u00f3"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email del usuario"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "paypal",
+        "astropay"
+      ],
+      "description": "M\u00e9todo de pago accedido"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP del usuario"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "User agent del navegador"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Monto del paquete que el usuario quiere comprar"
+    }
+  },
+  "required": [
+    "user_id",
+    "payment_method",
+    "amount"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "write": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

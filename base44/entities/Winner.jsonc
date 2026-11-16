@@ -1,0 +1,82 @@
+{
+  "name": "Winner",
+  "type": "object",
+  "properties": {
+    "contest_id": {
+      "type": "string"
+    },
+    "contest_name": {
+      "type": "string"
+    },
+    "genre": {
+      "type": "string"
+    },
+    "participant_id": {
+      "type": "string"
+    },
+    "artist_id": {
+      "type": "string"
+    },
+    "artist_name": {
+      "type": "string"
+    },
+    "artist_image": {
+      "type": "string"
+    },
+    "artist_bio": {
+      "type": "string"
+    },
+    "youtube_url": {
+      "type": "string"
+    },
+    "youtube_video_id": {
+      "type": "string"
+    },
+    "video_url": {
+      "type": "string",
+      "description": "URL del video subido directamente"
+    },
+    "song_title": {
+      "type": "string"
+    },
+    "total_votes": {
+      "type": "number"
+    },
+    "average_rating": {
+      "type": "number"
+    },
+    "prize_amount": {
+      "type": "number"
+    },
+    "prize_paid": {
+      "type": "boolean",
+      "default": false
+    },
+    "social_instagram": {
+      "type": "string"
+    },
+    "social_facebook": {
+      "type": "string"
+    },
+    "social_tiktok": {
+      "type": "string"
+    },
+    "is_hidden": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si es verdadero, este ganador no aparecer\u00e1 en la p\u00e1gina p\u00fablica de ganadores."
+    }
+  },
+  "required": [
+    "contest_id",
+    "participant_id"
+  ],
+  "rls": {
+    "read": {},
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

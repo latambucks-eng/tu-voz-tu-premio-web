@@ -1,0 +1,51 @@
+{
+  "name": "PaymentLink",
+  "type": "object",
+  "properties": {
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "paypal",
+        "astropay"
+      ],
+      "description": "M\u00e9todo de pago del enlace (PayPal para la compra de cr\u00e9ditos)"
+    },
+    "package_amount": {
+      "type": "number",
+      "description": "Monto del paquete en USD (5, 10, 20, 50, 100)"
+    },
+    "payment_url": {
+      "type": "string",
+      "description": "URL del enlace de pago de PayPal"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si el enlace est\u00e1 activo"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u00daltima actualizaci\u00f3n"
+    }
+  },
+  "required": [
+    "payment_method",
+    "package_amount",
+    "payment_url"
+  ],
+  "unique": [
+    [
+      "payment_method",
+      "package_amount"
+    ]
+  ],
+  "rls": {
+    "read": {},
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

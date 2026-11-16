@@ -1,0 +1,58 @@
+{
+  "name": "UserFavorite",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID del usuario que guarda favorito"
+    },
+    "artist_id": {
+      "type": "string",
+      "description": "ID del artista favorito"
+    },
+    "artist_name": {
+      "type": "string",
+      "description": "Nombre del artista"
+    },
+    "artist_image": {
+      "type": "string",
+      "description": "Imagen del artista"
+    }
+  },
+  "required": [
+    "user_id",
+    "artist_id"
+  ],
+  "unique": [
+    [
+      "user_id",
+      "artist_id"
+    ]
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

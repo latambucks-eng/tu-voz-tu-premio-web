@@ -1,0 +1,71 @@
+{
+  "name": "EditionWinner",
+  "type": "object",
+  "properties": {
+    "edition": {
+      "type": "string",
+      "description": "Nombre de la edici\u00f3n a la que pertenece el historial (ej: Edici\u00f3n Tu Voz Tu Premio Latinoam\u00e9rica)"
+    },
+    "edition_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Fecha en que se realiz\u00f3 la convocatoria (ej: 2026-04-18)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nombre del artista"
+    },
+    "country": {
+      "type": "string",
+      "description": "Pa\u00eds del artista"
+    },
+    "country_code": {
+      "type": "string",
+      "description": "C\u00f3digo ISO de 2 letras para la bandera (ej: ar, co, mx)"
+    },
+    "image": {
+      "type": "string",
+      "description": "URL de la foto del artista"
+    },
+    "votes": {
+      "type": "string",
+      "description": "Votos mostrados en el historial (texto libre, ej: 27.5K)"
+    },
+    "percentage": {
+      "type": "number",
+      "default": 0,
+      "description": "Porcentaje del total de votos"
+    },
+    "badge": {
+      "type": "string",
+      "enum": [
+        "GANADOR/A",
+        "PARTICIPANTE DESTACADO",
+        "FINALISTA"
+      ],
+      "default": "PARTICIPANTE DESTACADO"
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Orden de aparici\u00f3n"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si se muestra en el historial p\u00fablico"
+    }
+  },
+  "required": [
+    "edition",
+    "name"
+  ],
+  "rls": {
+    "read": {},
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

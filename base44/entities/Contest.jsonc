@@ -1,0 +1,103 @@
+{
+  "name": "Contest",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nombre del concurso"
+    },
+    "description": {
+      "type": "string"
+    },
+    "genre": {
+      "type": "string",
+      "enum": [
+        "Pop",
+        "Rock",
+        "Urbano",
+        "Balada"
+      ],
+      "description": "G\u00e9nero musical"
+    },
+    "entry_price": {
+      "type": "number",
+      "default": 10,
+      "description": "Precio fijo de inscripci\u00f3n en USD (10 USD)"
+    },
+    "passline_url": {
+      "type": "string",
+      "description": "Link de pago de Passline para la inscripci\u00f3n de esta convocatoria. Passline es una plataforma de pagos de terceros."
+    },
+    "max_participants": {
+      "type": "number",
+      "default": 40
+    },
+    "current_participants": {
+      "type": "number",
+      "default": 0,
+      "description": "Participantes actuales (se actualiza autom\u00e1ticamente)"
+    },
+    "prize_pool": {
+      "type": "number",
+      "default": 0,
+      "description": "Premio fijo en USD definido por la organizaci\u00f3n para esta sala/g\u00e9nero (no depende de las inscripciones). Se entrega completo al \u00fanico ganador de la sala."
+    },
+    "status": {
+      "type": "string",
+      "default": "open",
+      "oneOf": [
+        {
+          "const": "open",
+          "title": "Inscripciones Abiertas"
+        },
+        {
+          "const": "voting",
+          "title": "En Votaci\u00f3n"
+        },
+        {
+          "const": "finalists",
+          "title": "Ronda de Finalistas"
+        },
+        {
+          "const": "finished",
+          "title": "Finalizado"
+        }
+      ]
+    },
+    "finalists_started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Inicio de la ronda de finalistas. Solo se cuentan los votos emitidos desde este momento para desempatar."
+    },
+    "tie_round": {
+      "type": "number",
+      "default": 0,
+      "description": "Cantidad de rondas de desempate realizadas en esta sala"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "voting_end_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "name",
+    "genre",
+    "entry_price"
+  ],
+  "rls": {
+    "read": {},
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "name": "Transaction",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "credit_purchase",
+        "contest_entry",
+        "prize_won",
+        "withdrawal"
+      ],
+      "description": "Tipo de transacci\u00f3n"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Monto (positivo para cr\u00e9ditos, negativo para gastos)"
+    },
+    "description": {
+      "type": "string"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "passline",
+        "astropay",
+        "paypal",
+        "binance",
+        "system",
+        "system_credits"
+      ]
+    },
+    "payment_proof_url": {
+      "type": "string"
+    },
+    "payment_reference": {
+      "type": "string",
+      "description": "Correo electr\u00f3nico o ID de la transacci\u00f3n de PayPal informado por el usuario para comprobar el pago"
+    },
+    "status": {
+      "type": "string",
+      "default": "pending",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ]
+    },
+    "related_contest_id": {
+      "type": "string"
+    },
+    "video_url": {
+      "type": "string",
+      "description": "URL del video (para contest_entry)"
+    }
+  },
+  "required": [
+    "user_id",
+    "type",
+    "amount"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_id": "{{user.id}}"
+        },
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {
+      "$or": [
+        {
+          "user_id": "{{user.id}}"
+        },
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

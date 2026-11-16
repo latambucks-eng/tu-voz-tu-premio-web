@@ -1,0 +1,116 @@
+{
+  "name": "Participant",
+  "type": "object",
+  "properties": {
+    "contest_id": {
+      "type": "string"
+    },
+    "artist_id": {
+      "type": "string"
+    },
+    "artist_name": {
+      "type": "string"
+    },
+    "artist_image": {
+      "type": "string"
+    },
+    "artist_bio": {
+      "type": "string"
+    },
+    "artist_country": {
+      "type": "string"
+    },
+    "social_instagram": {
+      "type": "string"
+    },
+    "social_facebook": {
+      "type": "string"
+    },
+    "social_tiktok": {
+      "type": "string"
+    },
+    "youtube_url": {
+      "type": "string"
+    },
+    "youtube_video_id": {
+      "type": "string"
+    },
+    "video_url": {
+      "type": "string"
+    },
+    "song_title": {
+      "type": "string"
+    },
+    "total_votes": {
+      "type": "number",
+      "default": 0
+    },
+    "average_rating": {
+      "type": "number",
+      "default": 0
+    },
+    "payment_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "passline",
+        "credits",
+        "astropay",
+        "paypal",
+        "pending"
+      ]
+    },
+    "payment_proof_url": {
+      "type": "string"
+    },
+    "is_finalist": {
+      "type": "boolean",
+      "default": false,
+      "description": "True si el artista empat\u00f3 en el primer lugar y contin\u00faa en la ronda de finalistas"
+    },
+    "is_eliminated": {
+      "type": "boolean",
+      "default": false,
+      "description": "True si qued\u00f3 descartado de la ronda de finalistas (sigue como participante destacado)"
+    },
+    "status": {
+      "type": "string",
+      "default": "pending_payment",
+      "enum": [
+        "pending_payment",
+        "active",
+        "rejected",
+        "disqualified"
+      ]
+    }
+  },
+  "required": [
+    "contest_id",
+    "artist_id",
+    "song_title"
+  ],
+  "unique": [
+    [
+      "contest_id",
+      "artist_id"
+    ]
+  ],
+  "rls": {
+    "read": {},
+    "write": {
+      "$or": [
+        {
+          "artist_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "name": "Gift",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nombre del regalo (ej: Micr\u00f3fono, Corona de Rey)"
+    },
+    "icon": {
+      "type": "string",
+      "enum": [
+        "microphone",
+        "crown_king",
+        "crown_queen",
+        "crown_prince",
+        "crown_princess",
+        "red_car",
+        "musical_note",
+        "drum",
+        "guitar",
+        "trophy",
+        "star",
+        "heart",
+        "fire",
+        "rocket",
+        "diamond"
+      ],
+      "description": "\u00cdcono del regalo"
+    },
+    "price_usd": {
+      "type": "number",
+      "minimum": 0.2,
+      "maximum": 100,
+      "description": "Precio en USD"
+    },
+    "star_value": {
+      "type": "number",
+      "description": "Valor en estrellas que recibe el artista"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n del regalo"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si el regalo est\u00e1 disponible"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "premium",
+        "exclusive",
+        "special"
+      ],
+      "default": "basic"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL de la imagen del regalo"
+    }
+  },
+  "required": [
+    "name",
+    "icon",
+    "price_usd",
+    "star_value"
+  ],
+  "rls": {
+    "read": {},
+    "write": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
