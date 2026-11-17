@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { authErrorText } from '@/lib/authFlow';
 import AuthShell from '@/components/auth/AuthShell';
@@ -9,20 +9,38 @@ import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 
 export default function ResetPassword() {
+  const [searchParams] = useSearchParams();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const [hasSession, setHasSession] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data?.session && !window.location.hash.includes('access_token') && !window.location.hash.includes('type=recovery')) {
-        setHasSession(false);
-      }
-    });
-  }, []);
+    const tokenHash = searchParams.get('token_hash');
+    const type = searchParams.get('type');
+
+    if (tokenHash && type === 'recovery') {
+      supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' })
+        .then(({ error: verifyError }) => {
+          if (verifyError) {
+            setHasSession(false);
+          } else {
+            setHasSession(true);
+          }
+          setIsReady(true);
+        });
+    } else {
+      supabase.auth.getSession().then(({ data }) => {
+        if (!data?.session && !window.location.hash.includes('access_token')) {
+          setHasSession(false);
+        }
+        setIsReady(true);
+      });
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,6 +64,16 @@ export default function ResetPassword() {
       setIsLoading(false);
     }
   };
+
+  if (!isReady) {
+    return (
+      <AuthShell title="Verificando enlace" subtitle="Un momento por favor...">
+        <div className="flex justify-center py-6">
+          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+        </div>
+      </AuthShell>
+    );
+  }
 
   if (!hasSession) {
     return (
@@ -113,3 +141,4 @@ export default function ResetPassword() {
     </AuthShell>
   );
 }
+
