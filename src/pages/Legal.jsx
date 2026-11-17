@@ -815,8 +815,7 @@ export default function Legal() {
             </Card>
           </TabsContent>
 
-          {/* TAB COMPLETO - QUITAR REFERENCIAS A "EN PROCESO AFIP" */}
-          <TabsContent value="complete">
+                    <TabsContent value="complete">
             <div className="space-y-6">
 
               {/* 1. INFORMACIÓN DEL TITULAR */}
@@ -831,7 +830,7 @@ export default function Legal() {
                   <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
                     <h4 className="font-bold text-blue-900 mb-3">👤 INFORMACIÓN DEL RESPONSABLE</h4>
                     
-                    <div className="bg-white rounded-lg p-4 mb-3 border-2 border-blue-400">
+                    <div className="bg-white rounded-lg p-4 border-2 border-blue-400">
                       <p className="font-semibold mb-3 text-blue-900">Datos del Responsable de TuVozTuPremio:</p>
                       <div className="text-sm space-y-2 font-mono bg-gray-50 p-4 rounded">
                         <p><strong>Empresa:</strong> LatamBucks</p>
@@ -845,99 +844,18 @@ export default function Legal() {
 
                   </div>
 
-                  <div className="bg-purple-50 border border-purple-300 rounded-lg p-4">
-                    <h4 className="font-bold text-purple-900 mb-2">📘 Información sobre Monotributo en Argentina</h4>
-                    <p className="text-sm mb-3">
-                      Para operar servicios digitales en Argentina, se recomienda inscribirse en el régimen de Monotributo.
-                    </p>
-                    <div className="bg-white rounded-lg p-3">
-                      <p className="font-semibold text-sm mb-2">🚀 Pasos para Inscripción:</p>
-                      <ol className="text-xs space-y-2 list-decimal ml-5">
-                        <li>
-                          <strong>Obtener Clave Fiscal AFIP</strong>
-                          <p className="text-gray-600 mt-1">Ingresá a afip.gob.ar → &quot;Clave Fiscal&quot; → Registrarte con tu CUIL</p>
-                        </li>
-                        <li>
-                          <strong>Inscribirte en Monotributo</strong>
-                          <p className="text-gray-600 mt-1">Menú &quot;Monotributo&quot; → &quot;Adhesión&quot; → Completar datos</p>
-                        </li>
-                        <li>
-                          <strong>Seleccionar Actividad</strong>
-                          <p className="text-gray-600 mt-1">Código 900090: &quot;Servicios de entretenimiento&quot;</p>
-                        </li>
-                        <li>
-                          <strong>Elegir Categoría</strong>
-                          <p className="text-gray-600 mt-1">Recomendado: Categoría A o B para comenzar</p>
-                        </li>
-                        <li>
-                          <strong>Confirmar Domicilio</strong>
-                          <p className="text-gray-600 mt-1">Tu dirección completa en tu localidad</p>
-                        </li>
-                      </ol>
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-50 border border-gray-300 rounded-lg p-4">
-                    <h4 className="font-bold text-gray-900 mb-2">💰 Categorías de Monotributo (2025)</h4>
-                    <p className="text-xs text-gray-600 mb-3">
-                      Opciones de categorías según facturación proyectada:
-                    </p>
-                    <div className="space-y-2">
-                      <div className="bg-white rounded-lg p-3 border-l-4 border-green-400">
-                        <p className="font-semibold text-sm">✅ Categoría A (Recomendada para iniciar)</p>
-                        <p className="text-xs text-gray-600">• Facturación anual: Hasta $6.450.000</p>
-                        <p className="text-xs text-gray-600">• Cuota mensual: ~$12.000 (incluye IVA, Ganancias, Jubilación, Obra Social)</p>
-                        <p className="text-xs text-gray-700 mt-1">💡 Ideal para emprendimientos nuevos</p>
-                      </div>
-                      
-                      <div className="bg-white rounded-lg p-3 border-l-4 border-blue-400">
-                        <p className="font-semibold text-sm">📊 Categoría B</p>
-                        <p className="text-xs text-gray-600">• Facturación anual: Hasta $9.450.000</p>
-                        <p className="text-xs text-gray-600">• Cuota mensual: ~$14.000</p>
-                        <p className="text-xs text-gray-700 mt-1">💡 Para mayor facturación mensual</p>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-3 border-l-4 border-purple-400">
-                        <p className="font-semibold text-sm">📈 Categoría C</p>
-                        <p className="text-xs text-gray-600">• Facturación anual: Hasta $13.250.000</p>
-                        <p className="text-xs text-gray-600">• Cuota mensual: ~$17.000</p>
-                        <p className="text-xs text-gray-700 mt-1">💡 Para negocios en crecimiento</p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-3">
-                      ⚠️ Podés cambiar de categoría cada 4 meses si tus ingresos aumentan
-                    </p>
-                  </div>
-
-                  <div className="bg-orange-50 border border-orange-300 rounded-lg p-4">
-                    <p className="font-bold text-sm text-orange-900 mb-2">🤝 RECOMENDACIÓN IMPORTANTE:</p>
-                    <p className="text-sm text-orange-800 mb-2">
-                      Se recomienda <strong>consultar con un contador matriculado</strong> antes de iniciar operaciones comerciales.
-                    </p>
-                    <div className="bg-white rounded-lg p-3 mt-2">
-                      <p className="text-xs font-semibold mb-2">Un contador te ayudará con:</p>
-                      <ul className="text-xs space-y-1 list-disc ml-5">
-                        <li>Inscripción correcta en AFIP (evitás errores)</li>
-                        <li>Elegir la categoría óptima según tu proyección</li>
-                        <li>Configurar facturación electrónica</li>
-                        <li>Declarar correctamente ingresos y gastos</li>
-                        <li>Optimizar impuestos (deducir premios pagados)</li>
-                      </ul>
-                      <p className="text-xs text-gray-600 mt-2">
-                        💰 Costo estimado: $15.000-30.000/mes (honorarios profesionales)
-                      </p>
-                    </div>
-                  </div>
-
                 </CardContent>
               </Card>
 
-              {/* RESTO DE SECCIONES - MANTENER TAL CUAL */}
+              {/* RESTO DE SECCIONES */}
               <Card>
                 <CardHeader>
-                  <CardTitle>2-11. Demás Aspectos Legales</CardTitle>
+                  <CardTitle>2-11. Demás Aspectos Legales y Sistema de Votación</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-gray-600">
+                    <strong>Integridad del sistema de votación:</strong> Cada usuario o visitante puede emitir un único voto por participante y por dispositivo en cada ronda, sujeto a controles automáticos de validación técnica (huella de dispositivo, restricción de voto a artistas competidores y límite máximo de hasta tres votos por conexión IP/Wi-Fi). El detalle completo de estas reglas y las sanciones aplicables se rige por lo dispuesto en las Bases y Condiciones del Concurso (Cláusula 26).
+                  </p>
                   <p className="text-sm text-gray-600">
                     Los demás aspectos legales (Derecho de Arrepentimiento, Contenido, Cancelación, Fuerza Mayor, Cookies, etc.) 
                     se mantienen según lo establecido en las pestañas &quot;Bases&quot;, &quot;Privacidad&quot;, &quot;DMCA&quot;, &quot;Créditos&quot; y &quot;Legal AR&quot;.
@@ -945,17 +863,5 @@ export default function Legal() {
                 </CardContent>
               </Card>
 
-              <div className="bg-gray-100 p-4 rounded-lg border-2 border-gray-300">
-                <p className="text-sm text-gray-600">
-                  <strong>Última actualización:</strong> Enero 2025
-                </p>
-              </div>
-
             </div>
           </TabsContent>
-
-        </Tabs>
-      </div>
-    </div>
-  );
-}
