@@ -20,7 +20,7 @@ export default function ForgotPassword() {
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         email.trim(),
-        { redirectTo: 'https://github.io' }
+        { redirectTo: 'https://latambucks-eng.github.io/tu-voz-tu-premio-web/' }
       );
       if (resetError) throw resetError;
       setSent(true);
