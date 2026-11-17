@@ -47,11 +47,12 @@ export default function ParticipantCard({ participant, totalVotes = 0, onVote, h
     
     if (isVoting || localHasVoted) return;
 
-    // Verificar que el concurso esté en estado de votación o en ronda de finalistas
-    if (contestStatus !== 'voting' && contestStatus !== 'finalists') {
+       // Verificar estado solo si contestStatus fue pasado explícitamente
+    if (contestStatus && contestStatus !== 'voting' && contestStatus !== 'finalists') {
       setVoteError('La votación aún no está habilitada para esta convocatoria.');
       return;
     }
+
     
     // Verificar si el usuario es artista usando el estado ya cargado
     if (currentUser && currentUser.user_type === 'artist') {
