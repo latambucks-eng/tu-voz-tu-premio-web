@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { authErrorText } from '@/lib/authFlow';
 import AuthShell from '@/components/auth/AuthShell';
@@ -9,38 +9,48 @@ import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 
 export default function ResetPassword() {
-  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-  const [hasSession, setHasSession] = useState(true);
+  const [checking, setChecking] = useState(true);
+  const [hasSession, setHasSession] = useState(false);
 
   useEffect(() => {
-    const tokenHash = searchParams.get('token_hash');
-    const type = searchParams.get('type');
+    let mounted = true;
 
-    if (tokenHash && type === 'recovery') {
-      supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' })
-        .then(({ error: verifyError }) => {
-          if (verifyError) {
-            setHasSession(false);
-          } else {
-            setHasSession(true);
-          }
-          setIsReady(true);
-        });
-    } else {
-      supabase.auth.getSession().then(({ data }) => {
-        if (!data?.session && !window.location.hash.includes('access_token')) {
-          setHasSession(false);
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (mounted && data?.session) {
+        setHasSession(true);
+        setChecking(false);
+        return;
+      }
+      setTimeout(async () => {
+        const { data: retryData } = await supabase.auth.getSession();
+        if (mounted) {
+          setHasSession(Boolean(retryData?.session));
+          setChecking(false);
         }
-        setIsReady(true);
-      });
-    }
-  }, [searchParams]);
+      }, 800);
+    };
+
+    checkSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted && session) {
+        setHasSession(true);
+        setChecking(false);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      authListener?.subscription?.unsubscribe();
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,15 +69,15 @@ export default function ResetPassword() {
       if (updateError) throw updateError;
       setDone(true);
     } catch (err) {
-      setError(authErrorText(err, 'El enlace no es válido o venció. Pedí uno nuevo.'));
+      setError(authErrorText(err, 'No pudimos guardar la contraseña. Pedí un enlace nuevo.'));
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!isReady) {
+  if (checking) {
     return (
-      <AuthShell title="Verificando enlace" subtitle="Un momento por favor...">
+      <AuthShell title="Verificando sesión" subtitle="Un momento por favor...">
         <div className="flex justify-center py-6">
           <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
         </div>
@@ -90,10 +100,13 @@ export default function ResetPassword() {
       {done ? (
         <div className="space-y-4">
           <div className="rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm p-4">
-            Tu contraseña se actualizó correctamente.
+            ¡Listo! Tu contraseña se actualizó correctamente.
           </div>
-          <Button asChild className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-5">
-            <Link to="/login">Iniciar sesión</Link>
+          <Button
+            onClick={() => navigate('/')}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-5"
+          >
+            Ir al inicio
           </Button>
         </div>
       ) : (
@@ -141,4 +154,5 @@ export default function ResetPassword() {
     </AuthShell>
   );
 }
+
 
