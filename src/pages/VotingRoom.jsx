@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import ParticipantCard from '../components/voting/ParticipantCard';
 import { useAuth } from '@/lib/AuthContext';
@@ -16,6 +16,8 @@ import { computeStandings } from '@/lib/finalistRound';
 
 export default function VotingRoom() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const contestIdFromRouter = searchParams.get('contestId');
   const { user: currentUser, isLoadingAuth } = useAuth();
   const [contest, setContest] = useState(null);
   const [participants, setParticipants] = useState([]);
@@ -29,7 +31,7 @@ export default function VotingRoom() {
     if (!isLoadingAuth) {
       loadData();
     }
-  }, [isLoadingAuth]);
+  }, [isLoadingAuth, contestIdFromRouter]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -37,8 +39,9 @@ export default function VotingRoom() {
     try {
       setError(null);
 
-      const hashQuery = window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '';
+      const hashQuery = window.location.hash.includes('?') ? window.location.hash.split('?') : '';
       const urlParams = new URLSearchParams(window.location.search || hashQuery);
+      const contestId = contestIdFromRouter || urlParams.get('contestId');
      
       if (!contestId) {
         setError('no_contest_specified');
@@ -46,34 +49,20 @@ export default function VotingRoom() {
         return;
       }
 
-      console.log('🔍 Cargando convocatoria:', contestId);
-
       const contestData = await base44.entities.Contest.filter({ id: contestId });
       if (!contestData || contestData.length === 0) {
-        console.error('❌ Contest no encontrado:', contestId);
         setError('contest_not_found');
         setIsLoading(false);
         return;
       }
 
-      let contest = contestData[0];
-      console.log('✅ Contest cargado:', contest.name);
+      let contest = contestData;
 
-      // VERIFICAR ESTADO DE LA CONVOCATORIA
-      const now = new Date();
-      const votingEndDate = contest.voting_end_date ? new Date(contest.voting_end_date) : null;
-      
-      if (votingEndDate && now > votingEndDate && contest.status !== 'finished') {
-        console.warn('⚠️ Convocatoria expirada pero no finalizada');
-      }
-
-      console.log('🔍 Cargando participantes...');
       const allParticipants = await base44.entities.Participant.filter({
         contest_id: contestId,
         status: 'active',
         payment_verified: true
       });
-      console.log('✅ Participantes activos:', allParticipants.length);
 
       const realCount = allParticipants.length;
 
@@ -82,8 +71,6 @@ export default function VotingRoom() {
         current_participants: realCount
       };
 
-      // En la ronda de finalistas solo compiten los artistas empatados y
-      // solo cuentan los votos emitidos desde que empezó esa ronda.
       const flaggedFinalists = allParticipants.filter(p => p.is_finalist);
       const isFinalistRound = contest.status === 'finalists' && flaggedFinalists.length > 0;
       const competitors = isFinalistRound ? flaggedFinalists : allParticipants;
@@ -109,7 +96,6 @@ export default function VotingRoom() {
           : []
       );
 
-      // En la ronda de finalistas el votante puede volver a votar a los finalistas
       const roundStart = isFinalistRound && contest.finalists_started_at
         ? new Date(contest.finalists_started_at)
         : null;
@@ -122,25 +108,20 @@ export default function VotingRoom() {
       if (currentUser) {
         const userVotesData = await base44.entities.Vote.filter({ voter_id: currentUser.id, contest_id: contestId });
         setUserVotes(toVotedIds(userVotesData));
-        console.log('📊 Votos del usuario autenticado:', userVotesData.length);
       } else {
         try {
           const { getDeviceFingerprint } = await import('../components/utils/fingerprint');
-          const fingerprint = getDeviceFingerprint(); // Ya no es async
+          const fingerprint = getDeviceFingerprint();
           const guestVotes = await base44.entities.Vote.filter({ device_fingerprint: fingerprint, contest_id: contestId });
           setUserVotes(toVotedIds(guestVotes));
-          console.log('📊 Votos del invitado (fingerprint):', guestVotes.length);
         } catch (e) {
           console.warn('⚠️ Error cargando votos de invitado:', e);
           setUserVotes([]);
         }
       }
 
-      console.log('✅ VotingRoom cargado exitosamente');
-
     } catch (error) {
       console.error("❌ Error cargando VotingRoom:", error);
-      console.error("Detalles del error:", error.message, error.stack);
       setError('load_error');
     } finally {
       setIsLoading(false);
@@ -150,6 +131,7 @@ export default function VotingRoom() {
   const handleVoteUpdate = () => {
     // El componente ParticipantCard maneja su propio estado local
   };
+
 
   if (isLoading) {
     return (
