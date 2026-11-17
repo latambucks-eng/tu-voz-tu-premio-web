@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/base44Client';
 import AuthShell from '@/components/auth/AuthShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,9 +16,10 @@ export default function ForgotPassword() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await base44.auth.resetPasswordRequest(email.trim());
+      const redirectTo = `${window.location.origin}${window.location.pathname}#/reset-password`;
+      await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
     } catch (err) {
-      // Se muestra siempre el mismo mensaje para no revelar si el correo existe
+      console.error('Error enviando recuperación:', err);
     } finally {
       setIsLoading(false);
       setSent(true);
