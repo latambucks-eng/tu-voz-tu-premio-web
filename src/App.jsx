@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import './App.css'
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -25,6 +26,14 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
+
+  useEffect(() => {
+    if (window.location.hash.includes('type=recovery') || window.location.hash.includes('access_token=')) {
+      setTimeout(() => {
+        window.location.hash = '/reset-password';
+      }, 300);
+    }
+  }, []);
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
