@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
-import { resolveReturnTo, authErrorText } from '@/lib/authFlow';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/api/base44Client';
+import { authErrorText } from '@/lib/authFlow';
 import AuthShell from '@/components/auth/AuthShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,27 +9,28 @@ import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const returnTo = resolveReturnTo('Home');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
     try {
-      await base44.auth.loginViaEmailPassword(email.trim(), password);
-      window.location.href = returnTo;
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (signInError) throw signInError;
+      navigate('/');
+      window.location.reload();
     } catch (err) {
       setError(authErrorText(err, 'No pudimos iniciar sesión. Revisá tus datos e intentá de nuevo.'));
       setIsLoading(false);
     }
-  };
-
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider('google', returnTo);
   };
 
   return (
@@ -89,17 +90,6 @@ export default function Login() {
           className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 py-5"
         >
           {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Entrar'}
-        </Button>
-
-        <div className="relative py-1">
-          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-200" /></div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-2 text-gray-400">o</span>
-          </div>
-        </div>
-
-        <Button type="button" variant="outline" onClick={handleGoogle} className="w-full py-5" disabled={isLoading}>
-          Continuar con Google
         </Button>
       </form>
     </AuthShell>
