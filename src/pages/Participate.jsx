@@ -284,11 +284,6 @@ export default function Participate() {
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-md mx-auto">
           <Card className="text-center p-10 shadow-lg">
-  if (error === 'not_authenticated') {
-    return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-md mx-auto">
-          <Card className="text-center p-10 shadow-lg">
             <Trophy className="w-14 h-14 mx-auto mb-4 text-purple-600" />
             <h2 className="text-2xl font-bold text-gray-900 mb-3">
               ¡Inscríbete en la Convocatoria!
@@ -472,3 +467,5 @@ export default function Participate() {
 }
 
 
+
+  
