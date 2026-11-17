@@ -35,20 +35,34 @@ export default function Participate() {
   const [videoData, setVideoData] = useState(null);
   const [paymentData, setPaymentData] = useState(null);
 
+  const getDraftKey = (uid, cid) => `tvtp_participate_draft_${uid}_${cid}`;
+
   useEffect(() => {
     loadData();
   }, [contestId]);
 
   useEffect(() => {
+    if (user?.id && contestId && !success && (profileData || videoData || step > 1)) {
+      try {
+        localStorage.setItem(
+          getDraftKey(user.id, contestId),
+          JSON.stringify({ step, profileData, videoData, paymentData })
+        );
+      } catch (e) {
+        console.warn('No se pudo guardar el borrador local:', e);
+      }
+    }
+  }, [step, profileData, videoData, paymentData, user, contestId, success]);
+
+  useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (step >= 2 && step < 4 && !success) {
         e.preventDefault();
-        e.returnValue = '¿Estás seguro que quieres salir? Perderás tu progreso de inscripción.';
+        e.returnValue = '¿Estás seguro que quieres salir? Tu progreso quedará guardado hasta que vuelvas.';
       }
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
@@ -83,7 +97,6 @@ export default function Participate() {
       }
 
       const contests = await base44.entities.Contest.filter({ id: contestId });
-      
       if (!contests || contests.length === 0) {
         setError('Convocatoria no encontrada.');
         setIsLoading(false);
@@ -91,7 +104,6 @@ export default function Participate() {
       }
 
       const contestData = contests[0];
-
       if (contestData.status !== 'open' && contestData.status !== 'voting') {
         setError('Esta convocatoria no está aceptando inscripciones en este momento.');
         setIsLoading(false);
@@ -107,35 +119,55 @@ export default function Participate() {
 
       if (existingParticipants && existingParticipants.length > 0) {
         const participant = existingParticipants[0];
-        
         if (participant.status === 'active' || participant.status === 'pending_payment') {
+          localStorage.removeItem(getDraftKey(userData.id, contestId));
           setError(`Ya tienes una participación en esta convocatoria (Estado: ${participant.status === 'active' ? 'Activa' : 'Pendiente de Pago'}). No puedes inscribirte dos veces.`);
           setIsLoading(false);
           return;
         }
       }
 
-      const isProfileComplete = userData.artist_name && 
-                                userData.bio && 
-                                userData.profile_image && 
-                                userData.country && 
-                                userData.phone &&
-                                userData.social_instagram &&
-                                userData.social_facebook &&
-                                userData.social_tiktok;
+      // Restaurar progreso guardado (si fue a Passline y volvió)
+      let restored = false;
+      try {
+        const savedRaw = localStorage.getItem(getDraftKey(userData.id, contestId));
+        if (savedRaw) {
+          const saved = JSON.parse(savedRaw);
+          if (saved.profileData) setProfileData(saved.profileData);
+          if (saved.videoData) setVideoData(saved.videoData);
+          if (saved.paymentData) setPaymentData(saved.paymentData);
+          if (saved.step && saved.step >= 2) {
+            setStep(saved.step);
+            restored = true;
+          }
+        }
+      } catch (e) {
+        console.warn('Error leyendo borrador guardado:', e);
+      }
 
-      if (isProfileComplete) {
-        setStep(2);
-        setProfileData({
-          artist_name: userData.artist_name,
-          bio: userData.bio,
-          profile_image: userData.profile_image,
-          country: userData.country,
-          phone: userData.phone,
-          social_instagram: userData.social_instagram,
-          social_facebook: userData.social_facebook,
-          social_tiktok: userData.social_tiktok
-        });
+      if (!restored) {
+        const isProfileComplete = userData.artist_name && 
+                                  userData.bio && 
+                                  userData.profile_image && 
+                                  userData.country && 
+                                  userData.phone &&
+                                  userData.social_instagram &&
+                                  userData.social_facebook &&
+                                  userData.social_tiktok;
+
+        if (isProfileComplete) {
+          setStep(2);
+          setProfileData({
+            artist_name: userData.artist_name,
+            bio: userData.bio,
+            profile_image: userData.profile_image,
+            country: userData.country,
+            phone: userData.phone,
+            social_instagram: userData.social_instagram,
+            social_facebook: userData.social_facebook,
+            social_tiktok: userData.social_tiktok
+          });
+        }
       }
 
     } catch (error) {
@@ -198,47 +230,47 @@ export default function Participate() {
 
       const entryPrice = parseFloat(contest.entry_price) || 10;
 
-      {
-        await base44.entities.Transaction.create({
-          user_id: user.id,
-          type: 'contest_entry',
-          amount: entryPrice,
-          description: `Inscripción: ${contest.name} - Pendiente de verificación en Passline (${user.email})`,
-          payment_method: 'passline',
-          status: 'pending',
-          related_contest_id: contest.id,
-          video_url: videoFinalUrl
-        });
+      await base44.entities.Transaction.create({
+        user_id: user.id,
+        type: 'contest_entry',
+        amount: entryPrice,
+        description: `Inscripción: ${contest.name} - Pendiente de verificación en Passline (${user.email})`,
+        payment_method: 'passline',
+        status: 'pending',
+        related_contest_id: contest.id,
+        video_url: videoFinalUrl
+      });
 
-        await base44.entities.Participant.create({
-          contest_id: contest.id,
-          artist_id: user.id,
-          artist_name: profileData.artist_name,
-          artist_image: profileData.profile_image,
-          artist_bio: profileData.bio,
-          artist_country: profileData.country,
-          social_instagram: profileData.social_instagram,
-          social_facebook: profileData.social_facebook,
-          social_tiktok: profileData.social_tiktok,
-          youtube_url: videoData.youtube_url || '',
-          youtube_video_id: youtubeFinalVideoId,
-          video_url: videoData.video_url || '',
-          song_title: videoData.song_title,
-          total_votes: 0,
-          average_rating: 0,
-          payment_verified: false,
-          payment_method: 'passline',
-          status: 'pending_payment'
-        });
+      await base44.entities.Participant.create({
+        contest_id: contest.id,
+        artist_id: user.id,
+        artist_name: profileData.artist_name,
+        artist_image: profileData.profile_image,
+        artist_bio: profileData.bio,
+        artist_country: profileData.country,
+        social_instagram: profileData.social_instagram,
+        social_facebook: profileData.social_facebook,
+        social_tiktok: profileData.social_tiktok,
+        youtube_url: videoData.youtube_url || '',
+        youtube_video_id: youtubeFinalVideoId,
+        video_url: videoData.video_url || '',
+        song_title: videoData.song_title,
+        total_votes: 0,
+        average_rating: 0,
+        payment_verified: false,
+        payment_method: 'passline',
+        status: 'pending_payment'
+      });
 
-        await base44.entities.Notification.create({
-          user_id: user.id,
-          title: '⏳ Inscripción Pendiente',
-          message: `Tu inscripción en "${contest.name}" está pendiente de aprobación. Te notificaremos cuando se apruebe y tu video esté activo.`,
-          type: 'contest_pending',
-          link: createPageUrl('ArtistDashboard')
-        });
-      }
+      await base44.entities.Notification.create({
+        user_id: user.id,
+        title: '⏳ Inscripción Pendiente',
+        message: `Tu inscripción en "${contest.name}" está pendiente de aprobación. Te notificaremos cuando se apruebe y tu video esté activo.`,
+        type: 'contest_pending',
+        link: createPageUrl('ArtistDashboard')
+      });
+
+      localStorage.removeItem(getDraftKey(user.id, contest.id));
 
       try {
         const { checkBadgeEligibility } = await import('../components/gamification/BadgeSystem');
@@ -246,8 +278,7 @@ export default function Participate() {
       } catch (badgeError) {
         console.warn('⚠️ Error checking badges:', badgeError);
       }
-
-      setSuccess(true);
+            setSuccess(true);
       setTimeout(() => {
         navigate(createPageUrl('ArtistDashboard'));
       }, 3000);
@@ -467,5 +498,3 @@ export default function Participate() {
 }
 
 
-
-  
