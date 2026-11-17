@@ -10,19 +10,22 @@ import { Loader2 } from 'lucide-react';
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setIsLoading(true);
     try {
-      const redirectTo = `${window.location.origin}${window.location.pathname}#/reset-password`;
-      await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+      const redirectTo = 'https://github.io';
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+      if (resetError) throw resetError;
+      setSent(true);
     } catch (err) {
-      console.error('Error enviando recuperación:', err);
+      setError(err?.message || 'No pudimos enviar el correo en este momento. Intentá de nuevo en unos minutos.');
     } finally {
       setIsLoading(false);
-      setSent(true);
     }
   };
 
@@ -38,11 +41,15 @@ export default function ForgotPassword() {
     >
       {sent ? (
         <div className="rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm p-4">
-          Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña. Revisá también la
+          Te enviamos un enlace a <strong>{email}</strong> para restablecer tu contraseña. Revisá también la
           carpeta de spam.
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm p-3">{error}</div>
+          )}
+
           <div>
             <Label htmlFor="email" className="text-gray-700">Correo electrónico</Label>
             <Input
@@ -69,3 +76,4 @@ export default function ForgotPassword() {
     </AuthShell>
   );
 }
+
