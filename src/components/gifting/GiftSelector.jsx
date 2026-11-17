@@ -89,7 +89,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
                 payment_method: 'credits',
             });
 
-            // 4. Crear transacción de descuento para el fan
+                       // 4. Crear transacción de descuento para el fan
             await base44.entities.Transaction.create({
                 user_id: fan.id,
                 type: 'credit_purchase',
@@ -166,12 +166,12 @@ export default function GiftSelector({ artist, fan, onClose }) {
             case 'select':
             default:
                 return (
-                    <>
-                        <div className="p-6 border-b flex justify-between items-center">
-                            <h2 className="text-xl font-bold">Enviar Regalo a {artist.artist_name}</h2>
+                    <div className="flex flex-col max-h-[85vh]">
+                        <div className="p-4 sm:p-5 border-b flex justify-between items-center flex-shrink-0">
+                            <h2 className="text-lg sm:text-xl font-bold truncate pr-2">Enviar Regalo a {artist.artist_name}</h2>
                             <Button variant="ghost" size="icon" onClick={onClose}><X /></Button>
                         </div>
-                        <div className="p-6">
+                        <div className="p-4 sm:p-5 overflow-y-auto flex-1">
                             <div className="p-3 bg-gray-100 rounded-lg mb-4 text-center">
                                 <p className="text-sm">Mis Créditos</p>
                                 <p className="text-2xl font-bold flex items-center justify-center gap-2">
@@ -181,7 +181,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
                             </div>
 
                             {isLoadingGifts ? <p>Cargando regalos...</p> : (
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                     {gifts.map(gift => (
                                         <GiftItem
                                             key={gift.id}
@@ -194,7 +194,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
                                 </div>
                             )}
                         </div>
-                        <div className="p-6 border-t">
+                        <div className="p-4 sm:p-5 border-t bg-gray-50 flex-shrink-0">
                             <Button
                                 onClick={handleSendGift}
                                 disabled={!selectedGift || availableCredits < selectedGift.price_usd}
@@ -204,7 +204,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
                                 Enviar {selectedGift ? selectedGift.name : 'Regalo'} ({selectedGift ? selectedGift.price_usd.toFixed(2) : '0.00'} créditos)
                             </Button>
                         </div>
-                    </>
+                    </div>
                 );
         }
     };
