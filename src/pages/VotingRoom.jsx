@@ -37,9 +37,9 @@ export default function VotingRoom() {
     try {
       setError(null);
 
-      const urlParams = new URLSearchParams(window.location.search);
-      const contestId = urlParams.get('contestId');
-
+      const hashQuery = window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '';
+      const urlParams = new URLSearchParams(window.location.search || hashQuery);
+     
       if (!contestId) {
         setError('no_contest_specified');
         setIsLoading(false);
