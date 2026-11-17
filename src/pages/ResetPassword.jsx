@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
-import { authErrorText } from '@/lib/authFlow';
 import AuthShell from '@/components/auth/AuthShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,23 +20,45 @@ export default function ResetPassword() {
   useEffect(() => {
     let mounted = true;
 
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (mounted && data?.session) {
-        setHasSession(true);
-        setChecking(false);
-        return;
-      }
-      setTimeout(async () => {
-        const { data: retryData } = await supabase.auth.getSession();
+    const initRecoverySession = async () => {
+      try {
+        const hash = window.location.hash || '';
+        const tokenPart = hash.includes('access_token=')
+          ? hash.slice(hash.indexOf('access_token='))
+          : '';
+
+        if (tokenPart) {
+          const params = new URLSearchParams(tokenPart);
+          const access_token = params.get('access_token');
+          const refresh_token = params.get('refresh_token');
+
+          if (access_token && refresh_token) {
+            const { data, error: sessionError } = await supabase.auth.setSession({
+              access_token,
+              refresh_token,
+            });
+            if (!sessionError && data?.session && mounted) {
+              setHasSession(true);
+              setChecking(false);
+              return;
+            }
+          }
+        }
+
+        const { data } = await supabase.auth.getSession();
         if (mounted) {
-          setHasSession(Boolean(retryData?.session));
+          setHasSession(Boolean(data?.session));
           setChecking(false);
         }
-      }, 800);
+      } catch (e) {
+        if (mounted) {
+          setHasSession(false);
+          setChecking(false);
+        }
+      }
     };
 
-    checkSession();
+    initRecoverySession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (mounted && session) {
@@ -69,7 +90,7 @@ export default function ResetPassword() {
       if (updateError) throw updateError;
       setDone(true);
     } catch (err) {
-      setError(authErrorText(err, 'No pudimos guardar la contraseña. Pedí un enlace nuevo.'));
+      setError(err?.message || 'No pudimos guardar la contraseña. Pedí un enlace nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -154,5 +175,3 @@ export default function ResetPassword() {
     </AuthShell>
   );
 }
-
-
