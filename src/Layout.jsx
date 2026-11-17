@@ -89,13 +89,13 @@ export default function Layout({ children }) {
           localStorage.removeItem(`tour_completed_${user.id}`);
         } catch (e) {}
       }
-      window.location.href = createPageUrl('Home');
+     window.location.hash = '/';
     } catch (error) {
       setUser(null);
       try {
         localStorage.clear();
       } catch (e) {}
-      window.location.href = createPageUrl('Home');
+      window.location.hash = '/';
     }
   };
 
