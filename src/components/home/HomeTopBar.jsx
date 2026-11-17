@@ -27,7 +27,9 @@ export default function HomeTopBar() {
         <div className="flex items-center gap-2">
           {isAuthenticated ? (
             <Button asChild size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600">
-              <Link to={createPageUrl(getDashboardPage(user))}>Mi panel</Link>
+              <Link to={createPageUrl(getDashboardPage(user))}>
+                {user?.role === 'admin' ? 'Panel de Administración' : 'Mi panel'}
+              </Link>
             </Button>
           ) : (
             <>
