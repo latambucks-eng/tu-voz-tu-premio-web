@@ -12,14 +12,14 @@ export default function ResetPassword() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState(() => sessionStorage.getItem('tvtp_pwd_reset_done') === '1');
   const [isLoading, setIsLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
+  const [checking, setChecking] = useState(() => sessionStorage.getItem('tvtp_pwd_reset_done') !== '1');
   const [hasSession, setHasSession] = useState(false);
   const initialized = useRef(false);
 
   useEffect(() => {
-    if (initialized.current) return;
+    if (done || initialized.current) return;
     initialized.current = true;
 
     const initRecoverySession = async () => {
@@ -34,7 +34,6 @@ export default function ResetPassword() {
           const access_token = params.get('access_token');
           const refresh_token = params.get('refresh_token');
 
-          // Limpiar el hash para que App.jsx no recargue la ruta
           window.history.replaceState(null, '', `${window.location.pathname}#/reset-password`);
 
           if (access_token && refresh_token) {
@@ -60,7 +59,7 @@ export default function ResetPassword() {
     };
 
     initRecoverySession();
-  }, []);
+  }, [done]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -89,8 +88,9 @@ export default function ResetPassword() {
         return;
       }
 
-      await supabase.auth.signOut().catch(() => {});
+      sessionStorage.setItem('tvtp_pwd_reset_done', '1');
       setDone(true);
+      await supabase.auth.signOut().catch(() => {});
     } catch (err) {
       setError(err?.message || 'Error al guardar la contraseña. Intentá de nuevo.');
     } finally {
@@ -98,7 +98,12 @@ export default function ResetPassword() {
     }
   };
 
-  if (checking) {
+  const handleGoToLogin = () => {
+    sessionStorage.removeItem('tvtp_pwd_reset_done');
+    navigate('/login');
+  };
+
+  if (checking && !done) {
     return (
       <AuthShell title="Verificando sesión" subtitle="Un momento por favor...">
         <div className="flex justify-center py-6">
@@ -108,7 +113,7 @@ export default function ResetPassword() {
     );
   }
 
-  if (!hasSession) {
+  if (!hasSession && !done) {
     return (
       <AuthShell title="Enlace no válido" subtitle="El enlace de recuperación está incompleto o venció.">
         <Button asChild className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-5">
@@ -122,11 +127,11 @@ export default function ResetPassword() {
     <AuthShell title="Nueva contraseña" subtitle="Elegí una contraseña nueva para tu cuenta.">
       {done ? (
         <div className="space-y-4">
-          <div className="rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm p-4">
+          <div className="rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm p-4 font-medium">
             ¡Listo! Tu contraseña se actualizó correctamente. Ya podés iniciar sesión con tu nueva clave.
           </div>
           <Button
-            onClick={() => navigate('/login')}
+            onClick={handleGoToLogin}
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-5"
           >
             Iniciar sesión ahora
@@ -177,3 +182,4 @@ export default function ResetPassword() {
     </AuthShell>
   );
 }
+
