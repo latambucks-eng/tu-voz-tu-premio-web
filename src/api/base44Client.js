@@ -160,8 +160,8 @@ export const base44 = {
       await supabase.auth.signOut();
       if (redirectUrl) window.location.href = redirectUrl;
     },
-    redirectToLogin() {
-      window.dispatchEvent(new CustomEvent('open-supabase-auth-modal'));
+      redirectToLogin() {
+      window.location.hash = '/login';
     },
   },
   functions: {
