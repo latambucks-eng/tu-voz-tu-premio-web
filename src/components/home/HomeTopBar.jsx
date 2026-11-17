@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useAuth } from '@/lib/AuthContext';
-import { getDashboardPage, goToLogin } from '@/lib/authNav';
+import { getDashboardPage } from '@/lib/authNav';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/brand/Logo';
 
@@ -33,11 +33,11 @@ export default function HomeTopBar() {
             </Button>
           ) : (
             <>
-              <Button variant="ghost" size="sm" onClick={goToLogin} className="text-gray-700">
-                Iniciar sesión
+              <Button asChild variant="ghost" size="sm" className="text-gray-700">
+                <Link to="/login">Iniciar sesión</Link>
               </Button>
-              <Button size="sm" onClick={goToLogin} className="bg-gradient-to-r from-purple-600 to-pink-600">
-                Crear cuenta
+              <Button asChild size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600">
+                <Link to="/register">Crear cuenta</Link>
               </Button>
             </>
           )}
@@ -46,3 +46,4 @@ export default function HomeTopBar() {
     </header>
   );
 }
+
