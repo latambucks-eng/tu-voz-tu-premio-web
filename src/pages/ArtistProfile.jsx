@@ -47,7 +47,7 @@ export default function ArtistProfile() {
   const [showGiftSelector, setShowGiftSelector] = useState(false);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const hashQuery = window.location.hash.includes('?') ? window.location.hash.split('?')[1] : ''; const urlParams = new URLSearchParams(window.location.search || hashQuery);
     const artistId = urlParams.get('id');
     if (artistId) {
       loadProfileData(artistId);
