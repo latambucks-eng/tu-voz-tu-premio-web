@@ -52,11 +52,23 @@ export default function GiftSelector({ artist, fan, onClose }) {
         queryFn: () => base44.entities.Wallet.filter({ user_id: fan.id }).then(res => res[0]),
     });
 
-    const sendGiftMutation = useMutation({
+       const sendGiftMutation = useMutation({
         mutationFn: async () => {
-            const fanWallet = await base44.entities.Wallet.filter({ user_id: fan.id }).then(res => res[0]);
+            const fanWallet = await base44.entities.Wallet.filter({ user_id: fan.id }).then(res => res);
             if (!fanWallet || fanWallet.balance < selectedGift.price_usd) {
                 throw new Error('No tienes suficientes créditos.');
+            }
+
+            // Resolver el ID real del usuario artista (por si viene desde Artistas Destacados con prefijo featured_)
+            let targetArtistId = artist.artist_id || artist.user_id || artist.id;
+            if (String(targetArtistId).startsWith('featured_')) {
+                const matchingUsers = await base44.entities.User.filter({ user_type: 'artist' });
+                const found = (matchingUsers || []).find(
+                    u => (u.artist_name || u.full_name || '').trim().toLowerCase() === (artist.artist_name || '').trim().toLowerCase()
+                );
+                if (found?.id) {
+                    targetArtistId = found.id;
+                }
             }
 
             // 1. Deducir créditos del fan
@@ -64,14 +76,13 @@ export default function GiftSelector({ artist, fan, onClose }) {
             await base44.entities.Wallet.update(fanWallet.id, { balance: newFanBalance });
 
             // 2. Acreditar estrellas al artista
-            // 1 USD pagado = 1 estrella (1 USD) para el artista
             const starsToCredit = selectedGift.price_usd;
-            const artistWallet = await base44.entities.Wallet.filter({ user_id: artist.id }).then(res => res[0]);
+            const artistWallet = await base44.entities.Wallet.filter({ user_id: targetArtistId }).then(res => res);
             if (artistWallet) {
                 const newArtistStars = (artistWallet.star_credits || 0) + starsToCredit;
                 await base44.entities.Wallet.update(artistWallet.id, { star_credits: newArtistStars });
             } else {
-                await base44.entities.Wallet.create({ user_id: artist.id, balance: 0, star_credits: starsToCredit });
+                await base44.entities.Wallet.create({ user_id: targetArtistId, balance: 0, star_credits: starsToCredit });
             }
 
             // 3. Registrar la transacción del regalo
@@ -81,7 +92,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
                 gift_icon: selectedGift.icon,
                 sender_id: fan.id,
                 sender_name: fan.full_name || fan.email,
-                recipient_id: artist.id,
+                recipient_id: targetArtistId,
                 recipient_name: artist.artist_name,
                 amount_usd: selectedGift.price_usd,
                 star_value: selectedGift.price_usd,
@@ -89,7 +100,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
                 payment_method: 'credits',
             });
 
-                       // 4. Crear transacción de descuento para el fan
+            // 4. Crear transacción de descuento para el fan
             await base44.entities.Transaction.create({
                 user_id: fan.id,
                 type: 'credit_purchase',
@@ -101,7 +112,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
 
             // 5. Crear transacción de premio para el artista
             await base44.entities.Transaction.create({
-                user_id: artist.id,
+                user_id: targetArtistId,
                 type: 'prize_won',
                 amount: selectedGift.price_usd,
                 description: `Regalo recibido: ${selectedGift.name} de ${fan.full_name || 'Un fan'}`,
@@ -111,13 +122,14 @@ export default function GiftSelector({ artist, fan, onClose }) {
 
             // 6. Notificar al artista
             await base44.entities.Notification.create({
-                user_id: artist.id,
+                user_id: targetArtistId,
                 title: `🎁 ¡Has recibido un regalo!`,
                 message: `${fan.full_name || 'Un fan'} te ha enviado un(a) ${selectedGift.name}. ¡Has ganado ${selectedGift.price_usd.toFixed(2)} estrellas ⭐!`,
                 type: 'credit_purchase',
                 link: createPageUrl('ArtistDashboard')
             });
         },
+
         onSuccess: () => {
             setStep('success');
             queryClient.invalidateQueries({ queryKey: ['wallet', fan.id] });
