@@ -24,10 +24,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
-import AppFooter from '../components/layout/AppFooter';
-import MobileBottomNav from '../components/layout/MobileBottomNav';
-import NotificationBell from '../components/layout/NotificationBell';
-import WelcomeTour from '../components/onboarding/WelcomeTour';
+import AppFooter from '@/components/layout/AppFooter';
+import MobileBottomNav from '@/components/layout/MobileBottomNav';
+import NotificationBell from '@/components/layout/NotificationBell';
+import WelcomeTour from '@/components/onboarding/WelcomeTour';
 import Logo from '@/components/brand/Logo';
 import Icon3D from '@/components/brand/Icon3D';
 
@@ -43,7 +43,6 @@ export default function Layout({ children }) {
     loadRecaptcha();
   }, [location]);
 
-  // Al cambiar de página, volver arriba
   React.useEffect(() => {
     window.scrollTo(0, 0);
     if (scrollContainerRef.current) {
@@ -58,7 +57,6 @@ export default function Layout({ children }) {
       const userData = await base44.auth.me();
       setUser(userData);
       
-      // Verificar tour con protección contra storage bloqueado
       try {
         const hasSeenTour = localStorage.getItem(`tour_completed_${userData.id}`);
         if (!hasSeenTour && !location.pathname.includes('select-role') && !location.pathname.includes('edit-profile')) {
@@ -66,7 +64,6 @@ export default function Layout({ children }) {
         }
       } catch (storageError) {
         console.warn('⚠️ No se pudo verificar tour (storage bloqueado):', storageError);
-        // No mostrar tour si storage está bloqueado para evitar molestias
         setShowWelcomeTour(false);
       }
     } catch (error) {
@@ -79,7 +76,7 @@ export default function Layout({ children }) {
 
   const loadRecaptcha = async () => {
     try {
-      const { loadRecaptchaScript, hideRecaptchaBadge } = await import('../components/utils/recaptcha');
+      const { loadRecaptchaScript, hideRecaptchaBadge } = await import('@/components/utils/recaptcha');
       await loadRecaptchaScript();
       hideRecaptchaBadge();
     } catch (error) {
@@ -92,7 +89,6 @@ export default function Layout({ children }) {
       await base44.auth.logout();
       setUser(null);
       
-      // Limpiar tour con protección contra storage bloqueado
       if (user?.id) {
         try {
           localStorage.removeItem(`tour_completed_${user.id}`);
@@ -120,7 +116,6 @@ export default function Layout({ children }) {
     base44.auth.redirectToLogin(window.location.href);
   };
 
-  // NAVEGACIÓN BASE PARA TODOS
   let navigationItems = [
     { title: 'Inicio', url: createPageUrl('Home'), icon: HomeIcon },
     { title: 'Convocatorias', url: createPageUrl('Contests'), icon: Trophy },
@@ -130,7 +125,6 @@ export default function Layout({ children }) {
     { title: 'Soporte', url: createPageUrl('Support'), icon: MessageCircle },
   ];
 
-  // AGREGAR NAVEGACIÓN ESPECÍFICA POR ROL
   if (user) {
     if (user.role === 'admin') {
       navigationItems.push(
@@ -264,169 +258,79 @@ export default function Layout({ children }) {
                           </DropdownMenuItem>
                         </Link>
                         <DropdownMenuSeparator />
-                      </>
-                    )}
-                    
-                    {user.user_type === 'artist' && user.role !== 'admin' && (
-                      <Link to={createPageUrl('ArtistDashboard')}>
-                        <DropdownMenuItem>
-                          Mi Panel de Artista
-                        </DropdownMenuItem>
-                      </Link>
-                    )}
-                    
-                    {user.user_type === 'fan' && user.role !== 'admin' && (
-                      <Link to={createPageUrl('FanDashboard')}>
-                        <DropdownMenuItem>
-                          Mi Panel de Fan
-                        </DropdownMenuItem>
-                      </Link>
-                    )}
-                    
-                    <Link to={createPageUrl('EditProfile')}>
-                      <DropdownMenuItem>
-                        Editar Perfil
-                      </DropdownMenuItem>
-                    </Link>
-                    {(user.role === 'admin' || user.user_type === 'fan') && (
-                      <Link to={createPageUrl('BuyCredits')}>
-                        <DropdownMenuItem>
-                          Comprar Créditos
-                        </DropdownMenuItem>
-                      </Link>
-                    )}
-                    {(user.role === 'admin' || user.user_type === 'artist') && (
-                      <Link to={createPageUrl('Withdraw')}>
-                        <DropdownMenuItem>
-                          Canjear Estrellas
-                        </DropdownMenuItem>
-                      </Link>
-                    )}
-                    <Link to={createPageUrl('SelectRole')}>
-                      <DropdownMenuItem>
-                        Cambiar Rol
-                      </DropdownMenuItem>
-                    </Link>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
-                      Cerrar Sesión
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ) : (
-              <Button onClick={handleLogin} className="w-full bg-gradient-to-r from-purple-600 to-pink-600">
-                Iniciar Sesión
-              </Button>
-            )}
-          </SidebarFooter>
-        </Sidebar>
+Usa el código con precaución.
+</>
+)}
+{user.user_type === 'artist' && user.role !== 'admin' && (
+)}
+{user.user_type === 'fan' && user.role !== 'admin' && (
+)}
+{(user.role === 'admin' || user.user_type === 'fan') && (
+)}
+{(user.role === 'admin' || user.user_type === 'artist') && (
+)}
+Cerrar Sesión
 
-        <main className="flex-1 flex flex-col pb-16 md:pb-0">
-          {/* HEADER MOBILE */}
-          <header className="bg-white border-b border-gray-200 px-4 py-3 md:hidden sticky top-0 z-40">
-            <div className="flex items-center justify-between">
-              <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-                <Logo className="w-9 h-9" />
-                <h1 className="text-base font-bold text-gray-800">
-                  Tu Voz, Tu Premio
-                </h1>
-              </Link>
-              <div className="flex items-center gap-2">
-                {user && <NotificationBell user={user} />}
-                {isLoadingUser ? (
-                  <div className="w-10 h-10 bg-gray-100 animate-pulse rounded-full" />
-                ) : user ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full">
-                        <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold overflow-hidden">
-                          {user.profile_image ? (
-                            <img src={user.profile_image} alt={user.full_name} className="w-full h-full object-cover" />
-                          ) : (
-                            user.full_name?.[0] || 'U'
-                          )}
-                        </div>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56 mr-4 mt-2">
-                      <DropdownMenuItem disabled className="opacity-100 cursor-default">
-                        <div className="flex flex-col">
-                          <p className="font-medium text-gray-900 text-sm truncate">{user.full_name}</p>
-                          <p className="text-xs text-gray-500 truncate">{getUserRoleDisplay(user)}</p>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      {user.role === 'admin' && (
-                        <>
-                          <Link to={createPageUrl('AdminDashboard')}>
-                            <DropdownMenuItem>
-                              Panel de Administración
-                            </DropdownMenuItem>
-                          </Link>
-                          <DropdownMenuSeparator />
-                        </>
-                      )}
-                      {user.user_type === 'artist' && user.role !== 'admin' && (
-                        <Link to={createPageUrl('ArtistDashboard')}>
-                          <DropdownMenuItem>
-                            Mi Panel de Artista
-                          </DropdownMenuItem>
-                        </Link>
-                      )}
-                      {user.user_type === 'fan' && user.role !== 'admin' && (
-                        <Link to={createPageUrl('FanDashboard')}>
-                          <DropdownMenuItem>
-                            Mi Panel de Fan
-                          </DropdownMenuItem>
-                        </Link>
-                      )}
-                      <Link to={createPageUrl('EditProfile')}>
-                        <DropdownMenuItem>
-                          Editar Perfil
-                        </DropdownMenuItem>
-                      </Link>
-                      <Link to={createPageUrl('SelectRole')}>
-                        <DropdownMenuItem>
-                          Cambiar Rol
-                        </DropdownMenuItem>
-                      </Link>
-                      <DropdownMenuSeparator />
-                      {(user.role === 'admin' || user.user_type === 'fan') && (
-                        <Link to={createPageUrl('BuyCredits')}>
-                          <DropdownMenuItem>
-                            Comprar Créditos
-                          </DropdownMenuItem>
-                        </Link>
-                      )}
-                      {(user.role === 'admin' || user.user_type === 'artist') && (
-                        <Link to={createPageUrl('Withdraw')}>
-                          <DropdownMenuItem>
-                            Canjear Estrellas
-                          </DropdownMenuItem>
-                        </Link>
-                      )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout}>
-                        Cerrar Sesión
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
-                  <Button onClick={handleLogin} size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 text-xs px-3 py-2 h-auto">
-                    Iniciar Sesión
-                  </Button>
-                )}
-              </div>
-            </div>
-          </header>
 
-          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">{children}</div>
-          <AppFooter />
-        </main>
-        
-        <MobileBottomNav user={user} navigationItems={navigationItems} />
-      </div>
-    </SidebarProvider>
-  );
+
+
+) : (
+
+Iniciar Sesión
+
+)}
+
+{/* HEADER MOBILE */}
+{user && }
+{isLoadingUser ? (
+
+) : user ? (
+
+
+
+
+{user.profile_image ? (
+
+) : (
+user.full_name?.[0] || 'U'
+)}
+
+
+
+
+
+
+{user.full_name}
+{getUserRoleDisplay(user)}
+
+
+
+{user.role === 'admin' && (
+<>
+</>
+)}
+{user.user_type === 'artist' && user.role !== 'admin' && (
+)}
+{user.user_type === 'fan' && user.role !== 'admin' && (
+)}
+{(user.role === 'admin' || user.user_type === 'fan') && (
+)}
+{(user.role === 'admin' || user.user_type === 'artist') && (
+)}
+
+
+Cerrar Sesión
+
+
+
+) : (
+
+Iniciar Sesión
+
+)}
+
+
+{children}
+
+);
 }
