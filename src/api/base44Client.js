@@ -137,8 +137,13 @@ export const base44 = {
         err.status = 401;
         throw err;
       }
-      const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
-      return { ...user, ...(profile || {}) };
+      let { data: profile } = await supabase.from('users').select('*').eq('id', user.id).maybeSingle();
+      if (!profile && user.email) {
+        const res = await supabase.from('users').select('*').eq('email', user.email).maybeSingle();
+        profile = res.data;
+      }
+      const role = profile?.role || user.user_metadata?.role || 'user';
+      return { ...user, ...(profile || {}), role };
     },
     async updateMe(updates) {
       const { data: { user } } = await supabase.auth.getUser();
