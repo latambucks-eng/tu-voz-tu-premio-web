@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { supabase } from '@/api/base44Client';
 import { authErrorText } from '@/lib/authFlow';
 import AuthShell from '@/components/auth/AuthShell';
 import { Button } from '@/components/ui/button';
@@ -9,12 +9,20 @@ import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 
 export default function ResetPassword() {
-  const token = new URLSearchParams(window.location.search).get('token');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSession, setHasSession] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data?.session && !window.location.hash.includes('access_token') && !window.location.hash.includes('type=recovery')) {
+        setHasSession(false);
+      }
+    });
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +37,8 @@ export default function ResetPassword() {
     }
     setIsLoading(true);
     try {
-      await base44.auth.resetPassword({ resetToken: token, newPassword: password });
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) throw updateError;
       setDone(true);
     } catch (err) {
       setError(authErrorText(err, 'El enlace no es válido o venció. Pedí uno nuevo.'));
@@ -38,7 +47,7 @@ export default function ResetPassword() {
     }
   };
 
-  if (!token) {
+  if (!hasSession) {
     return (
       <AuthShell title="Enlace no válido" subtitle="El enlace de recuperación está incompleto o venció.">
         <Button asChild className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-5">
