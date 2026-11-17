@@ -865,3 +865,8 @@ export default function Legal() {
 
             </div>
           </TabsContent>
+                  </Tabs>
+      </div>
+    </div>
+  );
+}
