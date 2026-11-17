@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import AuthShell from '@/components/auth/AuthShell';
@@ -16,9 +16,11 @@ export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [hasSession, setHasSession] = useState(false);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    let mounted = true;
+    if (initialized.current) return;
+    initialized.current = true;
 
     const initRecoverySession = async () => {
       try {
@@ -32,12 +34,15 @@ export default function ResetPassword() {
           const access_token = params.get('access_token');
           const refresh_token = params.get('refresh_token');
 
+          // Limpiar el hash para que App.jsx no recargue la ruta
+          window.history.replaceState(null, '', `${window.location.pathname}#/reset-password`);
+
           if (access_token && refresh_token) {
             const { data, error: sessionError } = await supabase.auth.setSession({
               access_token,
               refresh_token,
             });
-            if (!sessionError && data?.session && mounted) {
+            if (!sessionError && data?.session) {
               setHasSession(true);
               setChecking(false);
               return;
@@ -46,36 +51,21 @@ export default function ResetPassword() {
         }
 
         const { data } = await supabase.auth.getSession();
-        if (mounted) {
-          setHasSession(Boolean(data?.session));
-          setChecking(false);
-        }
+        setHasSession(Boolean(data?.session));
       } catch (e) {
-        if (mounted) {
-          setHasSession(false);
-          setChecking(false);
-        }
+        setHasSession(false);
+      } finally {
+        setChecking(false);
       }
     };
 
     initRecoverySession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted && session) {
-        setHasSession(true);
-        setChecking(false);
-      }
-    });
-
-    return () => {
-      mounted = false;
-      authListener?.subscription?.unsubscribe();
-    };
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
     if (password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres.');
       return;
@@ -84,13 +74,25 @@ export default function ResetPassword() {
       setError('Las contraseñas no coinciden.');
       return;
     }
+
     setIsLoading(true);
     try {
       const { error: updateError } = await supabase.auth.updateUser({ password });
-      if (updateError) throw updateError;
+      if (updateError) {
+        const msg = (updateError.message || '').toLowerCase();
+        if (msg.includes('different from the old password') || msg.includes('same password')) {
+          setError('Elegí una contraseña distinta a la que tenías antes.');
+        } else {
+          setError(updateError.message || 'No pudimos actualizar la contraseña.');
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      await supabase.auth.signOut().catch(() => {});
       setDone(true);
     } catch (err) {
-      setError(err?.message || 'No pudimos guardar la contraseña. Pedí un enlace nuevo.');
+      setError(err?.message || 'Error al guardar la contraseña. Intentá de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -121,13 +123,13 @@ export default function ResetPassword() {
       {done ? (
         <div className="space-y-4">
           <div className="rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm p-4">
-            ¡Listo! Tu contraseña se actualizó correctamente.
+            ¡Listo! Tu contraseña se actualizó correctamente. Ya podés iniciar sesión con tu nueva clave.
           </div>
           <Button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/login')}
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-5"
           >
-            Ir al inicio
+            Iniciar sesión ahora
           </Button>
         </div>
       ) : (
