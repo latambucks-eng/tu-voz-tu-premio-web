@@ -573,9 +573,9 @@ export const basesSections = [
       }
     ]
   },
-  {
+    {
     n: '26',
-    title: 'Prohibiciones específicas del concurso',
+    title: 'Prohibiciones específicas y controles antifraude del concurso',
     blocks: [
       {
         ul: [
@@ -588,6 +588,21 @@ export const basesSections = [
           'Intentar vulnerar la seguridad o la integridad de la plataforma, del sistema de votación o del proceso de inscripción.',
           'Comercializar, transferir o vender créditos, estrellas ⭐, cuentas o participaciones fuera de la plataforma.'
         ]
+      },
+      {
+        sub: 'Reglas técnicas de validación automática de votos (Antifraude)',
+        ul: [
+          'Un voto por usuario y dispositivo: Se permite únicamente un (1) voto por persona y por dispositivo por participante en cada ronda. Los usuarios registrados no podrán emitir votos adicionales cerrando sesión ni cambiando de equipo.',
+          'Restricción a participantes activos: Los usuarios registrados con rol de Artista tienen estrictamente prohibido emitir votos en las convocatorias, tanto desde su cuenta como en modalidad invitado desde sus dispositivos asociados.',
+          'Límite por conexión de red (Wi-Fi / IP): Con el fin de permitir el apoyo legítimo de grupos familiares pero prevenir manipulaciones masivas desde un mismo lugar, se establece un límite máximo de hasta tres (3) votos por participante provenientes de una misma dirección IP o red Wi-Fi por ronda.'
+        ]
+      },
+      {
+        note: {
+          tone: 'amber',
+          title: 'Auditoría y descalificación',
+          text: 'La organización se reserva el derecho de auditar los registros técnicos de votación y anular votos irregulares o descalificar a cualquier participante en caso de comprobarse intentos de manipulación o fraude.'
+        }
       }
     ]
   },
@@ -689,3 +704,4 @@ export const basesSections = [
     ]
   }
 ];
+  
