@@ -358,5 +358,3 @@ export default function Layout({ children }) {
     </SidebarProvider>
   );
 }
-
-        
