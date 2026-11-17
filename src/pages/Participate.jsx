@@ -118,7 +118,7 @@ export default function Participate() {
       });
 
       if (existingParticipants && existingParticipants.length > 0) {
-        const participant = existingParticipants[0];
+       const participant = existingParticipants[0];
         if (participant.status === 'active' || participant.status === 'pending_payment') {
           localStorage.removeItem(getDraftKey(userData.id, contestId));
           setError(`Ya tienes una participación en esta convocatoria (Estado: ${participant.status === 'active' ? 'Activa' : 'Pendiente de Pago'}). No puedes inscribirte dos veces.`);
