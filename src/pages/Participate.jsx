@@ -12,7 +12,6 @@ import VideoSubmission from '../components/participate/VideoSubmission';
 import PaymentStep from '../components/participate/PaymentStep';
 import PaymentConfirmation from '../components/participate/PaymentConfirmation';
 
-// Helper function to extract YouTube video ID
 const extractYouTubeVideoId = (url) => {
   const regExp = /(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|)([\w-]{11})(?:\S+)?/;
   const match = url.match(regExp);
@@ -41,10 +40,7 @@ export default function Participate() {
   }, [contestId]);
 
   useEffect(() => {
-    // CLEANUP: Si el usuario abandona la página en medio del proceso
     const handleBeforeUnload = (e) => {
-      // Warn user if they are between step 2 (video) and step 4 (proof submission)
-      // and have not successfully completed the registration.
       if (step >= 2 && step < 4 && !success) {
         e.preventDefault();
         e.returnValue = '¿Estás seguro que quieres salir? Perderás tu progreso de inscripción.';
@@ -62,9 +58,16 @@ export default function Participate() {
     setIsLoading(true);
     setError(null);
 
+    let userData = null;
     try {
-      const userData = await base44.auth.me();
-      
+      userData = await base44.auth.me();
+    } catch (authError) {
+      setError('not_authenticated');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
       if (userData.user_type !== 'artist' && userData.role !== 'admin') {
         alert('Solo los artistas pueden inscribirse en convocatorias. Por favor, selecciona el rol de artista en tu perfil.');
         navigate(createPageUrl('SelectRole'));
@@ -97,7 +100,6 @@ export default function Participate() {
 
       setContest(contestData);
 
-      // VERIFICAR SI YA ESTÁ INSCRITO (incluyendo pendientes)
       const existingParticipants = await base44.entities.Participant.filter({
         contest_id: contestId,
         artist_id: userData.id
@@ -161,18 +163,15 @@ export default function Participate() {
 
   const handlePaymentComplete = async () => {
     setIsSubmitting(true);
-    setError(null); // Clear previous errors
+    setError(null);
 
     try {
-      // Use user and contest from state, already loaded and validated by loadData
-      // Re-validate user type in case something changed or a race condition occurred
       if (user.user_type !== 'artist' && user.role !== 'admin') {
         alert('Solo los artistas pueden participar en convocatorias');
         navigate(createPageUrl('SelectRole'));
         return;
       }
 
-      // Re-check for existing participation (safety check)
       const existingParticipations = await base44.entities.Participant.filter({
         contest_id: contest.id,
         artist_id: user.id
@@ -182,7 +181,7 @@ export default function Participate() {
         const participant = existingParticipations[0];
         if (participant.status === 'active' || participant.status === 'pending_payment') {
           alert('❌ Ya tienes una inscripción activa o pendiente en esta convocatoria. No puedes inscribirte dos veces.');
-          navigate(createPageUrl('ArtistDashboard')); // or VotingRoom if active
+          navigate(createPageUrl('ArtistDashboard'));
           return;
         }
       }
@@ -199,9 +198,7 @@ export default function Participate() {
 
       const entryPrice = parseFloat(contest.entry_price) || 10;
 
-      // PAGO CON PASSLine (el comprobante queda como ticket dentro de Passline)
       {
-        // Registrar transacción PENDIENTE
         await base44.entities.Transaction.create({
           user_id: user.id,
           type: 'contest_entry',
@@ -212,9 +209,7 @@ export default function Participate() {
           related_contest_id: contest.id,
           video_url: videoFinalUrl
         });
-        console.log('✅ Transacción pendiente de aprobación');
 
-        // Crear participante (PENDIENTE hasta que pague y sea verificado)
         await base44.entities.Participant.create({
           contest_id: contest.id,
           artist_id: user.id,
@@ -235,9 +230,7 @@ export default function Participate() {
           payment_method: 'passline',
           status: 'pending_payment'
         });
-        console.log('✅ Participante creado como PENDIENTE');
 
-        // Notificar
         await base44.entities.Notification.create({
           user_id: user.id,
           title: '⏳ Inscripción Pendiente',
@@ -247,9 +240,6 @@ export default function Participate() {
         });
       }
 
-      console.log('🎉 ¡Inscripción completada exitosamente!');
-
-      // Check for badge eligibility
       try {
         const { checkBadgeEligibility } = await import('../components/gamification/BadgeSystem');
         await checkBadgeEligibility(user.id);
@@ -264,14 +254,12 @@ export default function Participate() {
 
     } catch (error) {
       console.error('❌ Error al inscribirse:', error);
-      
       const errorString = JSON.stringify(error).toLowerCase();
       if (errorString.includes('unique') || errorString.includes('duplicate')) {
         alert('❌ Ya tienes una inscripción activa o pendiente en esta convocatoria. No puedes inscribirte dos veces.');
         navigate(createPageUrl('ArtistDashboard'));
         return;
       }
-      
       alert('❌ Error: ' + error.message);
     } finally {
       setIsSubmitting(false);
@@ -287,6 +275,43 @@ export default function Participate() {
             <p className="text-gray-600">Cargando...</p>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  if (error === 'not_authenticated') {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-md mx-auto">
+          <Card className="text-center p-10 shadow-lg">
+  if (error === 'not_authenticated') {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-md mx-auto">
+          <Card className="text-center p-10 shadow-lg">
+            <Trophy className="w-14 h-14 mx-auto mb-4 text-purple-600" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              ¡Inscríbete en la Convocatoria!
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Para subir tu video y participar, necesitas iniciar sesión o crear tu cuenta gratuita de artista.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={() => navigate('/login')}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              >
+                Iniciar Sesión
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/register')}
+              >
+                Crear Cuenta
+              </Button>
+            </div>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -378,7 +403,6 @@ export default function Participate() {
             </p>
           </CardHeader>
           <CardContent className="p-6">
-            {/* INDICADOR DE 4 PASOS */}
             <div className="flex items-center justify-center mb-8">
               <div className={`flex items-center ${step >= 1 ? 'text-purple-600' : 'text-gray-400'}`}>
                 <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-lg ${step >= 1 ? 'bg-purple-600 text-white' : 'bg-gray-300'}`}>
@@ -412,14 +436,12 @@ export default function Participate() {
               </div>
             </div>
 
-            {/* PASO 1: PERFIL */}
             {step === 1 && (
               <ArtistProfileForm 
                 onComplete={handleProfileComplete}
               />
             )}
 
-            {/* PASO 2: VIDEO */}
             {step === 2 && (
               <VideoSubmission
                 onSubmit={handleVideoComplete}
@@ -427,7 +449,6 @@ export default function Participate() {
               />
             )}
 
-            {/* PASO 3: PAGO */}
             {step === 3 && (
               <PaymentStep
                 contest={contest}
@@ -435,7 +456,6 @@ export default function Participate() {
               />
             )}
 
-            {/* PASO 4: CONFIRMACIÓN DEL PAGO EN PASSLINE */}
             {step === 4 && (
               <PaymentConfirmation
                 contest={contest}
@@ -450,3 +470,5 @@ export default function Participate() {
     </div>
   );
 }
+
+
