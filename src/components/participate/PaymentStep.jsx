@@ -9,6 +9,7 @@ export const ENTRY_PRICE_USD = 10;
 export default function PaymentStep({ contest, onPaymentStart }) {
   const [hasOpened, setHasOpened] = useState(false);
   const paymentUrl = contest?.passline_url;
+  const price = parseFloat(contest?.entry_price) || ENTRY_PRICE_USD;
 
   const handlePayWithPassline = () => {
     if (!paymentUrl) {
@@ -16,14 +17,8 @@ export default function PaymentStep({ contest, onPaymentStart }) {
       return;
     }
 
-    const paymentWindow = window.open(paymentUrl, '_blank');
-
-    if (!paymentWindow) {
-      alert('❌ POPUP BLOQUEADO\n\nTu navegador bloqueó la ventana de pago.\nPor favor, habilita popups para este sitio.');
-      return;
-    }
-
     setHasOpened(true);
+    window.open(paymentUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -33,7 +28,7 @@ export default function PaymentStep({ contest, onPaymentStart }) {
           <div>
             <p className="text-sm text-gray-600 mb-1">Valor de la inscripción</p>
             <p className="text-3xl font-bold text-purple-700">
-              ${ENTRY_PRICE_USD.toFixed(2)} USD
+              ${price.toFixed(2)} USD
             </p>
             <p className="text-xs text-gray-500 mt-1">Pago único por convocatoria</p>
             <p className="text-xs text-gray-500 mt-1 max-w-xs">
@@ -60,21 +55,23 @@ export default function PaymentStep({ contest, onPaymentStart }) {
                 <ExternalLink className="w-4 h-4 ml-auto" />
               </div>
               <p className="text-sm opacity-90">
-                Pago seguro de ${ENTRY_PRICE_USD.toFixed(2)} USD en la plataforma Passline
+                Pago seguro de ${price.toFixed(2)} USD en la plataforma Passline
               </p>
             </div>
           </Button>
 
-          {hasOpened && (
-            <Button
-              onClick={() => onPaymentStart('passline')}
-              variant="outline"
-              className="w-full mt-4 py-5 border-purple-300 text-purple-700 hover:bg-purple-50"
-            >
-              Ya pagué en Passline — continuar
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          )}
+          <Button
+            onClick={() => onPaymentStart('passline')}
+            variant={hasOpened ? 'default' : 'outline'}
+            className={`w-full mt-4 py-5 ${
+              hasOpened
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+                : 'border-purple-300 text-purple-700 hover:bg-purple-50'
+            }`}
+          >
+            Ya pagué en Passline — continuar
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
         </CardContent>
       </Card>
 
