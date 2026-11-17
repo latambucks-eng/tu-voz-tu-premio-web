@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import './App.css'
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -17,7 +17,7 @@ import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 
 const { Pages, Layout, mainPage } = pagesConfig;
-const mainPageKey = mainPage ?? Object.keys(Pages)[0];
+const mainPageKey = mainPage ?? Object.keys(Pages);
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
@@ -26,14 +26,6 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
-
-  useEffect(() => {
-    if (window.location.hash.includes('type=recovery') || window.location.hash.includes('access_token=')) {
-      setTimeout(() => {
-        window.location.hash = '/reset-password';
-      }, 300);
-    }
-  }, []);
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -83,6 +75,7 @@ const AuthenticatedApp = () => {
     </Routes>
   );
 };
+
 
 function App() {
   return (
