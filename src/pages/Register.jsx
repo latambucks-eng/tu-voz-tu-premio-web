@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
-import { authErrorText } from '@/lib/authFlow';
 import AuthShell from '@/components/auth/AuthShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,12 +51,15 @@ export default function Register() {
     }
     setIsLoading(true);
     try {
+      const cleanEmail = email.trim();
+      const displayName = fullName.trim() || cleanEmail.split('@')[0];
+
       const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim(),
+        email: cleanEmail,
         password,
         options: {
           data: {
-            full_name: fullName.trim() || email.trim().split('@')[0],
+            full_name: displayName,
             user_type: role,
           },
         },
@@ -67,8 +69,8 @@ export default function Register() {
       if (data?.user) {
         await supabase.from('users').upsert({
           id: data.user.id,
-          email: email.trim(),
-          full_name: fullName.trim() || email.trim().split('@')[0],
+          email: cleanEmail,
+          full_name: displayName,
           user_type: role,
           role: 'user',
         });
@@ -77,7 +79,12 @@ export default function Register() {
       navigate(createPageUrl(role === 'artist' ? 'ArtistDashboard' : 'FanDashboard'));
       window.location.reload();
     } catch (err) {
-      setError(authErrorText(err, 'No pudimos crear tu cuenta. Probá con otro correo o intentá de nuevo.'));
+      const msg = err?.message || '';
+      if (msg.toLowerCase().includes('already registered')) {
+        setError('Este correo ya está registrado. Probá iniciar sesión.');
+      } else {
+        setError(msg || 'No pudimos crear tu cuenta. Probá con otro correo o intentá de nuevo.');
+      }
       setIsLoading(false);
     }
   };
