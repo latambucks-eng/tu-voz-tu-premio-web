@@ -174,11 +174,10 @@ export default function Layout({ children }) {
               </div>
             </Link>
           </SidebarHeader>
-
-          <SidebarContent className="p-2">
+         <SidebarContent className="p-2">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                Navegación
+            <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+            Navegación
               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -189,8 +188,8 @@ export default function Layout({ children }) {
                         className={`hover:bg-purple-50 hover:text-purple-700 transition-colors duration-200 rounded-lg mb-1 ${
                           location.pathname === item.url ? 'bg-purple-50 text-purple-700' : ''
                         }`}
-                      >
-                        <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
+                      >              
+                      <Link to={item.url} className="flex items-center gap-3 px-3 py-2">
                           <Icon3D
                             icon={item.icon}
                             size="xs"
@@ -207,7 +206,22 @@ export default function Layout({ children }) {
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-                                    Mi Panel de Fan
+        <SidebarFooter className="p-4 border-t">
+            {user ? (
+              <div className="flex items-center justify-between">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="w-full justify-start gap-2 px-2">
+                      <span className="truncate font-medium">
+                        {user.full_name || user.email}
+                      </span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    {(user.role === 'admin' || user.user_type === 'fan') && (
+                      <Link to={createPageUrl('FanDashboard')}>
+                        <DropdownMenuItem>
+                          Mi Panel de Fan
                         </DropdownMenuItem>
                       </Link>
                     )}
@@ -249,8 +263,7 @@ export default function Layout({ children }) {
             )}
           </SidebarFooter>
         </Sidebar>
-
-        <main className="flex-1 flex flex-col pb-16 md:pb-0">
+         <main className="flex-1 flex flex-col pb-16 md:pb-0">
           {/* HEADER MOBILE */}
           <header className="bg-white border-b border-gray-200 px-4 py-3 md:hidden sticky top-0 z-40">
             <div className="flex items-center justify-between">
@@ -348,13 +361,17 @@ export default function Layout({ children }) {
               </div>
             </div>
           </header>
-
           <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">{children}</div>
           <AppFooter />
         </main>
-        
         <MobileBottomNav user={user} navigationItems={navigationItems} />
       </div>
     </SidebarProvider>
   );
 }
+         
+        
+                          
+          
+
+        
