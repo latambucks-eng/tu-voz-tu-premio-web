@@ -52,22 +52,18 @@ export default function Layout({ children }) {
 
   const loadUser = async () => {
     setIsLoadingUser(true);
-    
     try {
       const userData = await base44.auth.me();
       setUser(userData);
-      
       try {
         const hasSeenTour = localStorage.getItem(`tour_completed_${userData.id}`);
         if (!hasSeenTour && !location.pathname.includes('select-role') && !location.pathname.includes('edit-profile')) {
           setShowWelcomeTour(true);
         }
       } catch (storageError) {
-        console.warn('⚠️ No se pudo verificar tour (storage bloqueado):', storageError);
         setShowWelcomeTour(false);
       }
     } catch (error) {
-      console.log('ℹ️ Usuario no autenticado');
       setUser(null);
     } finally {
       setIsLoadingUser(false);
@@ -80,7 +76,7 @@ export default function Layout({ children }) {
       await loadRecaptchaScript();
       hideRecaptchaBadge();
     } catch (error) {
-      console.warn('⚠️ No se pudo cargar reCAPTCHA:', error);
+      console.warn('No se pudo cargar reCAPTCHA:', error);
     }
   };
 
@@ -88,26 +84,17 @@ export default function Layout({ children }) {
     try {
       await base44.auth.logout();
       setUser(null);
-      
       if (user?.id) {
         try {
           localStorage.removeItem(`tour_completed_${user.id}`);
-        } catch (storageError) {
-          console.warn('⚠️ No se pudo limpiar tour (storage bloqueado):', storageError);
-        }
+        } catch (e) {}
       }
-      
       window.location.href = createPageUrl('Home');
     } catch (error) {
-      console.error('Logout error:', error);
       setUser(null);
-      
       try {
         localStorage.clear();
-      } catch (storageError) {
-        console.warn('⚠️ No se pudo limpiar storage (bloqueado):', storageError);
-      }
-      
+      } catch (e) {}
       window.location.href = createPageUrl('Home');
     }
   };
@@ -168,9 +155,7 @@ export default function Layout({ children }) {
             setShowWelcomeTour(false);
             try {
               localStorage.setItem(`tour_completed_${user.id}`, 'true');
-            } catch (storageError) {
-              console.warn('⚠️ No se pudo guardar tour completado (storage bloqueado):', storageError);
-            }
+            } catch (e) {}
           }}
         />
       )}
@@ -222,115 +207,156 @@ export default function Layout({ children }) {
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
+                                    Mi Panel de Fan
+                        </DropdownMenuItem>
+                      </Link>
+                    )}
+                    <Link to={createPageUrl('EditProfile')}>
+                      <DropdownMenuItem>
+                        Editar Perfil
+                      </DropdownMenuItem>
+                    </Link>
+                    {(user.role === 'admin' || user.user_type === 'fan') && (
+                      <Link to={createPageUrl('BuyCredits')}>
+                        <DropdownMenuItem>
+                          Comprar Créditos
+                        </DropdownMenuItem>
+                      </Link>
+                    )}
+                    {(user.role === 'admin' || user.user_type === 'artist') && (
+                      <Link to={createPageUrl('Withdraw')}>
+                        <DropdownMenuItem>
+                          Canjear Estrellas
+                        </DropdownMenuItem>
+                      </Link>
+                    )}
+                    <Link to={createPageUrl('SelectRole')}>
+                      <DropdownMenuItem>
+                        Cambiar Rol
+                      </DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                      Cerrar Sesión
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              <Button onClick={handleLogin} className="w-full bg-gradient-to-r from-purple-600 to-pink-600">
+                Iniciar Sesión
+              </Button>
+            )}
+          </SidebarFooter>
+        </Sidebar>
 
-          <SidebarFooter className="border-t border-gray-200 p-4">
-            {isLoadingUser ? (
-              <div className="h-16 bg-gray-100 animate-pulse rounded-lg" />
-            ) : user ? (
-              <div className="flex items-center justify-between gap-2">
-                <NotificationBell user={user} />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex-grow justify-start text-left h-auto px-2 py-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold overflow-hidden">
+        <main className="flex-1 flex flex-col pb-16 md:pb-0">
+          {/* HEADER MOBILE */}
+          <header className="bg-white border-b border-gray-200 px-4 py-3 md:hidden sticky top-0 z-40">
+            <div className="flex items-center justify-between">
+              <Link to={createPageUrl('Home')} className="flex items-center gap-2">
+                <Logo className="w-9 h-9" />
+                <h1 className="text-base font-bold text-gray-800">
+                  Tu Voz, Tu Premio
+                </h1>
+              </Link>
+              <div className="flex items-center gap-2">
+                {user && <NotificationBell user={user} />}
+                {isLoadingUser ? (
+                  <div className="w-10 h-10 bg-gray-100 animate-pulse rounded-full" />
+                ) : user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full">
+                        <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold overflow-hidden">
                           {user.profile_image ? (
                             <img src={user.profile_image} alt={user.full_name} className="w-full h-full object-cover" />
                           ) : (
-                            user.full_name?.[0] || 'U'
+                            (user.full_name ? user.full_name.charAt(0) : 'U')
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 mr-4 mt-2">
+                      <DropdownMenuItem disabled className="opacity-100 cursor-default">
+                        <div className="flex flex-col">
                           <p className="font-medium text-gray-900 text-sm truncate">{user.full_name}</p>
-                          <p className="text-xs text-gray-500 truncate">
-                            {getUserRoleDisplay(user)}
-                          </p>
+                          <p className="text-xs text-gray-500 truncate">{getUserRoleDisplay(user)}</p>
                         </div>
-                      </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 mb-2">
-                    {user.role === 'admin' && (
-                      <>
-                        <Link to={createPageUrl('AdminDashboard')}>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {user.role === 'admin' && (
+                        <>
+                          <Link to={createPageUrl('AdminDashboard')}>
+                            <DropdownMenuItem>
+                              Panel de Administración
+                            </DropdownMenuItem>
+                          </Link>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+                      {user.user_type === 'artist' && user.role !== 'admin' && (
+                        <Link to={createPageUrl('ArtistDashboard')}>
                           <DropdownMenuItem>
-                            Panel de Administración
+                            Mi Panel de Artista
                           </DropdownMenuItem>
                         </Link>
-                        <DropdownMenuSeparator />
-Usa el código con precaución.
-</>
-)}
-{user.user_type === 'artist' && user.role !== 'admin' && (
-)}
-{user.user_type === 'fan' && user.role !== 'admin' && (
-)}
-{(user.role === 'admin' || user.user_type === 'fan') && (
-)}
-{(user.role === 'admin' || user.user_type === 'artist') && (
-)}
-Cerrar Sesión
+                      )}
+                      {user.user_type === 'fan' && user.role !== 'admin' && (
+                        <Link to={createPageUrl('FanDashboard')}>
+                          <DropdownMenuItem>
+                            Mi Panel de Fan
+                          </DropdownMenuItem>
+                        </Link>
+                      )}
+                      <Link to={createPageUrl('EditProfile')}>
+                        <DropdownMenuItem>
+                          Editar Perfil
+                        </DropdownMenuItem>
+                      </Link>
+                      <Link to={createPageUrl('SelectRole')}>
+                        <DropdownMenuItem>
+                          Cambiar Rol
+                        </DropdownMenuItem>
+                      </Link>
+                      <DropdownMenuSeparator />
+                      {(user.role === 'admin' || user.user_type === 'fan') && (
+                        <Link to={createPageUrl('BuyCredits')}>
+                          <DropdownMenuItem>
+                            Comprar Créditos
+                          </DropdownMenuItem>
+                        </Link>
+                      )}
+                      {(user.role === 'admin' || user.user_type === 'artist') && (
+                        <Link to={createPageUrl('Withdraw')}>
+                          <DropdownMenuItem>
+                            Canjear Estrellas
+                          </DropdownMenuItem>
+                        </Link>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout}>
+                        Cerrar Sesión
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button onClick={handleLogin} size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 text-xs px-3 py-2 h-auto">
+                    Iniciar Sesión
+                  </Button>
+                )}
+              </div>
+            </div>
+          </header>
 
-
-
-
-) : (
-
-Iniciar Sesión
-
-)}
-
-{/* HEADER MOBILE */}
-{user && }
-{isLoadingUser ? (
-
-) : user ? (
-
-
-
-
-{user.profile_image ? (
-
-) : (
-user.full_name?.[0] || 'U'
-)}
-
-
-
-
-
-
-{user.full_name}
-{getUserRoleDisplay(user)}
-
-
-
-{user.role === 'admin' && (
-<>
-</>
-)}
-{user.user_type === 'artist' && user.role !== 'admin' && (
-)}
-{user.user_type === 'fan' && user.role !== 'admin' && (
-)}
-{(user.role === 'admin' || user.user_type === 'fan') && (
-)}
-{(user.role === 'admin' || user.user_type === 'artist') && (
-)}
-
-
-Cerrar Sesión
-
-
-
-) : (
-
-Iniciar Sesión
-
-)}
-
-
-{children}
-
-);
+          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">{children}</div>
+          <AppFooter />
+        </main>
+        
+        <MobileBottomNav user={user} navigationItems={navigationItems} />
+      </div>
+    </SidebarProvider>
+  );
 }
+
+        
