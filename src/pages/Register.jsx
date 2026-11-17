@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { base44 } from '@/api/base44Client';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import { authErrorText } from '@/lib/authFlow';
 import AuthShell from '@/components/auth/AuthShell';
@@ -26,14 +26,13 @@ const ROLES = [
 ];
 
 export default function Register() {
-  const [step, setStep] = useState('form');
+  const navigate = useNavigate();
   const [role, setRole] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [otpCode, setOtpCode] = useState('');
   const [error, setError] = useState('');
-  const [info, setInfo] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async (e) => {
@@ -53,94 +52,35 @@ export default function Register() {
     }
     setIsLoading(true);
     try {
-      await base44.auth.register({ email: email.trim(), password });
-      setStep('verify');
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: {
+            full_name: fullName.trim() || email.trim().split('@')[0],
+            user_type: role,
+          },
+        },
+      });
+      if (signUpError) throw signUpError;
+
+      if (data?.user) {
+        await supabase.from('users').upsert({
+          id: data.user.id,
+          email: email.trim(),
+          full_name: fullName.trim() || email.trim().split('@')[0],
+          user_type: role,
+          role: 'user',
+        });
+      }
+
+      navigate(createPageUrl(role === 'artist' ? 'ArtistDashboard' : 'FanDashboard'));
+      window.location.reload();
     } catch (err) {
       setError(authErrorText(err, 'No pudimos crear tu cuenta. Probá con otro correo o intentá de nuevo.'));
-    } finally {
       setIsLoading(false);
     }
   };
-
-  const handleVerify = async (e) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-    try {
-      const result = await base44.auth.verifyOtp({ email: email.trim(), otpCode: otpCode.trim() });
-      const token = result?.access_token || result?.data?.access_token;
-      if (token) base44.auth.setToken(token);
-      try {
-        await base44.auth.updateMe({ user_type: role });
-      } catch (roleError) {
-        console.warn('No se pudo guardar el rol elegido:', roleError);
-      }
-      window.location.href = createPageUrl(role === 'artist' ? 'ArtistDashboard' : 'FanDashboard');
-    } catch (err) {
-      setError(authErrorText(err, 'El código no es válido o venció. Pedí uno nuevo.'));
-      setIsLoading(false);
-    }
-  };
-
-  const handleResend = async () => {
-    setError('');
-    setInfo('');
-    try {
-      await base44.auth.resendOtp(email.trim());
-      setInfo('Te enviamos un código nuevo. Revisá tu correo.');
-    } catch (err) {
-      setError('No pudimos reenviar el código. Intentá de nuevo en unos segundos.');
-    }
-  };
-
-  if (step === 'verify') {
-    return (
-      <AuthShell
-        title="Verificá tu correo"
-        subtitle={`Enviamos un código de 6 dígitos a ${email}.`}
-        footer={
-          <Link to="/login" className="text-white font-semibold underline">
-            Volver a iniciar sesión
-          </Link>
-        }
-      >
-        <form onSubmit={handleVerify} className="space-y-4">
-          {error && (
-            <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm p-3">{error}</div>
-          )}
-          {info && (
-            <div className="rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm p-3">{info}</div>
-          )}
-
-          <div>
-            <Label htmlFor="otp" className="text-gray-700">Código de verificación</Label>
-            <Input
-              id="otp"
-              inputMode="numeric"
-              maxLength={6}
-              required
-              value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-              className="mt-1.5 text-center text-2xl tracking-[0.4em] font-bold"
-              placeholder="000000"
-            />
-          </div>
-
-          <Button
-            type="submit"
-            disabled={isLoading || otpCode.length < 6}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 py-5"
-          >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verificar y entrar'}
-          </Button>
-
-          <button type="button" onClick={handleResend} className="w-full text-xs text-purple-700 hover:underline">
-            Reenviar código
-          </button>
-        </form>
-      </AuthShell>
-    );
-  }
 
   return (
     <AuthShell
@@ -186,6 +126,19 @@ export default function Register() {
               );
             })}
           </div>
+        </div>
+
+        <div>
+          <Label htmlFor="fullName" className="text-gray-700">Nombre o nombre artístico</Label>
+          <Input
+            id="fullName"
+            type="text"
+            required
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="mt-1.5"
+            placeholder="Tu nombre"
+          />
         </div>
 
         <div>
