@@ -245,7 +245,7 @@ export default function ArtistProfile() {
     }
   };
 
-    const handleShare = async (platform) => {
+     const handleShare = async (platform) => {
     if (!artist) {
       console.error("Artist data not available for sharing.");
       return;
@@ -264,6 +264,7 @@ export default function ArtistProfile() {
       : `${baseAppUrl}${createPageUrl('ArtistProfile')}?id=${artist.id}`;
     
     const shareText = `¡Mira el perfil de ${artist.artist_name}! 🎤🎵`;
+    const fullShareMessage = `${shareText} ${shareUrl}`;
 
     if (!currentUserData) {
       const shouldLogin = window.confirm(
@@ -282,7 +283,7 @@ export default function ArtistProfile() {
 
     switch (platform) {
       case 'whatsapp':
-        window.open(`https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank', 'width=600,height=400');
+        window.open(`https://wa.me/?text=${encodeURIComponent(fullShareMessage)}`, '_blank', 'width=600,height=400');
         shareActionSuccess = true;
         break;
       case 'facebook':
@@ -299,8 +300,8 @@ export default function ArtistProfile() {
         break;
       case 'copy':
         try {
-          await navigator.clipboard.writeText(shareUrl);
-          alert('✅ Enlace copiado al portapapeles.\n\n¡Compártelo con tus amigos!');
+          await navigator.clipboard.writeText(fullShareMessage);
+          alert('✅ Mensaje y enlace copiados al portapapeles.\n\n¡Compártelo con tus amigos!');
           shareActionSuccess = true;
           actualSharePlatform = 'copy_link';
         } catch (err) {
@@ -312,16 +313,17 @@ export default function ArtistProfile() {
           try {
             await navigator.share({
               title: shareText,
+              text: shareText,
               url: shareUrl
             });
             shareActionSuccess = true;
             actualSharePlatform = 'native';
           } catch (shareError) {
-            if (shareError.name !== 'AbortError') { // User cancelled native share
+            if (shareError.name !== 'AbortError') {
               console.error("Error with native share:", shareError);
               try {
-                await navigator.clipboard.writeText(shareUrl);
-                alert('¡Enlace copiado al portapapeles!');
+                await navigator.clipboard.writeText(fullShareMessage);
+                alert('¡Mensaje y enlace copiados al portapapeles!');
                 shareActionSuccess = true;
                 actualSharePlatform = 'copy_link_fallback_native';
               } catch (err) {
@@ -331,8 +333,8 @@ export default function ArtistProfile() {
           }
         } else {
           try {
-            await navigator.clipboard.writeText(shareUrl);
-            alert('¡Enlace copiado al portapapeles!');
+            await navigator.clipboard.writeText(fullShareMessage);
+            alert('¡Mensaje y enlace copiados al portapapeles!');
             shareActionSuccess = true;
             actualSharePlatform = 'copy_link_unsupported_native';
           } catch (err) {
@@ -342,8 +344,8 @@ export default function ArtistProfile() {
         break;
       default:
         try {
-          await navigator.clipboard.writeText(shareUrl);
-          alert('¡Enlace copiado al portapapeles! Compártelo para que más gente conozca al artista.');
+          await navigator.clipboard.writeText(fullShareMessage);
+          alert('¡Mensaje y enlace copiados al portapapeles! Compártelo para que más gente conozca al artista.');
           shareActionSuccess = true;
           actualSharePlatform = 'copy_link_default';
         } catch (err) {
