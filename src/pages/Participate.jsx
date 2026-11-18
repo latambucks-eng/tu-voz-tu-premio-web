@@ -283,7 +283,7 @@ export default function Participate() {
         navigate(createPageUrl('ArtistDashboard'));
       }, 3000);
 
-    } catch (error) {
+   } catch (error) {
       console.error('❌ Error al inscribirse:', error);
       const errorString = JSON.stringify(error).toLowerCase();
       if (errorString.includes('unique') || errorString.includes('duplicate')) {
@@ -414,11 +414,23 @@ export default function Participate() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
           <Button variant="outline" onClick={() => navigate(createPageUrl('Contests'))}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver a Convocatorias
           </Button>
+
+          {step > 1 && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setStep(step - 1)}
+              className="text-purple-700 hover:text-purple-900 hover:bg-purple-50"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver al paso anterior (Paso {step - 1})
+            </Button>
+          )}
         </div>
 
         <Card className="mb-8">
@@ -430,28 +442,45 @@ export default function Participate() {
           </CardHeader>
           <CardContent className="p-6">
             <div className="flex items-center justify-center mb-8">
-              <div className={`flex items-center ${step >= 1 ? 'text-purple-600' : 'text-gray-400'}`}>
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className={`flex items-center cursor-pointer transition-opacity hover:opacity-80 ${step >= 1 ? 'text-purple-600' : 'text-gray-400'}`}
+                title="Ir al Paso 1: Perfil"
+              >
                 <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-lg ${step >= 1 ? 'bg-purple-600 text-white' : 'bg-gray-300'}`}>
                   1
                 </div>
                 <span className="ml-2 hidden sm:inline font-medium">Perfil</span>
-              </div>
+              </button>
               <div className={`mx-3 h-1 w-12 sm:w-20 ${step >= 2 ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
               
-              <div className={`flex items-center ${step >= 2 ? 'text-purple-600' : 'text-gray-400'}`}>
+              <button
+                type="button"
+                onClick={() => (profileData || step >= 2) && setStep(2)}
+                disabled={!profileData && step < 2}
+                className={`flex items-center transition-opacity ${profileData || step >= 2 ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed'} ${step >= 2 ? 'text-purple-600' : 'text-gray-400'}`}
+                title="Ir al Paso 2: Video"
+              >
                 <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-lg ${step >= 2 ? 'bg-purple-600 text-white' : 'bg-gray-300'}`}>
                   2
                 </div>
                 <span className="ml-2 hidden sm:inline font-medium">Video</span>
-              </div>
+              </button>
               <div className={`mx-3 h-1 w-12 sm:w-20 ${step >= 3 ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
               
-              <div className={`flex items-center ${step >= 3 ? 'text-purple-600' : 'text-gray-400'}`}>
+              <button
+                type="button"
+                onClick={() => (videoData || step >= 3) && setStep(3)}
+                disabled={!videoData && step < 3}
+                className={`flex items-center transition-opacity ${videoData || step >= 3 ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed'} ${step >= 3 ? 'text-purple-600' : 'text-gray-400'}`}
+                title="Ir al Paso 3: Pago"
+              >
                 <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-lg ${step >= 3 ? 'bg-purple-600 text-white' : 'bg-gray-300'}`}>
                   3
                 </div>
                 <span className="ml-2 hidden sm:inline font-medium">Pago</span>
-              </div>
+              </button>
               <div className={`mx-3 h-1 w-12 sm:w-20 ${step >= 4 ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
               
               <div className={`flex items-center ${step >= 4 ? 'text-purple-600' : 'text-gray-400'}`}>
@@ -464,13 +493,16 @@ export default function Participate() {
 
             {step === 1 && (
               <ArtistProfileForm 
+                initialData={profileData || user}
                 onComplete={handleProfileComplete}
               />
             )}
 
             {step === 2 && (
               <VideoSubmission
+                initialData={videoData}
                 onSubmit={handleVideoComplete}
+                onBack={() => setStep(1)}
                 isSubmitting={isSubmitting}
               />
             )}
@@ -479,8 +511,10 @@ export default function Participate() {
               <PaymentStep
                 contest={contest}
                 onPaymentStart={handlePaymentStart}
+                onBack={() => setStep(2)}
               />
             )}
+
 
             {step === 4 && (
               <PaymentConfirmation
