@@ -49,17 +49,17 @@ export default function GiftSelector({ artist, fan, onClose }) {
 
     const { data: wallet, isLoading: isLoadingWallet } = useQuery({
         queryKey: ['wallet', fan.id],
-        queryFn: () => base44.entities.Wallet.filter({ user_id: fan.id }).then(res => res[0]),
+        queryFn: () => base44.entities.Wallet.filter({ user_id: fan.id }).then(res => Array.isArray(res) ? res.at(0) : res),
     });
 
-      const sendGiftMutation = useMutation({
+    const sendGiftMutation = useMutation({
         mutationFn: async () => {
             const fanWallet = await base44.entities.Wallet.filter({ user_id: fan.id }).then(res => Array.isArray(res) ? res.at(0) : res);
             if (!fanWallet || fanWallet.balance < selectedGift.price_usd) {
                 throw new Error('No tienes suficientes créditos.');
             }
 
-            // Resolver el ID real del usuario artista (por si viene desde Artistas Destacados con prefijo featured_)
+            // Resolver el ID real del usuario artista (o el ID de custodia Admin si aún no se registró)
             let targetArtistId = artist.artist_id || artist.user_id || artist.id;
             if (String(targetArtistId).startsWith('featured_')) {
                 const matchingUsers = await base44.entities.User.filter({ user_type: 'artist' });
@@ -68,6 +68,8 @@ export default function GiftSelector({ artist, fan, onClose }) {
                 );
                 if (found?.id) {
                     targetArtistId = found.id;
+                } else {
+                    targetArtistId = artist.created_by_id || '71ffd78e-6e83-4616-9f34-a0e002411c81';
                 }
             }
 
@@ -99,6 +101,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
                 status: 'approved',
                 payment_method: 'credits',
             });
+
 
             // 4. Crear transacción de descuento para el fan
             await base44.entities.Transaction.create({
