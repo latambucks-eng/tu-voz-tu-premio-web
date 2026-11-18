@@ -39,22 +39,28 @@ export default function VotingRoom() {
     try {
       setError(null);
 
-     const contestId = contestIdFromRouter;
+      let contestId = contestIdFromRouter;
+      let contestData = null;
 
-      if (!contestId) {
-        setError('no_contest_specified');
-        setIsLoading(false);
-        return;
+      if (contestId && contestId !== 'undefined') {
+        contestData = await base44.entities.Contest.filter({ id: contestId });
+      } else {
+        const activeContests = await base44.entities.Contest.filter({ status: 'active' }, '-created_date');
+        contestData = activeContests && activeContests.length > 0
+          ? activeContests
+          : await base44.entities.Contest.list('-created_date');
       }
 
-      const contestData = await base44.entities.Contest.filter({ id: contestId });
-      if (!contestData || contestData.length === 0) {
+      const foundContest = Array.isArray(contestData) ? contestData.at(0) : contestData;
+
+      if (!foundContest || !foundContest.id) {
         setError('contest_not_found');
         setIsLoading(false);
         return;
       }
 
-      let contest = contestData;
+      contestId = foundContest.id;
+      let contest = foundContest;
 
       const allParticipants = await base44.entities.Participant.filter({
         contest_id: contestId,
