@@ -52,9 +52,9 @@ export default function GiftSelector({ artist, fan, onClose }) {
         queryFn: () => base44.entities.Wallet.filter({ user_id: fan.id }).then(res => res[0]),
     });
 
-       const sendGiftMutation = useMutation({
+      const sendGiftMutation = useMutation({
         mutationFn: async () => {
-            const fanWallet = await base44.entities.Wallet.filter({ user_id: fan.id }).then(res => res);
+            const fanWallet = await base44.entities.Wallet.filter({ user_id: fan.id }).then(res => Array.isArray(res) ? res.at(0) : res);
             if (!fanWallet || fanWallet.balance < selectedGift.price_usd) {
                 throw new Error('No tienes suficientes créditos.');
             }
@@ -77,7 +77,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
 
             // 2. Acreditar estrellas al artista
             const starsToCredit = selectedGift.price_usd;
-            const artistWallet = await base44.entities.Wallet.filter({ user_id: targetArtistId }).then(res => res);
+            const artistWallet = await base44.entities.Wallet.filter({ user_id: targetArtistId }).then(res => Array.isArray(res) ? res.at(0) : res);
             if (artistWallet) {
                 const newArtistStars = (artistWallet.star_credits || 0) + starsToCredit;
                 await base44.entities.Wallet.update(artistWallet.id, { star_credits: newArtistStars });
