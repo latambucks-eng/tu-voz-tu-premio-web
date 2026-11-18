@@ -15,9 +15,9 @@ export const AuthProvider = ({ children }) => {
   const [authMsg, setAuthMsg] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const loadUser = async () => {
+  const loadUser = async (silent = false) => {
     try {
-      setIsLoadingAuth(true);
+      if (!silent) setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
       setUser(currentUser);
       setIsAuthenticated(true);
@@ -25,14 +25,22 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
     } finally {
-      setIsLoadingAuth(false);
+      if (!silent) setIsLoadingAuth(false);
     }
   };
 
   useEffect(() => {
-    loadUser();
-    const { data: listener } = supabase.auth.onAuthStateChange(() => {
-      loadUser();
+    loadUser(false);
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setIsAuthenticated(false);
+        setIsLoadingAuth(false);
+        return;
+      }
+      if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
+        loadUser(true);
+      }
     });
     const openModalHandler = () => {
       setAuthMsg('');
@@ -80,6 +88,7 @@ export const AuthProvider = ({ children }) => {
     setAuthMsg('');
     setShowAuthModal(true);
   };
+
 
   return (
     <AuthContext.Provider
