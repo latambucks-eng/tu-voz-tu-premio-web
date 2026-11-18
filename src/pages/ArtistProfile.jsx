@@ -245,7 +245,7 @@ export default function ArtistProfile() {
     }
   };
 
-  const handleShare = async (platform) => {
+    const handleShare = async (platform) => {
     if (!artist) {
       console.error("Artist data not available for sharing.");
       return;
@@ -258,9 +258,10 @@ export default function ArtistProfile() {
       currentUserData = null;
     }
 
+    const baseAppUrl = `${window.location.origin}${window.location.pathname}#`;
     const shareUrl = currentUserData 
-      ? `${window.location.origin}${createPageUrl('ArtistProfile')}?id=${artist.id}&ref=${currentUserData.id}`
-      : `${window.location.origin}${createPageUrl('ArtistProfile')}?id=${artist.id}`;
+      ? `${baseAppUrl}${createPageUrl('ArtistProfile')}?id=${artist.id}&ref=${currentUserData.id}`
+      : `${baseAppUrl}${createPageUrl('ArtistProfile')}?id=${artist.id}`;
     
     const shareText = `¡Mira el perfil de ${artist.artist_name}! 🎤🎵`;
 
@@ -342,7 +343,7 @@ export default function ArtistProfile() {
       default:
         try {
           await navigator.clipboard.writeText(shareUrl);
-          alert('¡Enlace copiado al portapeles! Compártelo para que más gente conozca al artista.');
+          alert('¡Enlace copiado al portapapeles! Compártelo para que más gente conozca al artista.');
           shareActionSuccess = true;
           actualSharePlatform = 'copy_link_default';
         } catch (err) {
@@ -367,7 +368,7 @@ export default function ArtistProfile() {
     }
   };
 
-  const handleRegisterForFullProfile = () => {
+   const handleRegisterForFullProfile = () => {
     base44.auth.redirectToLogin(window.location.href);
   };
 
@@ -963,3 +964,6 @@ export default function ArtistProfile() {
     </ContentProtection>
   );
 }
+
+
+ 
