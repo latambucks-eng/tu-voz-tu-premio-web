@@ -158,7 +158,6 @@ export default function FAQ() {
           </p>
         </motion.div>
 
-
         <div className="space-y-10">
           {faqs.map((category, catIndex) => (
             <div key={category.category}>
@@ -204,3 +203,28 @@ export default function FAQ() {
             </div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-12"
+        >
+          <Card className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-0">
+            <CardContent className="p-8 text-center">
+              <h3 className="text-2xl font-bold mb-2">¿Te quedó una duda?</h3>
+              <p className="text-purple-100 mb-6">
+                Escribinos por Soporte y te respondemos dentro de la plataforma
+              </p>
+              <Link to={createPageUrl('Support')}>
+                <button className="bg-white text-purple-700 hover:bg-purple-50 font-bold py-3 px-8 rounded-lg transition-all">
+                  Ir a Soporte
+                </button>
+              </Link>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
