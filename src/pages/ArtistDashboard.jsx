@@ -328,7 +328,7 @@ export default function ArtistDashboard() {
                   Estrellas ⭐ de regalos, canjeables 1 a 1 en USD
                 </p>
                 <p className="text-xs text-yellow-200 mt-1">
-                  💡 1 Estrella = 1 USD • Mínimo de canje: 1 Estrella
+                  💡 1 Estrella = 1 USD bruto (Recibes 70% neto al canjear) • Mínimo: 1 Estrella
                 </p>
               </CardContent>
             </Card>
