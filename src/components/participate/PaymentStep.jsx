@@ -1,16 +1,61 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { CreditCard, ExternalLink, AlertCircle, ArrowRight, Info, Globe } from 'lucide-react';
+import { CreditCard, ExternalLink, AlertCircle, ArrowRight, Info, Globe, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export const ENTRY_PRICE_USD = 10;
 
 export default function PaymentStep({ contest, onPaymentStart }) {
   const [openedMethod, setOpenedMethod] = useState(null);
+  const isFreePromo = Boolean(contest?.is_free_promo) || parseFloat(contest?.entry_price) === 0;
   const passlineUrl = contest?.passline_url;
   const paypalUrl = contest?.paypal_url;
-  const price = parseFloat(contest?.entry_price) || ENTRY_PRICE_USD;
+  const price = isFreePromo ? 0 : (parseFloat(contest?.entry_price) || ENTRY_PRICE_USD);
+
+  if (isFreePromo) {
+    return (
+      <div className="space-y-6">
+        <Card className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 border-2 border-emerald-300">
+          <CardContent className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-emerald-600 text-white mb-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                PROMOCIÓN EXCLUSIVA DE LANZAMIENTO
+              </span>
+              <p className="text-3xl font-extrabold text-emerald-700">
+                $0.00 USD <span className="text-base font-normal line-through text-gray-400 ml-2">${ENTRY_PRICE_USD}.00 USD</span>
+              </p>
+              <p className="text-sm text-emerald-900 mt-1">
+                Acceso 100% gratuito habilitado para probar el sitio y participar en esta convocatoria.
+              </p>
+            </div>
+            <div className="text-left sm:text-right text-sm text-gray-700">
+              <p className="font-bold text-gray-900">{contest.name}</p>
+              <p>Sala {contest.genre}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 border-emerald-200 shadow-md">
+          <CardContent className="p-6 text-center space-y-4">
+            <p className="text-gray-700 text-sm">
+              Los métodos de pago están deshabilitados temporalmente por promoción de lanzamiento. Tu inscripción se activará al instante sin costo.
+            </p>
+            <Button
+              type="button"
+              onClick={() => onPaymentStart('free_promo')}
+              className="w-full h-auto py-5 text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg"
+            >
+              <CheckCircle2 className="w-6 h-6 mr-2" />
+              Acceso Gratis — Confirmar Participación ($0)
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const handleOpenPayment = (method, url) => {
     if (!url) {
@@ -44,7 +89,6 @@ export default function PaymentStep({ contest, onPaymentStart }) {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Opción 1: Passline (Argentina) */}
         <Card className="hover:shadow-lg transition-shadow border-2 border-cyan-100">
           <CardContent className="p-6 flex flex-col justify-between h-full">
             <div>
@@ -84,7 +128,6 @@ export default function PaymentStep({ contest, onPaymentStart }) {
           </CardContent>
         </Card>
 
-        {/* Opción 2: PayPal (Latinoamérica / Internacional) */}
         <Card className="hover:shadow-lg transition-shadow border-2 border-indigo-100">
           <CardContent className="p-6 flex flex-col justify-between h-full">
             <div>
@@ -150,4 +193,3 @@ export default function PaymentStep({ contest, onPaymentStart }) {
     </div>
   );
 }
-
