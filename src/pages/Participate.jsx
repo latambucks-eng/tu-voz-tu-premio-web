@@ -127,7 +127,7 @@ export default function Participate() {
         }
       }
 
-      // Restaurar progreso guardado (si fue a Passline y volvió)
+      // Restaurar progreso guardado (si fue a Passline o PayPal y volvió)
       let restored = false;
       try {
         const savedRaw = localStorage.getItem(getDraftKey(userData.id, contestId));
@@ -188,8 +188,8 @@ export default function Participate() {
     setStep(3);
   };
 
-  const handlePaymentStart = () => {
-    setPaymentData({ payment_method: 'passline' });
+  const handlePaymentStart = (method = 'passline') => {
+    setPaymentData({ payment_method: method });
     setStep(4);
   };
 
@@ -210,7 +210,7 @@ export default function Participate() {
       });
 
       if (existingParticipations && existingParticipations.length > 0) {
-        const participant = existingParticipations[0];
+        const participant = existingParticipations.at(0);
         if (participant.status === 'active' || participant.status === 'pending_payment') {
           alert('❌ Ya tienes una inscripción activa o pendiente en esta convocatoria. No puedes inscribirte dos veces.');
           navigate(createPageUrl('ArtistDashboard'));
@@ -229,13 +229,15 @@ export default function Participate() {
       }
 
       const entryPrice = parseFloat(contest.entry_price) || 10;
+      const chosenMethod = paymentData?.payment_method || 'passline';
+      const methodLabel = chosenMethod === 'paypal' ? 'PayPal' : 'Passline';
 
       await base44.entities.Transaction.create({
         user_id: user.id,
         type: 'contest_entry',
         amount: entryPrice,
-        description: `Inscripción: ${contest.name} - Pendiente de verificación en Passline (${user.email})`,
-        payment_method: 'passline',
+        description: `Inscripción: ${contest.name} - Pendiente de verificación en ${methodLabel} (${user.email})`,
+        payment_method: chosenMethod,
         status: 'pending',
         related_contest_id: contest.id,
         video_url: videoFinalUrl
@@ -258,14 +260,14 @@ export default function Participate() {
         total_votes: 0,
         average_rating: 0,
         payment_verified: false,
-        payment_method: 'passline',
+        payment_method: chosenMethod,
         status: 'pending_payment'
       });
 
       await base44.entities.Notification.create({
         user_id: user.id,
         title: '⏳ Inscripción Pendiente',
-        message: `Tu inscripción en "${contest.name}" está pendiente de aprobación. Te notificaremos cuando se apruebe y tu video esté activo.`,
+        message: `Tu inscripción en "${contest.name}" está pendiente de aprobación (${methodLabel}). Te notificaremos cuando se apruebe y tu video esté activo.`,
         type: 'contest_pending',
         link: createPageUrl('ArtistDashboard')
       });
@@ -278,7 +280,7 @@ export default function Participate() {
       } catch (badgeError) {
         console.warn('⚠️ Error checking badges:', badgeError);
       }
-            setSuccess(true);
+      setSuccess(true);
       setTimeout(() => {
         navigate(createPageUrl('ArtistDashboard'));
       }, 3000);
@@ -398,8 +400,8 @@ export default function Participate() {
               </h2>
               <p className="text-gray-600 text-lg mb-6">
                 Registramos tu inscripción a la convocatoria{' '}
-                <strong className="text-purple-600">{contest.name}</strong>. Verificaremos tu pago de Passline y
-                activaremos tu video.
+                <strong className="text-purple-600">{contest.name}</strong>. Verificaremos tu pago de{' '}
+                {paymentData?.payment_method === 'paypal' ? 'PayPal' : 'Passline'} y activaremos tu video.
               </p>
               <p className="text-gray-500 text-sm">
                 Redirigiendo...
@@ -437,7 +439,7 @@ export default function Participate() {
           <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
             <CardTitle className="text-2xl">Inscripción a la Convocatoria</CardTitle>
             <p className="text-purple-100 text-sm mt-2">
-              {contest.name} • {contest.genre} • Inscripción ${(parseFloat(contest.entry_price) || 10).toFixed(2)} USD (Passline)
+              {contest.name} • {contest.genre} • Inscripción ${(parseFloat(contest.entry_price) || 10).toFixed(2)} USD (Passline / PayPal)
             </p>
           </CardHeader>
           <CardContent className="p-6">
@@ -515,11 +517,11 @@ export default function Participate() {
               />
             )}
 
-
             {step === 4 && (
               <PaymentConfirmation
                 contest={contest}
                 userEmail={user?.email}
+                paymentMethod={paymentData?.payment_method || 'passline'}
                 onComplete={handlePaymentComplete}
                 isSubmitting={isSubmitting}
               />
