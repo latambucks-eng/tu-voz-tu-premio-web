@@ -7,10 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'; // Added AlertTitle for success message
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { DollarSign, Star, Clock, CheckCircle, AlertCircle, Loader2, TrendingUp, Trophy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Star3D from '@/components/brand/Star3D';
+
+export const ADMIN_COMMISSION_RATE = 30; // 30% comisión de plataforma
 
 export default function Withdraw() {
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ export default function Withdraw() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [withdrawalRequests, setWithdrawalRequests] = useState([]);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false); // NEW STATE for success messages
+  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export default function Withdraw() {
 
       const wallets = await base44.entities.Wallet.filter({ user_id: userData.id });
       if (wallets.length > 0) {
-        setWallet(wallets[0]);
+        setWallet(wallets.at(0));
       }
 
       const requests = await base44.entities.WithdrawalRequest.filter(
@@ -55,36 +57,30 @@ export default function Withdraw() {
     setError('');
     setSuccess(false);
 
-    // Derive values from user object for convenience and consistency with outline
-    // These reflect the user's current configured withdrawal settings from their profile
     const withdrawalMethod = user.withdrawal_method;
     const accountType = user.withdrawal_account_type;
     const aliasCbu = user.withdrawal_alias_cbu;
     const fullName = user.withdrawal_full_name;
     const additionalInfo = user.withdrawal_additional_info;
 
-    // VALIDACIONES COMPLETAS
     if (!amount || parseFloat(amount) <= 0) {
       setError('Por favor ingresa un monto válido mayor a 0.');
       return;
     }
 
-    const withdrawAmount = parseFloat(amount);
+    const grossAmount = Math.round(parseFloat(amount) * 100) / 100;
     const availableBalance = parseFloat(wallet?.star_credits) || 0;
 
-    // VALIDAR MÍNIMO (1 Estrella = 1 USD) - Added this from outline
-    if (withdrawAmount < 1) {
+    if (grossAmount < 1) {
       setError('El monto mínimo de retiro es 1 Estrella (1 USD).');
       return;
     }
 
-    // VALIDAR MÁXIMO (balance disponible)
-    if (withdrawAmount > availableBalance) {
+    if (grossAmount > availableBalance) {
       setError(`No tienes suficientes Estrellas ⭐. Disponible: ${availableBalance.toFixed(2)}`);
       return;
     }
 
-    // VALIDAR CONFIGURACIÓN DE RETIRO desde el perfil del usuario
     if (!withdrawalMethod || withdrawalMethod.trim() === '') {
       setError('⚠️ Debes configurar tu método de retiro en "Editar Perfil" antes de solicitar un canje.');
       return;
@@ -100,7 +96,6 @@ export default function Withdraw() {
       return;
     }
 
-    // VALIDAR QUE NO TENGA RETIROS PENDIENTES - NEW FROM OUTLINE
     try {
       const pendingWithdrawals = await base44.entities.WithdrawalRequest.filter({
         user_id: user.id,
@@ -117,62 +112,65 @@ export default function Withdraw() {
       return;
     }
 
-    // Removed the window.confirm from original code as it's not in outline.
-    // The new flow implies direct submission after validations, then a success message and redirect.
-
     setIsSubmitting(true);
 
     try {
-      // Use the simplified processing time from the outline for request and notifications
       const processingTimeDescription = '10 días hábiles posteriores al cierre del concurso';
 
-      // Crear solicitud de retiro
-      const newRequest = await base44.entities.WithdrawalRequest.create({
+      // Cálculo de comisión del 30% y neto a recibir (70%)
+      const adminCommission = Math.round(grossAmount * (ADMIN_COMMISSION_RATE / 100) * 100) / 100;
+      const netAmount = Math.round((grossAmount - adminCommission) * 100) / 100;
+
+      // Crear solicitud de retiro con desglose completo para Supabase y Admin
+      await base44.entities.WithdrawalRequest.create({
         user_id: user.id,
-        amount: withdrawAmount,
+        amount: netAmount,
+        gross_amount: grossAmount,
+        admin_commission: adminCommission,
+        net_amount: netAmount,
+        commission_rate: ADMIN_COMMISSION_RATE,
         withdrawal_method: withdrawalMethod,
-        account_type: accountType || '', // Ensure it's not undefined
+        account_type: accountType || '',
         alias_cbu: aliasCbu,
         full_name: fullName,
-        additional_info: additionalInfo || '', // Ensure it's not undefined
+        additional_info: additionalInfo || '',
         status: 'pending',
         processing_time: processingTimeDescription
       });
 
-      // DESCONTAR LAS ESTRELLAS INMEDIATAMENTE (quedan "retenidas")
-      const newStarBalance = Math.round((availableBalance - withdrawAmount) * 100) / 100;
+      // Descontar las estrellas brutas canjeadas de la billetera
+      const newStarBalance = Math.round((availableBalance - grossAmount) * 100) / 100;
       await base44.entities.Wallet.update(wallet.id, {
         star_credits: newStarBalance
       });
-      console.log('✅ Estrellas deducidas:', withdrawAmount);
 
-      // Crear transacción - NEW FROM OUTLINE
+      // Registrar transacción con el detalle de la comisión
       await base44.entities.Transaction.create({
         user_id: user.id,
         type: 'withdrawal',
-        amount: -withdrawAmount, // Negative amount for withdrawal
-        description: `Retiro de Estrellas ⭐ (${getMethodName(withdrawalMethod)}) - Pendiente`,
+        amount: -grossAmount,
+        description: `Canje de ${grossAmount.toFixed(2)} Estrellas ⭐ (${getMethodName(withdrawalMethod)}) — Neto: $${netAmount.toFixed(2)} USD (Comisión ${ADMIN_COMMISSION_RATE}%: $${adminCommission.toFixed(2)} USD)`,
         payment_method: withdrawalMethod,
         status: 'pending'
       });
 
-      // Notificar usuario
+      // Notificar al artista
       await base44.entities.Notification.create({
         user_id: user.id,
         title: '⏳ Solicitud de Retiro Recibida',
-        message: `Tu solicitud de ${withdrawAmount.toFixed(2)} Estrellas ⭐ fue recibida. Será procesada en ${processingTimeDescription}.`,
+        message: `Canjeaste ${grossAmount.toFixed(2)} Estrellas ⭐. Recibirás $${netAmount.toFixed(2)} USD netos (descontada la comisión de plataforma del ${ADMIN_COMMISSION_RATE}%: $${adminCommission.toFixed(2)} USD) en ${processingTimeDescription}.`,
         type: 'withdrawal_requested',
         link: createPageUrl(user.user_type === 'artist' ? 'ArtistDashboard' : 'FanDashboard')
       });
 
-      // === NOTIFICAR A LOS ADMINS (PIEZA AÑADIDA) ===
+      // Notificar a los Admins con el desglose exacto
       try {
         const adminUsers = await base44.entities.User.filter({ role: 'admin' });
         for (const admin of adminUsers) {
           await base44.entities.Notification.create({
             user_id: admin.id,
             title: '💸 Nueva Solicitud de Retiro',
-            message: `${user.full_name || user.email} solicitó retirar $${withdrawAmount.toFixed(2)} USD.`,
+            message: `${user.full_name || user.email} canjeó ${grossAmount.toFixed(2)} ⭐ | A pagar neto: $${netAmount.toFixed(2)} USD | Tu comisión (30%): $${adminCommission.toFixed(2)} USD.`,
             type: 'admin_withdrawal_request',
             link: createPageUrl('AdminWithdrawals')
           });
@@ -180,18 +178,14 @@ export default function Withdraw() {
       } catch (e) {
         console.warn('No se pudo notificar a los admins', e);
       }
-      // === FIN DE LA PIEZA AÑADIDA ===
 
-      setSuccess(true); // Indicate success
-      setAmount(''); // Clear amount field
-      // Load data immediately to show updated balance and pending request
-      // and then reload again to ensure latest state after the timeout and navigation
-      loadData(); 
+      setSuccess(true);
+      setAmount('');
+      loadData();
 
-      // Redirect after a short delay
       setTimeout(() => {
         navigate(createPageUrl(user.user_type === 'artist' ? 'ArtistDashboard' : 'FanDashboard'));
-      }, 3000); // 3 seconds delay before redirect
+      }, 3000);
 
     } catch (err) {
       console.error('Error submitting withdrawal:', err);
@@ -208,8 +202,7 @@ export default function Withdraw() {
     };
     return methods[method] || method;
   };
-
-  const getStatusBadge = (status) => {
+const getStatusBadge = (status) => {
     const statusConfig = {
       pending: { label: 'Pendiente', className: 'bg-yellow-100 text-yellow-800' },
       processing: { label: 'Procesando', className: 'bg-blue-100 text-blue-800' },
@@ -229,6 +222,9 @@ export default function Withdraw() {
   }
 
   const availableStars = parseFloat(wallet?.star_credits) || 0;
+  const parsedGross = parseFloat(amount) > 0 ? Math.round(parseFloat(amount) * 100) / 100 : 0;
+  const previewCommission = Math.round(parsedGross * (ADMIN_COMMISSION_RATE / 100) * 100) / 100;
+  const previewNet = Math.round((parsedGross - previewCommission) * 100) / 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-white py-12">
@@ -270,10 +266,10 @@ export default function Withdraw() {
                   </p>
                   <h2 className="text-5xl font-bold mb-2">{availableStars.toFixed(2)}</h2>
                   <p className="text-yellow-100 text-sm">
-                    = ${availableStars.toFixed(2)} USD canjeables
+                    = ${availableStars.toFixed(2)} USD en estrellas (Recibes el {100 - ADMIN_COMMISSION_RATE}% neto: ${(availableStars * ((100 - ADMIN_COMMISSION_RATE) / 100)).toFixed(2)} USD)
                   </p>
                   <p className="text-xs text-yellow-200 mt-1">
-                    💡 1 Estrella ⭐ = 1 USD
+                    💡 1 Estrella ⭐ = 1 USD bruto (Comisión de plataforma: {ADMIN_COMMISSION_RATE}%)
                   </p>
                 </div>
                 <div className="text-right">
@@ -298,7 +294,11 @@ export default function Withdraw() {
               </li>
               <li className="flex items-start gap-2">
                 <Star3D size={16} className="mt-0.5" />
-                <span><strong>Conversión:</strong> 1 Estrella ⭐ = 1 USD</span>
+                <span><strong>Conversión:</strong> 1 Estrella ⭐ = 1 USD bruto</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <TrendingUp className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
+                <span><strong>Comisión de plataforma:</strong> se descuenta el {ADMIN_COMMISSION_RATE}% por gestión y mantenimiento del sitio; recibes el {100 - ADMIN_COMMISSION_RATE}% neto en USD</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
@@ -313,10 +313,6 @@ export default function Withdraw() {
                 <span><strong>Tiempo:</strong> 24-48 horas hábiles desde la solicitud</span>
               </li>
               <li className="flex items-start gap-2">
-                <TrendingUp className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
-                <span><strong>Comisiones:</strong> el costo de la transferencia lo paga quien recibe</span>
-              </li>
-              <li className="flex items-start gap-2">
                 <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
                 <span><strong>Datos de pago:</strong> revisalos bien, no nos hacemos cargo de cuentas mal informadas, cerradas o de demoras de PayPal/Binance</span>
               </li>
@@ -327,8 +323,7 @@ export default function Withdraw() {
             </ul>
           </CardContent>
         </Card>
-
-        {/* Solicitar Canje */}
+{/* Solicitar Canje */}
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -348,7 +343,7 @@ export default function Withdraw() {
                   antes de solicitar un canje.
                 </AlertDescription>
               </Alert>
-            ) : availableStars < 1 ? ( // Updated minimum stars check for display
+            ) : availableStars < 1 ? (
               <Alert>
                 <AlertCircle className="w-4 h-4" />
                 <AlertDescription>
@@ -391,7 +386,7 @@ export default function Withdraw() {
                     id="amount"
                     type="number"
                     step="0.01"
-                    min="1" // Minimum amount is 1
+                    min="1"
                     max={availableStars}
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
@@ -399,19 +394,31 @@ export default function Withdraw() {
                     required
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Disponible: {availableStars.toFixed(2)} Estrellas ⭐ = ${availableStars.toFixed(2)} USD
+                    Disponible: {availableStars.toFixed(2)} Estrellas ⭐ = ${availableStars.toFixed(2)} USD brutos
                   </p>
-                  {amount && !isNaN(parseFloat(amount)) && parseFloat(amount) > 0 && (
-                    <p className="text-sm text-green-600 mt-2 font-semibold">
-                      💵 Recibirás: ${parseFloat(amount).toFixed(2)} USD
-                    </p>
+
+                  {parsedGross > 0 && (
+                    <div className="mt-4 p-4 rounded-lg bg-emerald-50 border border-emerald-200 space-y-1.5 text-sm">
+                      <div className="flex justify-between text-gray-700">
+                        <span>Estrellas a canjear (100%):</span>
+                        <span className="font-medium">{parsedGross.toFixed(2)} ⭐ (${parsedGross.toFixed(2)} USD)</span>
+                      </div>
+                      <div className="flex justify-between text-amber-700">
+                        <span>Comisión de plataforma ({ADMIN_COMMISSION_RATE}%):</span>
+                        <span className="font-medium">- ${previewCommission.toFixed(2)} USD</span>
+                      </div>
+                      <div className="border-t border-emerald-200 pt-1.5 flex justify-between text-emerald-800 font-bold text-base">
+                        <span>💵 Total neto a recibir ({100 - ADMIN_COMMISSION_RATE}%):</span>
+                        <span>${previewNet.toFixed(2)} USD</span>
+                      </div>
+                    </div>
                   )}
                 </div>
 
                 <Button
                   type="submit"
                   className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                  disabled={isSubmitting || availableStars < 1} // Disable if insufficient stars
+                  disabled={isSubmitting || availableStars < 1}
                   size="lg"
                 >
                   {isSubmitting ? (
@@ -422,7 +429,7 @@ export default function Withdraw() {
                   ) : (
                     <>
                       <Star3D size={18} className="mr-2" />
-                      Solicitar Canje
+                      Solicitar Canje{parsedGross > 0 ? ` ($${previewNet.toFixed(2)} USD netos)` : ''}
                     </>
                   )}
                 </Button>
@@ -444,35 +451,40 @@ export default function Withdraw() {
               </div>
             ) : (
               <div className="space-y-4">
-                {withdrawalRequests.map((request) => (
-                  <div
-                    key={request.id}
-                    className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <p className="font-semibold text-lg">
-                          {parseFloat(request.amount).toFixed(2)} Estrellas ⭐
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          = ${parseFloat(request.amount).toFixed(2)} USD
-                        </p>
+                {withdrawalRequests.map((request) => {
+                  const gross = parseFloat(request.gross_amount || request.amount) || 0;
+                  const net = parseFloat(request.net_amount || request.amount) || 0;
+                  const comm = parseFloat(request.admin_commission) || 0;
+                  return (
+                    <div
+                      key={request.id}
+                      className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-semibold text-lg text-emerald-700">
+                            💵 Neto a recibir: ${net.toFixed(2)} USD
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Canjeado: {gross.toFixed(2)} ⭐ {comm > 0 ? `• Comisión (${request.commission_rate || ADMIN_COMMISSION_RATE}%): $${comm.toFixed(2)} USD` : ''}
+                          </p>
+                        </div>
+                        {getStatusBadge(request.status)}
                       </div>
-                      {getStatusBadge(request.status)}
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <p><strong>Método:</strong> {getMethodName(request.withdrawal_method)}</p>
+                        <p><strong>Cuenta de pago:</strong> {request.alias_cbu}</p>
+                        <p><strong>Solicitado:</strong> {new Date(request.created_date).toLocaleString('es-ES')}</p>
+                        {request.processing_time && (
+                          <p><strong>Tiempo estimado:</strong> {request.processing_time}</p>
+                        )}
+                        {request.admin_notes && (
+                          <p className="text-blue-600"><strong>Nota admin:</strong> {request.admin_notes}</p>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <p><strong>Método:</strong> {getMethodName(request.withdrawal_method)}</p>
-                      <p><strong>Cuenta de pago:</strong> {request.alias_cbu}</p>
-                      <p><strong>Solicitado:</strong> {new Date(request.created_date).toLocaleString('es-ES')}</p>
-                      {request.processing_time && (
-                        <p><strong>Tiempo estimado:</strong> {request.processing_time}</p>
-                      )}
-                      {request.admin_notes && (
-                        <p className="text-blue-600"><strong>Nota admin:</strong> {request.admin_notes}</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>
