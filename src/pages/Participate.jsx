@@ -81,7 +81,7 @@ export default function Participate() {
       return;
     }
 
-    try {
+       try {
       if (userData.user_type !== 'artist' && userData.role !== 'admin') {
         alert('Solo los artistas pueden inscribirse en convocatorias. Por favor, selecciona el rol de artista en tu perfil.');
         navigate(createPageUrl('SelectRole'));
@@ -90,20 +90,28 @@ export default function Participate() {
 
       setUser(userData);
 
-      if (!contestId) {
-        setError('no_contest_selected');
-        setIsLoading(false);
-        return;
+      let activeContestId = contestId;
+      let contests = null;
+
+      if (activeContestId && activeContestId !== 'undefined') {
+        contests = await base44.entities.Contest.filter({ id: activeContestId });
+      } else {
+        const openContests = await base44.entities.Contest.filter({ status: 'open' }, '-created_date');
+        contests = openContests && openContests.length > 0
+          ? openContests
+          : await base44.entities.Contest.filter({ status: 'voting' }, '-created_date');
       }
 
-      const contests = await base44.entities.Contest.filter({ id: contestId });
-      if (!contests || contests.length === 0) {
+      const contestData = Array.isArray(contests) ? contests.at(0) : contests;
+
+      if (!contestData || !contestData.id) {
         setError('Convocatoria no encontrada.');
         setIsLoading(false);
         return;
       }
 
-      const contestData = contests[0];
+      activeContestId = contestData.id;
+
       if (contestData.status !== 'open' && contestData.status !== 'voting') {
         setError('Esta convocatoria no está aceptando inscripciones en este momento.');
         setIsLoading(false);
@@ -113,14 +121,14 @@ export default function Participate() {
       setContest(contestData);
 
       const existingParticipants = await base44.entities.Participant.filter({
-        contest_id: contestId,
+        contest_id: activeContestId,
         artist_id: userData.id
       });
 
       if (existingParticipants && existingParticipants.length > 0) {
-       const participant = existingParticipants[0];
+        const participant = existingParticipants.at(0);
         if (participant.status === 'active' || participant.status === 'pending_payment') {
-          localStorage.removeItem(getDraftKey(userData.id, contestId));
+          localStorage.removeItem(getDraftKey(userData.id, activeContestId));
           setError(`Ya tienes una participación en esta convocatoria (Estado: ${participant.status === 'active' ? 'Activa' : 'Pendiente de Pago'}). No puedes inscribirte dos veces.`);
           setIsLoading(false);
           return;
@@ -382,6 +390,10 @@ export default function Participate() {
     );
   }
 
+  if (!contest) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -408,7 +420,10 @@ export default function Participate() {
           <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
             <CardTitle className="text-2xl">Inscripción a la Convocatoria</CardTitle>
             <p className="text-purple-100 text-sm mt-2">
-              {contest.name} • {contest.genre} • Inscripción ${(parseFloat(contest.entry_price) || 10).toFixed(2)} USD (Passline / PayPal)
+              {contest.name} • {contest.genre} •{' '}
+              {isFreePromo
+                ? 'Inscripción $0.00 USD (Promoción Exclusiva)'
+                : `Inscripción $${(parseFloat(contest.entry_price) || 10).toFixed(2)} USD (Passline / PayPal)`}
             </p>
           </CardHeader>
           <CardContent className="p-6">
@@ -419,6 +434,8 @@ export default function Participate() {
                 className={`flex items-center cursor-pointer transition-opacity hover:opacity-80 ${step >= 1 ? 'text-purple-600' : 'text-gray-400'}`}
                 title="Ir al Paso 1: Perfil"
               >
+
+
                 <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold text-lg ${step >= 1 ? 'bg-purple-600 text-white' : 'bg-gray-300'}`}>
                   1
                 </div>
