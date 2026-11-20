@@ -15,7 +15,7 @@ export const faqs = [
       },
       {
         q: '¿Cómo participo?',
-        a: '1. Completá tu perfil.\n2. Elegí la convocatoria de tu género.\n3. Subí tu video y pagá la inscripción de 10 USD en Passline.\n4. Informá el correo o ID de tu pago para que se active tu participación.'
+        a: '1. Completá tu perfil.\n2. Elegí la convocatoria de tu género.\n3. Subí tu video y completá la inscripción (mediante Passline en Argentina, PayPal en el exterior, o con Acceso Gratuito $0 USD cuando haya promoción activa).\n4. Una vez confirmada, tu video queda activo para recibir votos.'
       },
       {
         q: '¿Cuánto se gana?',
@@ -36,11 +36,11 @@ export const faqs = [
     questions: [
       {
         q: '¿Cuánto cuesta inscribirse?',
-        a: '10 USD por convocatoria.\nSe paga en Passline, una pasarela de pagos externa: los datos de tu tarjeta no pasan por la plataforma.'
+        a: 'El valor estándar es de 10 USD por convocatoria (abonado por Passline en Argentina o PayPal en el exterior).\nEn convocatorias con promoción de lanzamiento habilitada, el acceso es 100% gratuito ($0.00 USD).'
       },
       {
         q: '¿Cómo se paga el premio?',
-        a: 'La organización lo transfiere por PayPal o Binance al ganador, dentro de los 10 días hábiles posteriores al cierre.\nNo entra al saldo canjeable ni se pide por "Canjear Estrellas".'
+        a: 'La organización lo transfiere íntegro por PayPal o Binance al ganador, dentro de los 10 días hábiles posteriores al cierre.\nNo entra al saldo canjeable ni se pide por "Canjear Estrellas".'
       },
       {
         q: '¿Qué datos de cobro informo?',
@@ -48,7 +48,7 @@ export const faqs = [
       },
       {
         q: '¿Quién paga comisiones e impuestos?',
-        a: 'Las comisiones de la transferencia las cubre quien recibe.\nLos impuestos de tu país son responsabilidad de cada usuario: no retenemos impuestos.'
+        a: 'Las comisiones de la transferencia externa las cubre quien recibe.\nLos impuestos de tu país son responsabilidad de cada usuario: no retenemos impuestos.'
       }
     ]
   },
@@ -61,7 +61,7 @@ export const faqs = [
       },
       {
         q: '¿Qué son las Estrellas ⭐?',
-        a: 'Es lo que recibe el artista por los regalos de sus fans: 1 ⭐ = 1 USD.\nEs el único saldo canjeable y no tiene relación con el premio del concurso.'
+        a: 'Es lo que recibe el artista por los regalos de sus fans: 1 ⭐ = 1 USD bruto.\nEs el único saldo canjeable y no tiene relación con el premio del concurso.'
       },
       {
         q: '¿Cómo compro créditos?',
@@ -72,8 +72,8 @@ export const faqs = [
         a: 'Entrá al perfil del artista, elegí un regalo del catálogo y pagalo con tus créditos.\nEl artista recibe las Estrellas ⭐ de ese regalo.'
       },
       {
-        q: '¿Cómo cobro mis Estrellas ⭐?',
-        a: 'En "Canjear Estrellas": indicás el monto y tu cuenta de PayPal o Binance.\nLa solicitud se procesa en 24-48 horas hábiles.'
+        q: '¿Cómo cobro mis Estrellas ⭐ y qué comisión aplica?',
+        a: 'En "Canjear Estrellas": indicás el monto (mínimo 1 ⭐) y tu cuenta de PayPal o Binance.\nAl canjear a dinero real, la plataforma retiene una comisión del 30% por gestión y mantenimiento del sitio, y te transfiere el 70% neto en USD dentro de las 24-48 horas hábiles.'
       },
       {
         q: '¿Los créditos se devuelven?',
@@ -156,6 +156,7 @@ export default function FAQ() {
             Respuestas cortas y claras sobre cómo funciona la plataforma
           </p>
         </motion.div>
+
 
         <div className="space-y-10">
           {faqs.map((category, catIndex) => (
