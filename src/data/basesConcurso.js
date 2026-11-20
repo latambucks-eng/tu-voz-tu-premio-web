@@ -2,16 +2,17 @@
 // Documento autónomo. Regula exclusivamente el concurso de canto online.
 // Los términos de uso del sitio web se rigen por la página de Términos y Condiciones.
 
-export const BASES_VERSION = 'Versión 1.0 · Noviembre 2026';
+export const BASES_VERSION = 'Versión 1.1 · Noviembre 2026';
 
 export const basesHighlights = [
   'Concurso 100% online, por salas separadas por género musical.',
-  'Inscripción de 10 USD por Passline: paga el mantenimiento y la gestión de la plataforma.',
+  'Inscripción estándar de 10 USD (Passline en Argentina o PayPal en el exterior), o Acceso Gratuito ($0 USD) en convocatorias promocionales habilitadas.',
   'El premio es un monto fijo en USD que publica la organización y lo cobra el único ganador de la sala.',
   'El ganador se define por votación pública; si hay empate, se abre una ronda de finalistas.',
-  'El premio se abona por PayPal o Binance dentro de los 10 días hábiles posteriores al cierre.',
-  'Las estrellas ⭐ de los regalos de fans son independientes del premio del concurso.'
+  'El premio del concurso se abona íntegro por PayPal o Binance dentro de los 10 días hábiles posteriores al cierre.',
+  'Las estrellas ⭐ de los regalos de fans son independientes del premio del concurso y se canjean con una comisión de plataforma del 30% (70% neto para el artista).'
 ];
+
 
 export const basesSections = [
   {
@@ -154,7 +155,7 @@ export const basesSections = [
     title: 'Inscripción: valor, medio de pago y contraprestación',
     blocks: [
       {
-        p: 'El valor de la inscripción en cada convocatoria es el publicado en la ficha de la sala y en el proceso de pago, y asciende a 10 USD por defecto. Se abona en dólares estadounidenses mediante Passline, plataforma de pagos de terceros, a través del enlace de pago publicado para esa convocatoria.'
+        p: 'El valor estándar de la inscripción en cada convocatoria es el publicado en la ficha de la sala y asciende a 10 USD por defecto, abonándose mediante Passline (Argentina) o PayPal (Latinoamérica e Internacional). Excepcionalmente, la organización puede habilitar convocatorias con "Acceso Gratuito — Promoción Exclusiva ($0.00 USD)" por tiempo o cupo limitado, quedando los pagos deshabilitados durante la promoción.'
       },
       {
         sub: 'Naturaleza del importe',
@@ -484,8 +485,9 @@ export const basesSections = [
       {
         ul: [
           'El fan compra créditos con dinero y los usa para enviar un regalo; el artista recibe las estrellas ⭐ indicadas para ese regalo.',
-          '1 Estrella ⭐ equivale a 1 USD y se acumula en el saldo canjeable del artista.',
-          'El canje se solicita desde la sección "Canjear Estrellas", con un mínimo de 1 ⭐, y se abona por PayPal o Binance a los datos del perfil.',
+          '1 Estrella ⭐ equivale a 1 USD bruto y se acumula en el saldo canjeable del artista.',
+          'Al solicitar el canje a dinero real, la plataforma retiene una comisión del 30% en concepto de gestión y mantenimiento del sitio, transfiriendo al artista el 70% neto en USD.',
+
           'Las solicitudes de canje se procesan dentro de las 24 a 48 horas hábiles posteriores a la solicitud.',
           'Los regalos son voluntarios y no influyen en la votación, en la posición de la sala ni en el monto del premio.',
           'Las estrellas ⭐ no provienen del premio del concurso y no lo reemplazan ni lo adelantan.',
