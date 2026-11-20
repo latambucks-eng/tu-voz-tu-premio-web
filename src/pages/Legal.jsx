@@ -110,7 +110,7 @@ export default function Legal() {
                   <p className="mb-2">El sitio combina funciones gratuitas y servicios pagos claramente informados antes de cada pago:</p>
                   <ul className="list-disc ml-6 space-y-1">
                     <li><strong>Gratuitos:</strong> votar, compartir perfiles, ver salas, seguir artistas, consultar el Salón de la Fama y usar el sistema de soporte.</li>
-                    <li><strong>Inscripción en convocatorias:</strong> se abona por Passline, plataforma de pagos de terceros, al valor publicado en cada ficha. Es la contraprestación por el mantenimiento y la gestión de la plataforma y no se paga con créditos.</li>
+                    <li><strong>Inscripción en convocatorias:</strong> se abona por Passline o Paypal, plataforma de pagos de terceros, al valor publicado en cada ficha. Es la contraprestación por el mantenimiento y la gestión de la plataforma y no se paga con créditos.</li>
                     <li><strong>Créditos:</strong> se compran con dinero mediante los enlaces oficiales de PayPal publicados en la plataforma; el cobro aparece a nombre de LatamBucks.</li>
                     <li><strong>Premios:</strong> los abona la organización al ganador por PayPal o Binance, dentro de los 10 días hábiles posteriores al cierre de la sala.</li>
                     <li>Los precios se expresan en USD. Las diferencias por tipo de cambio, conversión de moneda, impuestos o cargos de la entidad emisora corren por cuenta del usuario.</li>
@@ -118,15 +118,16 @@ export default function Legal() {
                 </div>
 
                 <div>
-                  <h3 className="font-bold text-lg mb-2">5. Créditos, estrellas ⭐ y wallet</h3>
-                  <p className="mb-2">Son conceptos distintos y no equivalentes:</p>
-                  <ul className="list-disc ml-6 space-y-1">
-                    <li><strong>Créditos:</strong> saldo comprado con dinero (1 crédito = 1 USD como referencia). Se usan para enviar regalos a artistas. No son reembolsables una vez utilizados, no se canjean por dinero y no son transferibles.</li>
-                    <li><strong>Estrellas ⭐:</strong> 1 ⭐ = 1 USD. Se acreditan al artista cuando un fan le envía un regalo y son el único saldo canjeable, con un mínimo de 1 ⭐ y procesamiento de 24 a 48 horas hábiles por PayPal o Binance.</li>
-                    <li><strong>Premio del concurso:</strong> monto fijo en USD que la organización paga directamente al ganador. No se acredita en el wallet, no se cobra por canje y no forma parte del saldo de estrellas ⭐.</li>
-                    <li>La plataforma puede anular créditos o estrellas ⭐ obtenidos fraudulentamente, mediante contracargos o en violación de estos términos.</li>
-                  </ul>
-                </div>
+                 <h3 className="font-bold text-lg mb-2">5. Créditos, estrellas ⭐ y wallet</h3>
+                 <p className="mb-2">Son conceptos distintos y no equivalentes:</p>
+                 <ul className="list-disc ml-6 space-y-1">
+                 <li><strong>Créditos:</strong> saldo comprado con dinero (1 crédito = 1 USD como referencia). Se usan para enviar regalos a artistas. No son                  reembolsables una vez utilizados, no se canjean por dinero y no son transferibles.</li>
+                 <li><strong>Estrellas ⭐:</strong> 1 ⭐ = 1 USD de valor nominal. Se acreditan al artista cuando un fan le envía un regalo y son el único saldo   canjeable, con un mínimo de 1 ⭐. Al momento de solicitar el canje, la organización retiene una comisión del 30% destinada al mantenimiento técnico, gestión operativa  y costos administrativos de la plataforma, recibiendo el artista el 70% neto restante en un plazo de 24 a 48 horas hábiles por PayPal o Binance.</li>
+                 <li><strong>Premio del concurso:</strong> monto fijo en USD que la organización paga directamente al ganador. No se acredita en el wallet, no se cobra por canje y no forma parte del saldo de estrellas ⭐.</li>
+                 <li>La plataforma puede anular créditos o estrellas ⭐ obtenidos fraudulentamente, mediante contracargos o en violación de estos términos.</li>
+  </ul>
+</div>
+
 
                 <div>
                   <h3 className="font-bold text-lg mb-2">6. Contenido publicado por los usuarios</h3>
@@ -162,7 +163,7 @@ export default function Legal() {
                     La plataforma se integra con servicios externos que tienen sus propios términos y políticas:
                   </p>
                   <ul className="list-disc ml-6 space-y-1">
-                    <li><strong>Passline:</strong> procesa el pago de la inscripción. No almacenamos datos de tarjetas.</li>
+                    <li><strong>Passline y Paypal:</strong> procesa el pago de la inscripción. No almacenamos datos de tarjetas.</li>
                     <li><strong>PayPal y Binance:</strong> procesan la compra de créditos y el pago de premios y estrellas ⭐.</li>
                     <li><strong>YouTube:</strong> aloja los videos cuando el artista elige esa opción.</li>
                   </ul>
@@ -448,20 +449,20 @@ export default function Legal() {
                     </ul>
                   </div>
 
-                  <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
-                    <h4 className="font-bold text-yellow-900 mb-2">
-                      Estrellas Canjeables (Regalos de Fans)
-                    </h4>
-                    <ul className="list-disc ml-6 space-y-1 text-sm">
-                      <li>Se acreditan cuando un fan envía un regalo al artista con sus créditos</li>
-                      <li>1 Estrella ⭐ = $1 USD canjeable</li>
-                      <li>SÍ son canjeables por dinero</li>
-                      <li>No provienen del premio del concurso: las aportan los fans</li>
-                      <li>Mínimo de canje: 1 Estrella ⭐</li>
-                      <li>Se visualizan en tu wallet, con su origen en el historial de transacciones</li>
-                    </ul>
-                  </div>
-                </div>
+                 <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
+                  <h4 className="font-bold text-yellow-900 mb-2">
+                   Estrellas Canjeables (Regalos de Fans)
+                   </h4>
+                   <ul className="list-disc ml-6 space-y-1 text-sm">
+                   <li>Se acreditan cuando un fan envía un regalo al artista con sus créditos</li>
+                   <li>1 Estrella ⭐ = $1 USD de valor nominal</li>
+                   <li>SÍ son canjeables por dinero</li>
+                   <li><strong>Comisión administrativa:</strong> al solicitar el canje, la organización retiene el 30% para mantenimiento y costos operativos de la   plataforma, recibiendo el artista el 70% neto</li>
+                   <li>No provienen del premio del concurso: las aportan los fans</li>
+                   <li>Mínimo de canje: 1 Estrella ⭐</li>
+                   <li>Se visualizan en tu wallet, con su origen en el historial de transacciones</li>
+                   </ul>
+                   </div>
 
                 <div>
                   <h3 className="font-bold text-lg mb-2">2. Cómo Comprar Créditos</h3>
@@ -473,7 +474,7 @@ export default function Legal() {
                     <li>El cobro aparece en PayPal a nombre de LatamBucks, empresa que procesa los pagos de la plataforma</li>
                     <li>La plataforma aprueba tu pago en 24-48 horas</li>
                     <li>Los créditos se acreditan automáticamente a tu wallet</li>
-                    <li>Los créditos se usan para enviar regalos a artistas (la inscripción se paga aparte, 10 USD por Passline)</li>
+                    <li>Los créditos se usan para enviar regalos a artistas (la inscripción se paga aparte,en USD por Passline o Paypal dependiendo de su país.)</li>
                   </ul>
                 </div>
 
@@ -481,7 +482,7 @@ export default function Legal() {
                   <h3 className="font-bold text-lg mb-2">3. Cómo Ganar el Premio y las Estrellas ⭐</h3>
                   <p className="mb-2 font-semibold">Artistas - premio del concurso:</p>
                   <ul className="list-disc ml-6 space-y-1 text-sm mb-3">
-                    <li>Inscríbete en una convocatoria abonando la inscripción de 10 USD por Passline</li>
+                    <li>Inscríbete en una convocatoria abonando la inscripción en USD por Passline o Paypal dependiendo de tu país.</li>
                     <li>Sube tu mejor interpretación en video</li>
                     <li>Comparte tu participación en redes sociales</li>
                     <li>Recibe votos de la comunidad</li>
@@ -507,21 +508,22 @@ export default function Legal() {
                 </div>
 
                 <div>
-                  <h3 className="font-bold text-lg mb-2">4. Cómo Canjear tus Estrellas ⭐</h3>
+                 <h3 className="font-bold text-lg mb-2">4. Cómo Canjear tus Estrellas ⭐</h3>
                   <p className="mb-2">Para cobrar tus estrellas ⭐ (saldo canjeable en USD):</p>
                   <ul className="list-disc ml-6 space-y-1">
-                    <li><strong>Mínimo: 1 Estrella ⭐ (1 USD).</strong> Puedes canjear cualquier monto a partir de ahí, hasta tu saldo disponible</li>
-                    <li>Configura tu método de pago de premios en "Editar Perfil": una cuenta de <strong>PayPal</strong> (email) o de <strong>Binance</strong> (email/ID). Para cobrar necesitás una cuenta válida y activa en alguna de las dos</li>
-                    <li>Ve a la sección "Canjear Estrellas"</li>
-                    <li>Ingresa el monto que deseas canjear</li>
-                    <li><strong>La plataforma procesa tu solicitud en 24-48 horas hábiles máximo</strong></li>
-                    <li>El pago se envía a la cuenta de PayPal o Binance que configuraste</li>
-                    <li>Recibes notificación cuando el canje está completado</li>
-                  </ul>
-                  <p className="text-sm text-gray-600 mt-2">
-                    <strong>Conversión:</strong> 1 Estrella ⭐ = $1 USD al momento del canje
-                  </p>
-                </div>
+                  <li><strong>Mínimo: 1 Estrella ⭐ (1 USD de valor nominal).</strong> Puedes canjear cualquier monto a partir de ahí, hasta tu saldo disponible</li>
+                  <li>Configura tu método de pago de premios en "Editar Perfil": una cuenta de <strong>PayPal</strong> (email) o de <strong>Binance</strong> (email/ID). Para cobrar necesitás una cuenta válida y activa en alguna de las dos</li>
+                  <li>Ve a la sección "Canjear Estrellas"</li>
+                  <li>Ingresa el monto que deseas canjear</li>
+                  <li><strong>Comisión administrativa:</strong> sobre el total canjeado, la organización retiene el 30% destinado al mantenimiento técnico y costos operativos de la plataforma, liquidando el 70% neto restante al artista</li>
+                  <li><strong>La plataforma procesa tu solicitud en 24-48 horas hábiles máximo</strong></li>
+                  <li>El pago neto se envía a la cuenta de PayPal o Binance que configuraste</li>
+                  <li>Recibes notificación cuando el canje está completado</li>
+               </ul>
+                <p className="text-sm text-gray-600 mt-2">
+                <strong>Conversión y liquidación:</strong> 1 Estrella ⭐ = $1 USD de valor nominal (el artista recibe $0.70 USD netos por cada estrella canjeada tras la retención administrativa del 30%)
+                </p>
+              </div>
 
                 <div>
                   <h3 className="font-bold text-lg mb-2">5. Distribución del Premio al Finalizar</h3>
