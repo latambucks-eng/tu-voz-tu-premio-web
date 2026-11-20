@@ -427,42 +427,21 @@ export default function Legal() {
                     Son tres conceptos distintos, con origen y destino diferente:
                   </p>
 
-                  <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-4 mb-3">
-                    <h4 className="font-bold text-purple-900 mb-2">💎 Créditos</h4>
-                    <ul className="list-disc ml-6 space-y-1 text-sm">
-                      <li>Se compran con dinero</li>
-                      <li>1 crédito = $1 USD (referencia de valor)</li>
-                      <li>Se usan para <strong>enviar regalos</strong> a un artista (la inscripción se abona aparte, por Passline)</li>
-                      <li>NO se reembolsan ni se canjean por dinero</li>
-                      <li>Paquetes desde $5 USD</li>
-                      <li>Se visualizan como "Créditos Disponibles" en tu wallet</li>
-                    </ul>
-                  </div>
-
-                  <div className="bg-amber-50 border-2 border-amber-300 rounded-lg p-4 mb-3">
-                    <h4 className="font-bold text-amber-900 mb-2">🏆 Premio del Concurso (USD)</h4>
-                    <ul className="list-disc ml-6 space-y-1 text-sm">
-                      <li>Monto fijo en USD publicado por la organización para cada sala</li>
-                      <li>Lo entrega la plataforma; no se compra ni se paga con créditos</li>
-                      <li>Artista ganador: el premio completo de esa sala</li>
-                      <li>Lo abona la organización por PayPal o Binance dentro de los 10 días hábiles posteriores al cierre: no pasa por el wallet ni por el canje</li>
-                    </ul>
-                  </div>
-
-                 <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
-                  <h4 className="font-bold text-yellow-900 mb-2">
-                   Estrellas Canjeables (Regalos de Fans)
+                                   <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
+                   <h4 className="font-bold text-yellow-900 mb-2">
+                     Estrellas Canjeables (Regalos de Fans)
                    </h4>
                    <ul className="list-disc ml-6 space-y-1 text-sm">
-                   <li>Se acreditan cuando un fan envía un regalo al artista con sus créditos</li>
-                   <li>1 Estrella ⭐ = $1 USD de valor nominal</li>
-                   <li>SÍ son canjeables por dinero</li>
-                   <li><strong>Comisión administrativa:</strong> al solicitar el canje, la organización retiene el 30% para mantenimiento y costos operativos de la   plataforma, recibiendo el artista el 70% neto</li>
-                   <li>No provienen del premio del concurso: las aportan los fans</li>
-                   <li>Mínimo de canje: 1 Estrella ⭐</li>
-                   <li>Se visualizan en tu wallet, con su origen en el historial de transacciones</li>
+                     <li>Se acreditan cuando un fan envía un regalo al artista con sus créditos</li>
+                     <li>1 Estrella ⭐ = $1 USD de valor nominal</li>
+                     <li>SÍ son canjeables por dinero</li>
+                     <li><strong>Comisión administrativa:</strong> al solicitar el canje, la organización retiene el 30% para mantenimiento y costos operativos de la plataforma, recibiendo el artista el 70% neto</li>
+                     <li>No provienen del premio del concurso: las aportan los fans</li>
+                     <li>Mínimo de canje: 1 Estrella ⭐</li>
+                     <li>Se visualizan en tu wallet, con su origen en el historial de transacciones</li>
                    </ul>
-                   </div>
+                 </div>
+                </div>
 
                 <div>
                   <h3 className="font-bold text-lg mb-2">2. Cómo Comprar Créditos</h3>
