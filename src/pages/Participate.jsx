@@ -178,22 +178,31 @@ export default function Participate() {
     }
   };
 
-  const handleProfileComplete = (data) => {
+ const handleProfileComplete = (data) => {
     setProfileData(data);
     setStep(2);
   };
 
+  const isFreePromo = Boolean(contest?.is_free_promo) || parseFloat(contest?.entry_price) === 0;
+
   const handleVideoComplete = (data) => {
     setVideoData(data);
+    if (isFreePromo) {
+      setPaymentData({ payment_method: 'free_promo' });
+    }
     setStep(3);
   };
 
   const handlePaymentStart = (method = 'passline') => {
     setPaymentData({ payment_method: method });
+    if (method === 'free_promo') {
+      handlePaymentComplete('free_promo');
+      return;
+    }
     setStep(4);
   };
 
-  const handlePaymentComplete = async () => {
+  const handlePaymentComplete = async (overrideMethod = null) => {
     setIsSubmitting(true);
     setError(null);
 
@@ -228,17 +237,20 @@ export default function Participate() {
         videoFinalUrl = videoData.video_url;
       }
 
-      const entryPrice = parseFloat(contest.entry_price) || 10;
-      const chosenMethod = paymentData?.payment_method || 'passline';
-      const methodLabel = chosenMethod === 'paypal' ? 'PayPal' : 'Passline';
+      const chosenMethod = overrideMethod || paymentData?.payment_method || (isFreePromo ? 'free_promo' : 'passline');
+      const isFree = chosenMethod === 'free_promo' || isFreePromo;
+      const entryPrice = isFree ? 0 : (parseFloat(contest.entry_price) || 10);
+      const methodLabel = isFree ? 'Acceso Gratis (Promoción)' : (chosenMethod === 'paypal' ? 'PayPal' : 'Passline');
 
       await base44.entities.Transaction.create({
         user_id: user.id,
         type: 'contest_entry',
         amount: entryPrice,
-        description: `Inscripción: ${contest.name} - Pendiente de verificación en ${methodLabel} (${user.email})`,
+        description: isFree
+          ? `Inscripción Promocional Gratuita ($0): ${contest.name} (${user.email})`
+          : `Inscripción: ${contest.name} - Pendiente de verificación en ${methodLabel} (${user.email})`,
         payment_method: chosenMethod,
-        status: 'pending',
+        status: isFree ? 'approved' : 'pending',
         related_contest_id: contest.id,
         video_url: videoFinalUrl
       });
@@ -259,16 +271,18 @@ export default function Participate() {
         song_title: videoData.song_title,
         total_votes: 0,
         average_rating: 0,
-        payment_verified: false,
+        payment_verified: isFree ? true : false,
         payment_method: chosenMethod,
-        status: 'pending_payment'
+        status: isFree ? 'active' : 'pending_payment'
       });
 
       await base44.entities.Notification.create({
         user_id: user.id,
-        title: '⏳ Inscripción Pendiente',
-        message: `Tu inscripción en "${contest.name}" está pendiente de aprobación (${methodLabel}). Te notificaremos cuando se apruebe y tu video esté activo.`,
-        type: 'contest_pending',
+        title: isFree ? '🎉 ¡Inscripción Gratuita Activada!' : '⏳ Inscripción Pendiente',
+        message: isFree
+          ? `¡Tu participación promocional gratuita ($0) en "${contest.name}" ya está activa! Comparte tu perfil para sumar votos.`
+          : `Tu inscripción en "${contest.name}" está pendiente de aprobación (${methodLabel}). Te notificaremos cuando se apruebe y tu video esté activo.`,
+        type: isFree ? 'contest_approved' : 'contest_pending',
         link: createPageUrl('ArtistDashboard')
       });
 
@@ -298,51 +312,6 @@ export default function Participate() {
       setIsSubmitting(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-12 text-center">
-            <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin text-purple-600" />
-            <p className="text-gray-600">Cargando...</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (error === 'not_authenticated') {
-    return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-md mx-auto">
-          <Card className="text-center p-10 shadow-lg">
-            <Trophy className="w-14 h-14 mx-auto mb-4 text-purple-600" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">
-              ¡Inscríbete en la Convocatoria!
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Para subir tu video y participar, necesitas iniciar sesión o crear tu cuenta gratuita de artista.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button
-                onClick={() => navigate('/login')}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-              >
-                Iniciar Sesión
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate('/register')}
-              >
-                Crear Cuenta
-              </Button>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   if (error === 'no_contest_selected') {
     return (
