@@ -722,7 +722,7 @@ export default function ArtistProfile() {
                           <div className="text-center p-8">
                             <Lock className="w-16 h-16 text-white mx-auto mb-4" />
                             <h3 className="text-2xl font-bold text-white mb-2">
-                              Video del Concurso
+                             Video del Concurso
                             </h3>
                             <p className="text-purple-100 mb-6">
                               Regístrate gratis para ver el video completo de {artist.artist_name}
@@ -742,7 +742,7 @@ export default function ArtistProfile() {
                             <iframe
                               width="100%"
                               height="100%"
-                              src={`https://www.youtube-nocookie.com/embed/${participation.youtube_video_id}?rel=0&modestbranding=1&controls=1`}
+                              src={`https://www.youtube-nocookie.com/embed/${participation.youtube_video_id}?rel=0&modestbranding=1&controls=1&playsinline=1`}
                               frameBorder="0"
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                               allowFullScreen
@@ -769,7 +769,7 @@ export default function ArtistProfile() {
                   </Card>
                 </>
               )}
-              
+
               {!participation && (
                 <Card>
                   <CardContent className="p-8 md:p-12 text-center">
