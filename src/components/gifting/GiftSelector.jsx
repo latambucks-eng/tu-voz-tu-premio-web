@@ -1,62 +1,65 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-    X, Send, Coins, Loader2, CheckCircle, AlertTriangle, Sparkles
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { createPageUrl } from '@/utils';
+const FLUENT_3D = 'https://jsdelivr.net';
 
 const GIFT_3D_ASSETS = {
-    '68f4b3c11dc146998b762496': { emoji: '✨', bg: 'from-yellow-100 to-amber-200', shadow: 'drop-shadow-[0_10px_10px_rgba(245,158,11,0.45)]' },
-    '68f55d975162c3bafe50ee03': { emoji: '🎵', bg: 'from-purple-100 to-fuchsia-200', shadow: 'drop-shadow-[0_10px_10px_rgba(168,85,247,0.45)]' },
-    '68f4b3c11dc146998b762497': { emoji: '💖', bg: 'from-pink-100 to-rose-200', shadow: 'drop-shadow-[0_10px_10px_rgba(244,63,94,0.45)]' },
-    '68f55d975162c3bafe50ee04': { emoji: '🎙️', bg: 'from-amber-100 to-yellow-200', shadow: 'drop-shadow-[0_10px_10px_rgba(217,119,6,0.45)]' },
-    '68f6a46c08620e098533b106': { emoji: '👏', bg: 'from-yellow-100 to-orange-200', shadow: 'drop-shadow-[0_10px_10px_rgba(234,179,8,0.45)]' },
-    '68f55d975162c3bafe50ee05': { emoji: '🎸', bg: 'from-red-100 to-rose-200', shadow: 'drop-shadow-[0_10px_12px_rgba(220,38,38,0.45)]' },
-    '68f6a46c08620e098533b107': { emoji: '🌹', bg: 'from-rose-100 to-red-200', shadow: 'drop-shadow-[0_10px_12px_rgba(225,29,72,0.45)]' },
-    '68f4b3c11dc146998b762493': { emoji: '🥁', bg: 'from-orange-100 to-amber-200', shadow: 'drop-shadow-[0_10px_12px_rgba(217,119,6,0.45)]' },
-    '68f55d975162c3bafe50ee06': { emoji: '🪘', bg: 'from-amber-100 to-orange-200', shadow: 'drop-shadow-[0_10px_12px_rgba(180,83,9,0.45)]' },
-    '68f6a46c08620e098533b108': { emoji: '🔥', bg: 'from-orange-100 to-red-200', shadow: 'drop-shadow-[0_10px_12px_rgba(249,115,22,0.5)]' },
-    '68f4b3c11dc146998b762491': { emoji: '🎀', bg: 'from-pink-100 to-fuchsia-200', shadow: 'drop-shadow-[0_10px_12px_rgba(236,72,153,0.45)]' },
-    '68f4b3c11dc146998b762490': { emoji: '🎖️', bg: 'from-blue-100 to-indigo-200', shadow: 'drop-shadow-[0_10px_12px_rgba(59,130,246,0.45)]' },
-    '68f4b3c11dc146998b76248e': { emoji: '👑', bg: 'from-yellow-200 to-amber-300', shadow: 'drop-shadow-[0_12px_14px_rgba(234,179,8,0.55)]' },
-    '68f55d975162c3bafe50ee07': { emoji: '🌟', bg: 'from-amber-100 to-yellow-300', shadow: 'drop-shadow-[0_12px_14px_rgba(250,204,21,0.55)]' },
-    '68f4b3c11dc146998b762498': { emoji: '⚡', bg: 'from-yellow-100 to-orange-300', shadow: 'drop-shadow-[0_12px_14px_rgba(245,158,11,0.55)]' },
-    '68f4b3c11dc146998b76248f': { emoji: '💍', bg: 'from-pink-100 to-purple-200', shadow: 'drop-shadow-[0_12px_14px_rgba(236,72,153,0.55)]' },
-    '68f4b3c11dc146998b762495': { emoji: '🏆', bg: 'from-yellow-200 to-amber-300', shadow: 'drop-shadow-[0_12px_15px_rgba(234,179,8,0.6)]' },
-    '68f55d975162c3bafe50ee08': { emoji: '❤️‍🔥', bg: 'from-red-100 to-orange-200', shadow: 'drop-shadow-[0_12px_15px_rgba(239,68,68,0.6)]' },
-    '68f6a46c08620e098533b10a': { emoji: '🚀', bg: 'from-indigo-100 to-purple-200', shadow: 'drop-shadow-[0_12px_15px_rgba(147,51,234,0.55)]' },
-    '68f4b3c11dc146998b762499': { emoji: '🌠', bg: 'from-purple-100 to-pink-200', shadow: 'drop-shadow-[0_12px_15px_rgba(168,85,247,0.6)]' },
-    '68f4b3c11dc146998b762494': { emoji: '🚗', bg: 'from-red-100 to-rose-300', shadow: 'drop-shadow-[0_12px_16px_rgba(220,38,38,0.6)]' },
-    '68f55d975162c3bafe50ee09': { emoji: '🛸', bg: 'from-sky-100 to-indigo-200', shadow: 'drop-shadow-[0_12px_16px_rgba(56,189,248,0.6)]' },
-    '68f6a46c08620e098533b10b': { emoji: '🥇', bg: 'from-amber-200 to-yellow-300', shadow: 'drop-shadow-[0_14px_16px_rgba(234,179,8,0.65)]' },
-    '68f4b3c11dc146998b76249a': { emoji: '💎', bg: 'from-cyan-100 to-blue-200', shadow: 'drop-shadow-[0_14px_16px_rgba(14,165,233,0.65)]' },
-    '68f55d975162c3bafe50ee0e': { emoji: '🏎️', bg: 'from-red-200 to-amber-200', shadow: 'drop-shadow-[0_14px_18px_rgba(239,68,68,0.65)]' },
-    '68f55d975162c3bafe50ee0f': { emoji: '🔮', bg: 'from-purple-200 to-pink-300', shadow: 'drop-shadow-[0_14px_18px_rgba(168,85,247,0.7)]' },
-    '68f4b3c11dc146998b76249b': { emoji: '🎁', bg: 'from-pink-200 to-amber-200', shadow: 'drop-shadow-[0_14px_18px_rgba(236,72,153,0.7)]' }
+    '68f4b3c11dc146998b762496': { img: `${FLUENT_3D}/Sparkles/3D/sparkles_3d.png`, fallback: '✨', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_12px_20px_-4px_rgba(245,158,11,0.5)]' },
+    '68f55d975162c3bafe50ee03': { img: `${FLUENT_3D}/Musical%20notes/3D/musical_notes_3d.png`, fallback: '🎵', ring: 'from-purple-200 via-fuchsia-100 to-indigo-300', glow: 'shadow-[0_12px_20px_-4px_rgba(168,85,247,0.5)]' },
+    '68f4b3c11dc146998b762497': { img: `${FLUENT_3D}/Sparkling%20heart/3D/sparkling_heart_3d.png`, fallback: '💖', ring: 'from-pink-200 via-rose-100 to-pink-300', glow: 'shadow-[0_12px_20px_-4px_rgba(244,63,94,0.5)]' },
+    '68f55d975162c3bafe50ee04': { img: `${FLUENT_3D}/Studio%20microphone/3D/studio_microphone_3d.png`, fallback: '🎙️', ring: 'from-amber-200 via-yellow-100 to-orange-300', glow: 'shadow-[0_12px_20px_-4px_rgba(217,119,6,0.5)]' },
+    '68f6a46c08620e098533b106': { img: `${FLUENT_3D}/Clapping%20hands/Default/3D/clapping_hands_3d_default.png`, fallback: '👏', ring: 'from-yellow-200 via-amber-100 to-orange-200', glow: 'shadow-[0_12px_20px_-4px_rgba(234,179,8,0.45)]' },
+    '68f55d975162c3bafe50ee05': { img: `${FLUENT_3D}/Guitar/3D/guitar_3d.png`, fallback: '🎸', ring: 'from-red-200 via-rose-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(220,38,38,0.55)]' },
+    '68f6a46c08620e098533b107': { img: `${FLUENT_3D}/Rose/3D/rose_3d.png`, fallback: '🌹', ring: 'from-rose-200 via-pink-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(225,29,72,0.55)]' },
+    '68f4b3c11dc146998b762493': { img: `${FLUENT_3D}/Drum/3D/drum_3d.png`, fallback: '🥁', ring: 'from-orange-200 via-amber-100 to-red-200', glow: 'shadow-[0_12px_22px_-4px_rgba(217,119,6,0.5)]' },
+    '68f55d975162c3bafe50ee06': { img: `${FLUENT_3D}/Long%20drum/3D/long_drum_3d.png`, fallback: '🪘', ring: 'from-amber-200 via-orange-100 to-amber-300', glow: 'shadow-[0_12px_22px_-4px_rgba(180,83,9,0.5)]' },
+    '68f6a46c08620e098533b108': { img: `${FLUENT_3D}/Fire/3D/fire_3d.png`, fallback: '🔥', ring: 'from-orange-200 via-yellow-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(249,115,22,0.6)]' },
+    '68f4b3c11dc146998b762491': { img: `${FLUENT_3D}/Ribbon/3D/ribbon_3d.png`, fallback: '🎀', ring: 'from-pink-200 via-fuchsia-100 to-pink-300', glow: 'shadow-[0_12px_22px_-4px_rgba(236,72,153,0.55)]' },
+    '68f4b3c11dc146998b762490': { img: `${FLUENT_3D}/Military%20medal/3D/military_medal_3d.png`, fallback: '🎖️', ring: 'from-blue-200 via-sky-100 to-indigo-300', glow: 'shadow-[0_12px_22px_-4px_rgba(59,130,246,0.55)]' },
+    '68f4b3c11dc146998b76248e': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-yellow-300 via-amber-100 to-yellow-400', glow: 'shadow-[0_14px_24px_-4px_rgba(234,179,8,0.65)]' },
+    '68f55d975162c3bafe50ee07': { img: `${FLUENT_3D}/Glowing%20star/3D/glowing_star_3d.png`, fallback: '🌟', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_14px_24px_-4px_rgba(250,204,21,0.65)]' },
+    '68f4b3c11dc146998b762498': { img: `${FLUENT_3D}/High%20voltage/3D/high_voltage_3d.png`, fallback: '⚡', ring: 'from-yellow-200 via-amber-100 to-orange-300', glow: 'shadow-[0_14px_24px_-4px_rgba(245,158,11,0.65)]' },
+    '68f4b3c11dc146998b76248f': { img: `${FLUENT_3D}/Ring/3D/ring_3d.png`, fallback: '💍', ring: 'from-pink-200 via-purple-100 to-fuchsia-300', glow: 'shadow-[0_14px_24px_-4px_rgba(236,72,153,0.65)]' },
+    '68f4b3c11dc146998b762495': { img: `${FLUENT_3D}/Trophy/3D/trophy_3d.png`, fallback: '🏆', ring: 'from-yellow-300 via-amber-100 to-orange-300', glow: 'shadow-[0_14px_26px_-4px_rgba(234,179,8,0.7)]' },
+    '68f55d975162c3bafe50ee08': { img: `${FLUENT_3D}/Heart%20on%20fire/3D/heart_on_fire_3d.png`, fallback: '❤️‍🔥', ring: 'from-red-200 via-orange-100 to-rose-300', glow: 'shadow-[0_14px_26px_-4px_rgba(239,68,68,0.7)]' },
+    '68f6a46c08620e098533b10a': { img: `${FLUENT_3D}/Rocket/3D/rocket_3d.png`, fallback: '🚀', ring: 'from-indigo-200 via-purple-100 to-pink-300', glow: 'shadow-[0_14px_26px_-4px_rgba(147,51,234,0.65)]' },
+    '68f4b3c11dc146998b762499': { img: `${FLUENT_3D}/Shooting%20star/3D/shooting_star_3d.png`, fallback: '🌠', ring: 'from-purple-200 via-pink-100 to-indigo-300', glow: 'shadow-[0_14px_26px_-4px_rgba(168,85,247,0.7)]' },
+    '68f4b3c11dc146998b762494': { img: `${FLUENT_3D}/Automobile/3D/automobile_3d.png`, fallback: '🚗', ring: 'from-red-300 via-rose-100 to-red-400', glow: 'shadow-[0_16px_28px_-4px_rgba(220,38,38,0.7)]' },
+    '68f55d975162c3bafe50ee09': { img: `${FLUENT_3D}/Flying%20saucer/3D/flying_saucer_3d.png`, fallback: '🛸', ring: 'from-sky-200 via-cyan-100 to-indigo-300', glow: 'shadow-[0_16px_28px_-4px_rgba(56,189,248,0.7)]' },
+    '68f6a46c08620e098533b10b': { img: `${FLUENT_3D}/1st%20place%20medal/3D/1st_place_medal_3d.png`, fallback: '🥇', ring: 'from-amber-300 via-yellow-100 to-amber-400', glow: 'shadow-[0_16px_28px_-4px_rgba(234,179,8,0.75)]' },
+    '68f4b3c11dc146998b76249a': { img: `${FLUENT_3D}/Gem%20stone/3D/gem_stone_3d.png`, fallback: '💎', ring: 'from-cyan-200 via-sky-100 to-blue-300', glow: 'shadow-[0_16px_28px_-4px_rgba(14,165,233,0.75)]' },
+    '68f55d975162c3bafe50ee0e': { img: `${FLUENT_3D}/Racing%20car/3D/racing_car_3d.png`, fallback: '🏎️', ring: 'from-red-300 via-amber-100 to-orange-300', glow: 'shadow-[0_18px_30px_-4px_rgba(239,68,68,0.75)]' },
+    '68f55d975162c3bafe50ee0f': { img: `${FLUENT_3D}/Crystal%20ball/3D/crystal_ball_3d.png`, fallback: '🔮', ring: 'from-purple-300 via-fuchsia-100 to-pink-300', glow: 'shadow-[0_18px_30px_-4px_rgba(168,85,247,0.8)]' },
+    '68f4b3c11dc146998b76249b': { img: `${FLUENT_3D}/Wrapped%20gift/3D/wrapped_gift_3d.png`, fallback: '🎁', ring: 'from-pink-300 via-amber-100 to-purple-300', glow: 'shadow-[0_18px_30px_-4px_rgba(236,72,153,0.8)]' }
 };
 
 const GiftRender3D = ({ gift }) => {
+    const [imgFailed, setImgFailed] = useState(false);
     const asset = GIFT_3D_ASSETS[gift?.id] || {
-        emoji: '🎁',
-        bg: 'from-purple-100 to-pink-200',
-        shadow: 'drop-shadow-[0_10px_12px_rgba(168,85,247,0.45)]'
+        img: `${FLUENT_3D}/Wrapped%20gift/3D/wrapped_gift_3d.png`,
+        fallback: '🎁',
+        ring: 'from-purple-200 via-pink-100 to-purple-300',
+        glow: 'shadow-[0_12px_20px_-4px_rgba(168,85,247,0.5)]'
     };
 
     return (
-        <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br ${asset.bg} flex items-center justify-center shadow-inner border border-white/80`}>
-            <span
-                role="img"
-                aria-label={gift?.name || 'Regalo'}
-                className={`text-4xl sm:text-5xl select-none leading-none transition-transform duration-300 ${asset.shadow}`}
-            >
-                {asset.emoji}
-            </span>
+        <div className={`relative w-20 h-20 sm:w-22 sm:h-22 mx-auto my-1 rounded-2xl bg-gradient-to-br ${asset.ring} p-[2px] ${asset.glow} transition-transform duration-300 group-hover:scale-110`}>
+            <div className="w-full h-full rounded-[14px] bg-gradient-to-b from-white/95 to-white/70 flex items-center justify-center relative overflow-hidden">
+                <div className="absolute -top-6 -left-6 w-14 h-14 rounded-full bg-white/80 blur-xs pointer-events-none" />
+                {!imgFailed ? (
+                    <img
+                        src={asset.img}
+                        alt={gift?.name || 'Regalo 3D'}
+                        onError={() => setImgFailed(true)}
+                        className="w-15 h-15 sm:w-16 sm:h-16 object-contain drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] relative z-10"
+                    />
+                ) : (
+                    <span className="text-4xl sm:text-5xl drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] relative z-10">
+                        {asset.fallback}
+                    </span>
+                )}
+            </div>
         </div>
     );
 };
+
 
 const GiftItem = ({ gift, onSelect, isSelected, disabled }) => {
     const price = Number(gift?.price_usd) || 0;
