@@ -313,52 +313,54 @@ export default function GiftSelector({ artist, fan, onClose }) {
                                 <div className="text-center py-8 text-gray-500">Cargando catálogo 3D...</div>
                             ) : (
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3"> {gifts.map(gift => (
-<GiftItem
-key={gift.id}
-gift={gift}
-onSelect={setSelectedGift}
-isSelected={selectedGift?.id === gift.id}
-disabled={availableCredits < (Number(gift?.price_usd) || 0)}
-/>
-))}
+                                        <GiftItem
+                                            key={gift.id}
+                                            gift={gift}
+                                            onSelect={setSelectedGift}
+                                            isSelected={selectedGift?.id === gift.id}
+                                            disabled={availableCredits < (Number(gift?.price_usd) || 0)}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
-)}
-<Button
-onClick={handleSendGift}
-disabled={!selectedGift || availableCredits < selectedPrice}
-className="w-full h-12 text-base font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 shadow-md"
->
-   {selectedGift
+                        <div className="p-4 sm:p-5 border-t bg-white flex-shrink-0">
+                            <Button
+                                onClick={handleSendGift}
+                                disabled={!selectedGift || availableCredits < selectedPrice}
+                                className="w-full h-12 text-base font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 shadow-md"
+                            >
+                                <Send className="w-4 h-4 mr-2" />
+                                {selectedGift
                                     ? `Enviar ${selectedGift.name} (${selectedPrice.toFixed(2)} créditos)`
                                     : 'Selecciona un regalo 3D'}
+                            </Button>
+                        </div>
+                    </div>
+                );
+        }
+    };
 
-                                );
-                             
+    return (
+        <AnimatePresence>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/65 z-50 flex items-center justify-center p-4"
+                onClick={onClose}
+            >
+                <motion.div
+                    initial={{ scale: 0.9, y: 20 }}
+                    animate={{ scale: 1, y: 0 }}
+                    exit={{ scale: 0.9, y: 20 }}
+                    className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-purple-100"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {renderContent()}
+                </motion.div>
+            </motion.div>
+        </AnimatePresence>
+    );
 }
-};
-return (
-
-<motion.div
-initial={{ opacity: 0 }}
-animate={{ opacity: 1 }}
-exit={{ opacity: 0 }}
-className="fixed inset-0 bg-black/65 z-50 flex items-center justify-center p-4"
-onClick={onClose}
->
-<motion.div
-initial={{ scale: 0.9, y: 20 }}
-animate={{ scale: 1, y: 0 }}
-exit={{ scale: 0.9, y: 20 }}
-className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-purple-100"
-onClick={(e) => e.stopPropagation()}
->
-{renderContent()}
-</motion.div>
-</motion.div>
-
-);
-}      
-
-
-
-
