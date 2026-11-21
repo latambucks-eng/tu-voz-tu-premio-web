@@ -186,7 +186,7 @@ export default function Participate() {
     }
   };
 
- const handleProfileComplete = (data) => {
+  const handleProfileComplete = (data) => {
     setProfileData(data);
     setStep(2);
   };
@@ -284,6 +284,29 @@ export default function Participate() {
         status: isFree ? 'active' : 'pending_payment'
       });
 
+      if (isFree) {
+        const updatedCount = (parseInt(contest.current_participants, 10) || 0) + 1;
+        await base44.entities.Contest.update(contest.id, {
+          current_participants: updatedCount
+        });
+      }
+
+      // Sincronizar datos artísticos en el perfil de usuario para que aparezca en Comunidad
+      try {
+        await base44.entities.User.update(user.id, {
+          user_type: 'artist',
+          artist_name: profileData.artist_name,
+          profile_image: profileData.profile_image || user.profile_image || '',
+          bio: profileData.bio || user.bio || '',
+          country: profileData.country || user.country || '',
+          social_instagram: profileData.social_instagram || user.social_instagram || '',
+          social_facebook: profileData.social_facebook || user.social_facebook || '',
+          social_tiktok: profileData.social_tiktok || user.social_tiktok || ''
+        });
+      } catch (profileSyncErr) {
+        console.warn('⚠️ No se pudo sincronizar perfil de usuario:', profileSyncErr);
+      }
+
       await base44.entities.Notification.create({
         user_id: user.id,
         title: isFree ? '🎉 ¡Inscripción Gratuita Activada!' : '⏳ Inscripción Pendiente',
@@ -320,30 +343,6 @@ export default function Participate() {
       setIsSubmitting(false);
     }
   };
-
-  if (error === 'no_contest_selected') {
-    return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-2xl mx-auto">
-          <Card className="text-center p-12">
-            <Trophy className="w-16 h-16 mx-auto mb-6 text-purple-600" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Selecciona una Convocatoria
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Para participar, primero debes seleccionar una convocatoria desde la página de Convocatorias Activas.
-            </p>
-            <Button 
-              onClick={() => navigate(createPageUrl('Contests'))}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-            >
-              Ver Convocatorias Activas
-            </Button>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
