@@ -1,156 +1,139 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-    X, Send, Coins, Loader2, CheckCircle, AlertTriangle, Sparkles
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { createPageUrl } from '@/utils';
+const FLUENT_CDN = 'https://jsdelivr.net';
 
-const FLUENT_3D_BASE = 'https://githubusercontent.com';
-
-// Mapeo exacto 1 a 1 para cada uno de los 27 regalos de tu base de datos
+// Mapeo exacto 1 a 1 con el repositorio oficial de Microsoft Fluent 3D en jsDelivr CDN
 const GIFT_3D_ASSETS = {
-    // 0.20 - 0.50 USD
     '68f4b3c11dc146998b762496': {
-        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Sparkles.png`,
+        url: `${FLUENT_CDN}/Sparkles/3D/sparkles_3d.png`,
         glow: 'drop-shadow-[0_8px_12px_rgba(250,204,21,0.45)]',
         scale: 'scale-100'
     }, // Estrella Brillante
     '68f55d975162c3bafe50ee03': {
-        url: `${FLUENT_3D_BASE}/Objects/Musical%20Notes.png`,
+        url: `${FLUENT_CDN}/Musical%20notes/3D/musical_notes_3d.png`,
         glow: 'drop-shadow-[0_8px_12px_rgba(168,85,247,0.45)]',
         scale: 'scale-100'
     }, // Nota Musical
     '68f4b3c11dc146998b762497': {
-        url: `${FLUENT_3D_BASE}/Smilies/Sparkling%20Heart.png`,
+        url: `${FLUENT_CDN}/Sparkling%20heart/3D/sparkling_heart_3d.png`,
         glow: 'drop-shadow-[0_8px_12px_rgba(244,63,94,0.45)]',
         scale: 'scale-100'
     }, // Corazón de Fan
     '68f55d975162c3bafe50ee04': {
-        url: `${FLUENT_3D_BASE}/Objects/Studio%20Microphone.png`,
+        url: `${FLUENT_CDN}/Studio%20microphone/3D/studio_microphone_3d.png`,
         glow: 'drop-shadow-[0_8px_12px_rgba(217,119,6,0.45)]',
         scale: 'scale-100'
     }, // Micrófono de Oro
     '68f6a46c08620e098533b106': {
-        url: `${FLUENT_3D_BASE}/Hand%20gestures/Clapping%20Hands.png`,
+        url: `${FLUENT_CDN}/Clapping%20hands/Default/3D/clapping_hands_3d_default.png`,
         glow: 'drop-shadow-[0_8px_12px_rgba(234,179,8,0.4)]',
         scale: 'scale-100'
     }, // Aplauso
-
-    // 1.00 - 3.00 USD
     '68f55d975162c3bafe50ee05': {
-        url: `${FLUENT_3D_BASE}/Objects/Guitar.png`,
+        url: `${FLUENT_CDN}/Guitar/3D/guitar_3d.png`,
         glow: 'drop-shadow-[0_10px_14px_rgba(220,38,38,0.45)]',
         scale: 'scale-105'
     }, // Guitarra Eléctrica
     '68f6a46c08620e098533b107': {
-        url: `${FLUENT_3D_BASE}/Animals%20and%20nature/Rose.png`,
+        url: `${FLUENT_CDN}/Rose/3D/rose_3d.png`,
         glow: 'drop-shadow-[0_10px_14px_rgba(225,29,72,0.45)]',
         scale: 'scale-105'
     }, // Rosa Roja
     '68f4b3c11dc146998b762493': {
-        url: `${FLUENT_3D_BASE}/Objects/Drum.png`,
+        url: `${FLUENT_CDN}/Drum/3D/drum_3d.png`,
         glow: 'drop-shadow-[0_10px_14px_rgba(217,119,6,0.45)]',
         scale: 'scale-105'
     }, // Bombo
     '68f55d975162c3bafe50ee06': {
-        url: `${FLUENT_3D_BASE}/Objects/Long%20Drum.png`,
+        url: `${FLUENT_CDN}/Long%20drum/3D/long_drum_3d.png`,
         glow: 'drop-shadow-[0_10px_14px_rgba(180,83,9,0.45)]',
         scale: 'scale-105'
     }, // Batería
     '68f6a46c08620e098533b108': {
-        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Fire.png`,
+        url: `${FLUENT_CDN}/Fire/3D/fire_3d.png`,
         glow: 'drop-shadow-[0_10px_14px_rgba(249,115,22,0.5)]',
         scale: 'scale-105'
     }, // Fuego
     '68f4b3c11dc146998b762491': {
-        url: `${FLUENT_3D_BASE}/Objects/Ribbon.png`,
+        url: `${FLUENT_CDN}/Ribbon/3D/ribbon_3d.png`,
         glow: 'drop-shadow-[0_10px_14px_rgba(236,72,153,0.45)]',
         scale: 'scale-105'
     }, // Corona de Princesa
     '68f4b3c11dc146998b762490': {
-        url: `${FLUENT_3D_BASE}/Activities/Military%20Medal.png`,
+        url: `${FLUENT_CDN}/Military%20medal/3D/military_medal_3d.png`,
         glow: 'drop-shadow-[0_10px_14px_rgba(59,130,246,0.45)]',
         scale: 'scale-105'
     }, // Corona de Príncipe
-
-    // 5.00 - 15.00 USD
     '68f4b3c11dc146998b76248e': {
-        url: `${FLUENT_3D_BASE}/Objects/Crown.png`,
+        url: `${FLUENT_CDN}/Crown/3D/crown_3d.png`,
         glow: 'drop-shadow-[0_10px_15px_rgba(234,179,8,0.55)]',
         scale: 'scale-110'
     }, // Corona de Rey
     '68f55d975162c3bafe50ee07': {
-        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Glowing%20Star.png`,
+        url: `${FLUENT_CDN}/Glowing%20star/3D/glowing_star_3d.png`,
         glow: 'drop-shadow-[0_10px_15px_rgba(250,204,21,0.55)]',
         scale: 'scale-110'
     }, // Estrella Dorada
     '68f4b3c11dc146998b762498': {
-        url: `${FLUENT_3D_BASE}/Travel%20and%20places/High%20Voltage.png`,
+        url: `${FLUENT_CDN}/High%20voltage/3D/high_voltage_3d.png`,
         glow: 'drop-shadow-[0_10px_15px_rgba(245,158,11,0.55)]',
         scale: 'scale-110'
     }, // Fuego Ardiente
     '68f4b3c11dc146998b76248f': {
-        url: `${FLUENT_3D_BASE}/Objects/Ring.png`,
+        url: `${FLUENT_CDN}/Ring/3D/ring_3d.png`,
         glow: 'drop-shadow-[0_10px_15px_rgba(236,72,153,0.55)]',
         scale: 'scale-110'
     }, // Corona de Reina
     '68f4b3c11dc146998b762495': {
-        url: `${FLUENT_3D_BASE}/Activities/Trophy.png`,
+        url: `${FLUENT_CDN}/Trophy/3D/trophy_3d.png`,
         glow: 'drop-shadow-[0_12px_16px_rgba(234,179,8,0.6)]',
         scale: 'scale-110'
     }, // Trofeo de Campeón
     '68f55d975162c3bafe50ee08': {
-        url: `${FLUENT_3D_BASE}/Smilies/Heart%20on%20Fire.png`,
+        url: `${FLUENT_CDN}/Heart%20on%20fire/3D/heart_on_fire_3d.png`,
         glow: 'drop-shadow-[0_12px_16px_rgba(239,68,68,0.6)]',
         scale: 'scale-110'
     }, // Corazón en Llamas
     '68f6a46c08620e098533b10a': {
-        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Rocket.png`,
+        url: `${FLUENT_CDN}/Rocket/3D/rocket_3d.png`,
         glow: 'drop-shadow-[0_12px_16px_rgba(239,68,68,0.55)]',
         scale: 'scale-110'
     }, // Cohete al Éxito
     '68f4b3c11dc146998b762499': {
-        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Shooting%20Star.png`,
+        url: `${FLUENT_CDN}/Shooting%20star/3D/shooting_star_3d.png`,
         glow: 'drop-shadow-[0_12px_16px_rgba(168,85,247,0.6)]',
         scale: 'scale-110'
     }, // Cohete al Estrellato
-
-    // 20.00 - 100.00 USD (VIP & Legendarios)
     '68f4b3c11dc146998b762494': {
-        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Automobile.png`,
+        url: `${FLUENT_CDN}/Automobile/3D/automobile_3d.png`,
         glow: 'drop-shadow-[0_12px_16px_rgba(220,38,38,0.6)]',
         scale: 'scale-110'
     }, // Auto Rojo de Lujo
     '68f55d975162c3bafe50ee09': {
-        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Flying%20Saucer.png`,
+        url: `${FLUENT_CDN}/Flying%20saucer/3D/flying_saucer_3d.png`,
         glow: 'drop-shadow-[0_12px_16px_rgba(56,189,248,0.6)]',
         scale: 'scale-110'
     }, // Cohete Espacial
     '68f6a46c08620e098533b10b': {
-        url: `${FLUENT_3D_BASE}/Activities/1st%20Place%20Medal.png`,
+        url: `${FLUENT_CDN}/1st%20place%20medal/3D/1st_place_medal_3d.png`,
         glow: 'drop-shadow-[0_12px_18px_rgba(234,179,8,0.65)]',
         scale: 'scale-110'
     }, // Corona de Rey/Reina
     '68f4b3c11dc146998b76249a': {
-        url: `${FLUENT_3D_BASE}/Objects/Gem%20Stone.png`,
+        url: `${FLUENT_CDN}/Gem%20stone/3D/gem_stone_3d.png`,
         glow: 'drop-shadow-[0_12px_18px_rgba(14,165,233,0.65)]',
         scale: 'scale-110'
     }, // Diamante Eterno
     '68f55d975162c3bafe50ee0e': {
-        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Racing%20Car.png`,
+        url: `${FLUENT_CDN}/Racing%20car/3D/racing_car_3d.png`,
         glow: 'drop-shadow-[0_14px_18px_rgba(239,68,68,0.65)]',
         scale: 'scale-115'
     }, // Auto Deportivo
     '68f55d975162c3bafe50ee0f': {
-        url: `${FLUENT_3D_BASE}/Activities/Crystal%20Ball.png`,
+        url: `${FLUENT_CDN}/Crystal%20ball/3D/crystal_ball_3d.png`,
         glow: 'drop-shadow-[0_14px_20px_rgba(168,85,247,0.7)]',
         scale: 'scale-115'
     }, // Diamante Legendario
     '68f4b3c11dc146998b76249b': {
-        url: `${FLUENT_3D_BASE}/Objects/Wrapped%20Gift.png`,
+        url: `${FLUENT_CDN}/Wrapped%20gift/3D/wrapped_gift_3d.png`,
         glow: 'drop-shadow-[0_14px_20px_rgba(236,72,153,0.7)]',
         scale: 'scale-115'
     }  // Mega Diamante
@@ -158,7 +141,7 @@ const GIFT_3D_ASSETS = {
 
 const GiftRender3D = ({ gift }) => {
     const asset = GIFT_3D_ASSETS[gift?.id] || {
-        url: `${FLUENT_3D_BASE}/Objects/Wrapped%20Gift.png`,
+        url: `${FLUENT_CDN}/Wrapped%20gift/3D/wrapped_gift_3d.png`,
         glow: 'drop-shadow-[0_8px_12px_rgba(168,85,247,0.4)]',
         scale: 'scale-100'
     };
@@ -174,6 +157,7 @@ const GiftRender3D = ({ gift }) => {
         </div>
     );
 };
+
 
 const GiftItem = ({ gift, onSelect, isSelected, disabled }) => {
     const isVip = gift.price_usd >= 20;
