@@ -25,6 +25,33 @@ const GIFT_3D_ASSETS = {
     '68f4b3c11dc146998b762490': { img: `${FLUENT_3D}/Military%20medal/3D/military_medal_3d.png`, fallback: '🎖️', ring: 'from-blue-200 via-sky-100 to-indigo-300', glow: 'shadow-[0_12px_22px_-4px_rgba(59,130,246,0.55)]' },
     '68f4b3c11dc146998b76248e': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-yellow-300 via-amber-100 to-yellow-400', glow: 'shadow-[0_14px_24px_-4px_rgba(234,179,8,0.65)]' },
     '68f55d975162c3bafe50ee07': { img: `${FLUENT_3D}/Glowing%20star/3D/glowing_star_3d.png`, fallback: '🌟', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_14px_24px_-4px_rgba(250,204,21,0.65)]' },
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    X, Send, Coins, Loader2, CheckCircle, AlertTriangle, Sparkles
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { createPageUrl } from '@/utils';
+
+const FLUENT_3D = 'https://jsdelivr.net';
+
+const GIFT_3D_ASSETS = {
+    '68f4b3c11dc146998b762496': { img: `${FLUENT_3D}/Sparkles/3D/sparkles_3d.png`, fallback: '✨', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_12px_20px_-4px_rgba(245,158,11,0.5)]' },
+    '68f55d975162c3bafe50ee03': { img: `${FLUENT_3D}/Musical%20notes/3D/musical_notes_3d.png`, fallback: '🎵', ring: 'from-purple-200 via-fuchsia-100 to-indigo-300', glow: 'shadow-[0_12px_20px_-4px_rgba(168,85,247,0.5)]' },
+    '68f4b3c11dc146998b762497': { img: `${FLUENT_3D}/Sparkling%20heart/3D/sparkling_heart_3d.png`, fallback: '💖', ring: 'from-pink-200 via-rose-100 to-pink-300', glow: 'shadow-[0_12px_20px_-4px_rgba(244,63,94,0.5)]' },
+    '68f55d975162c3bafe50ee04': { img: `${FLUENT_3D}/Studio%20microphone/3D/studio_microphone_3d.png`, fallback: '🎙️', ring: 'from-amber-200 via-yellow-100 to-orange-300', glow: 'shadow-[0_12px_20px_-4px_rgba(217,119,6,0.5)]' },
+    '68f6a46c08620e098533b106': { img: `${FLUENT_3D}/Clapping%20hands/Default/3D/clapping_hands_3d_default.png`, fallback: '👏', ring: 'from-yellow-200 via-amber-100 to-orange-200', glow: 'shadow-[0_12px_20px_-4px_rgba(234,179,8,0.45)]' },
+    '68f55d975162c3bafe50ee05': { img: `${FLUENT_3D}/Guitar/3D/guitar_3d.png`, fallback: '🎸', ring: 'from-red-200 via-rose-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(220,38,38,0.55)]' },
+    '68f6a46c08620e098533b107': { img: `${FLUENT_3D}/Rose/3D/rose_3d.png`, fallback: '🌹', ring: 'from-rose-200 via-pink-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(225,29,72,0.55)]' },
+    '68f4b3c11dc146998b762493': { img: `${FLUENT_3D}/Drum/3D/drum_3d.png`, fallback: '🥁', ring: 'from-orange-200 via-amber-100 to-red-200', glow: 'shadow-[0_12px_22px_-4px_rgba(217,119,6,0.5)]' },
+    '68f55d975162c3bafe50ee06': { img: `${FLUENT_3D}/Long%20drum/3D/long_drum_3d.png`, fallback: '🪘', ring: 'from-amber-200 via-orange-100 to-amber-300', glow: 'shadow-[0_12px_22px_-4px_rgba(180,83,9,0.5)]' },
+    '68f6a46c08620e098533b108': { img: `${FLUENT_3D}/Fire/3D/fire_3d.png`, fallback: '🔥', ring: 'from-orange-200 via-yellow-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(249,115,22,0.6)]' },
+    '68f4b3c11dc146998b762491': { img: `${FLUENT_3D}/Ribbon/3D/ribbon_3d.png`, fallback: '🎀', ring: 'from-pink-200 via-fuchsia-100 to-pink-300', glow: 'shadow-[0_12px_22px_-4px_rgba(236,72,153,0.55)]' },
+    '68f4b3c11dc146998b762490': { img: `${FLUENT_3D}/Military%20medal/3D/military_medal_3d.png`, fallback: '🎖️', ring: 'from-blue-200 via-sky-100 to-indigo-300', glow: 'shadow-[0_12px_22px_-4px_rgba(59,130,246,0.55)]' },
+    '68f4b3c11dc146998b76248e': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-yellow-300 via-amber-100 to-yellow-400', glow: 'shadow-[0_14px_24px_-4px_rgba(234,179,8,0.65)]' },
+    '68f55d975162c3bafe50ee07': { img: `${FLUENT_3D}/Glowing%20star/3D/glowing_star_3d.png`, fallback: '🌟', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_14px_24px_-4px_rgba(250,204,21,0.65)]' },
     '68f4b3c11dc146998b762498': { img: `${FLUENT_3D}/High%20voltage/3D/high_voltage_3d.png`, fallback: '⚡', ring: 'from-yellow-200 via-amber-100 to-orange-300', glow: 'shadow-[0_14px_24px_-4px_rgba(245,158,11,0.65)]' },
     '68f4b3c11dc146998b76248f': { img: `${FLUENT_3D}/Ring/3D/ring_3d.png`, fallback: '💍', ring: 'from-pink-200 via-purple-100 to-fuchsia-300', glow: 'shadow-[0_14px_24px_-4px_rgba(236,72,153,0.65)]' },
     '68f4b3c11dc146998b762495': { img: `${FLUENT_3D}/Trophy/3D/trophy_3d.png`, fallback: '🏆', ring: 'from-yellow-300 via-amber-100 to-orange-300', glow: 'shadow-[0_14px_26px_-4px_rgba(234,179,8,0.7)]' },
@@ -328,14 +355,12 @@ onClick={handleSendGift}
 disabled={!selectedGift || availableCredits < selectedPrice}
 className="w-full h-12 text-base font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 shadow-md"
 >
+   {selectedGift
+                                    ? `Enviar ${selectedGift.name} (${selectedPrice.toFixed(2)} créditos)`
+                                    : 'Selecciona un regalo 3D'}
 
-{selectedGift
-? Enviar ${selectedGift.name} (${selectedPrice.toFixed(2)} créditos)
-: 'Selecciona un regalo 3D'}
-
-
-
-);
+                                );
+                             
 }
 };
 return (
@@ -359,7 +384,8 @@ onClick={(e) => e.stopPropagation()}
 </motion.div>
 
 );
-}
-                             
+}      
+
+
 
 
