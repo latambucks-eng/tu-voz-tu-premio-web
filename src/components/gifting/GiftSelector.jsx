@@ -131,7 +131,7 @@ const RealisticGift3D = ({ gift }) => {
         );
     }
 
-    if (raw.includes('cohete') || raw.includes('rocket') || raw.includes('estrellato') || raw.includes('exito') || raw.includes('éxito')) {
+        if (raw.includes('cohete') || raw.includes('rocket') || raw.includes('estrellato') || raw.includes('exito') || raw.includes('éxito')) {
         return (
             <svg viewBox="0 0 110 95" className="w-20 h-16 mx-auto drop-shadow-[0_10px_12px_rgba(147,51,234,0.35)]">
                 <defs>
@@ -157,7 +157,11 @@ const RealisticGift3D = ({ gift }) => {
                 <path d="M72 48 L88 66 L71 64 Z" fill={`url(#rocketNose-${uid})`} />
                 <path d="M55 10 C38 26, 36 48, 41 66 L69 66 C74 48, 72 26, 55 10 Z" fill={`url(#rocketHull-${uid})`} />
                 <path d="M55 10 C47 18, 43 25, 41 31 L69 31 C67 25, 63 18, 55 10 Z" fill={`url(#rocketNose-${uid})`} />
-            );
+                <circle cx="55" cy="44" r="9" fill="#64748b" />
+                <circle cx="55" cy="44" r="6.5" fill="#38bdf8" />
+                <circle cx="52.5" cy="41.5" r="2" fill="#ffffff" />
+            </svg>
+        );
     }
 
     if (raw.includes('mic') || raw.includes('voz') || raw.includes('canto')) {
@@ -184,6 +188,7 @@ const RealisticGift3D = ({ gift }) => {
             </svg>
         );
     }
+
 
     if (raw.includes('coraz') || raw.includes('heart') || raw.includes('amor')) {
         return (
