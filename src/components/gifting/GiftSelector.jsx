@@ -1,3 +1,13 @@
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    X, Send, Coins, Loader2, CheckCircle, AlertTriangle, Sparkles
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { createPageUrl } from '@/utils';
+
 const FLUENT_3D = 'https://jsdelivr.net';
 
 const GIFT_3D_ASSETS = {
@@ -31,7 +41,7 @@ const GIFT_3D_ASSETS = {
 };
 
 const GiftRender3D = ({ gift }) => {
-    const [imgFailed, setImgFailed] = useState(false);
+    const [imgFailed, setImgFailed] = React.useState(false);
     const asset = GIFT_3D_ASSETS[gift?.id] || {
         img: `${FLUENT_3D}/Wrapped%20gift/3D/wrapped_gift_3d.png`,
         fallback: '🎁',
@@ -40,15 +50,15 @@ const GiftRender3D = ({ gift }) => {
     };
 
     return (
-        <div className={`relative w-20 h-20 sm:w-22 sm:h-22 mx-auto my-1 rounded-2xl bg-gradient-to-br ${asset.ring} p-[2px] ${asset.glow} transition-transform duration-300 group-hover:scale-110`}>
-            <div className="w-full h-full rounded-[14px] bg-gradient-to-b from-white/95 to-white/70 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute -top-6 -left-6 w-14 h-14 rounded-full bg-white/80 blur-xs pointer-events-none" />
+        <div className={`relative w-20 h-20 mx-auto my-1 rounded-2xl bg-gradient-to-br ${asset.ring} p-[2px] ${asset.glow} transition-transform duration-300`}>
+            <div className="w-full h-full rounded-[14px] bg-gradient-to-b from-white/95 to-white/75 flex items-center justify-center relative overflow-hidden">
+                <div className="absolute -top-6 -left-6 w-14 h-14 rounded-full bg-white/80 blur-sm pointer-events-none" />
                 {!imgFailed ? (
                     <img
                         src={asset.img}
                         alt={gift?.name || 'Regalo 3D'}
                         onError={() => setImgFailed(true)}
-                        className="w-15 h-15 sm:w-16 sm:h-16 object-contain drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] relative z-10"
+                        className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] relative z-10"
                     />
                 ) : (
                     <span className="text-4xl sm:text-5xl drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] relative z-10">
@@ -59,7 +69,6 @@ const GiftRender3D = ({ gift }) => {
         </div>
     );
 };
-
 
 const GiftItem = ({ gift, onSelect, isSelected, disabled }) => {
     const price = Number(gift?.price_usd) || 0;
@@ -85,7 +94,7 @@ const GiftItem = ({ gift, onSelect, isSelected, disabled }) => {
         >
             {isVip && (
                 <span
-                    className={`absolute top-2 right-2 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
+                    className={`absolute top-2 right-2 z-20 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
                         isLegendary
                             ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-sm'
                             : 'bg-purple-600 text-white'
@@ -105,7 +114,7 @@ const GiftItem = ({ gift, onSelect, isSelected, disabled }) => {
                 <Coins className="w-3.5 h-3.5 text-amber-600" />
                 <span>{price.toFixed(2)}</span>
             </div>
-        </motion.button>
+                  </motion.button>
     );
 };
 
@@ -161,7 +170,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
             const artistWallet = await base44.entities.Wallet.filter({ user_id: targetArtistId }).then(res => Array.isArray(res) ? res.at(0) : res);
             if (artistWallet) {
                 const newArtistStars = (Number(artistWallet.star_credits) || 0) + giftPrice;
-                            await base44.entities.Wallet.update(artistWallet.id, { star_credits: newArtistStars });
+                await base44.entities.Wallet.update(artistWallet.id, { star_credits: newArtistStars });
             } else {
                 await base44.entities.Wallet.create({ user_id: targetArtistId, balance: 0, star_credits: giftPrice });
             }
@@ -303,59 +312,54 @@ export default function GiftSelector({ artist, fan, onClose }) {
                             {isLoadingGifts ? (
                                 <div className="text-center py-8 text-gray-500">Cargando catálogo 3D...</div>
                             ) : (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                    {gifts.map(gift => (
-                                        <GiftItem
-                                            key={gift.id}
-                                            gift={gift}
-                                            onSelect={setSelectedGift}
-                                            isSelected={selectedGift?.id === gift.id}
-                                            disabled={availableCredits < (Number(gift?.price_usd) || 0)}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3"> {gifts.map(gift => (
+<GiftItem
+key={gift.id}
+gift={gift}
+onSelect={setSelectedGift}
+isSelected={selectedGift?.id === gift.id}
+disabled={availableCredits < (Number(gift?.price_usd) || 0)}
+/>
+))}
 
-                        <div className="p-4 sm:p-5 border-t bg-white flex-shrink-0">
-                            <Button
-                                onClick={handleSendGift}
-                                disabled={!selectedGift || availableCredits < selectedPrice}
-                                className="w-full h-12 text-base font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 shadow-md"
-                            >
-                                <Send className="w-4 h-4 mr-2" />
-                                {selectedGift
-                                    ? `Enviar ${selectedGift.name} (${selectedPrice.toFixed(2)} créditos)`
-                                    : 'Selecciona un regalo 3D'}
-                            </Button>
-                        </div>
-                    </div>
-                );
-        }
-    };
+)}
+<Button
+onClick={handleSendGift}
+disabled={!selectedGift || availableCredits < selectedPrice}
+className="w-full h-12 text-base font-bold bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 shadow-md"
+>
 
-    return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/65 z-50 flex items-center justify-center p-4"
-                onClick={onClose}
-            >
-                <motion.div
-                    initial={{ scale: 0.9, y: 20 }}
-                    animate={{ scale: 1, y: 0 }}
-                    exit={{ scale: 0.9, y: 20 }}
-                    className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-purple-100"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    {renderContent()}
-                </motion.div>
-            </motion.div>
-        </AnimatePresence>
-    );
+{selectedGift
+? Enviar ${selectedGift.name} (${selectedPrice.toFixed(2)} créditos)
+: 'Selecciona un regalo 3D'}
+
+
+
+);
 }
+};
+return (
 
+<motion.div
+initial={{ opacity: 0 }}
+animate={{ opacity: 1 }}
+exit={{ opacity: 0 }}
+className="fixed inset-0 bg-black/65 z-50 flex items-center justify-center p-4"
+onClick={onClose}
+>
+<motion.div
+initial={{ scale: 0.9, y: 20 }}
+animate={{ scale: 1, y: 0 }}
+exit={{ scale: 0.9, y: 20 }}
+className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-purple-100"
+onClick={(e) => e.stopPropagation()}
+>
+{renderContent()}
+</motion.div>
+</motion.div>
+
+);
+}
+                             
 
 
