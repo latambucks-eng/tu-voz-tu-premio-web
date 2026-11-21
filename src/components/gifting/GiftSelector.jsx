@@ -41,9 +41,7 @@ const GIFT_3D_ASSETS = {
 };
 
 const GiftRender3D = ({ gift }) => {
-    const [imgFailed, setImgFailed] = React.useState(false);
     const asset = GIFT_3D_ASSETS[gift?.id] || {
-        img: `${FLUENT_3D}/Wrapped%20gift/3D/wrapped_gift_3d.png`,
         fallback: '🎁',
         ring: 'from-purple-200 via-pink-100 to-purple-300',
         glow: 'shadow-[0_12px_20px_-4px_rgba(168,85,247,0.5)]'
@@ -53,22 +51,14 @@ const GiftRender3D = ({ gift }) => {
         <div className={`relative w-20 h-20 mx-auto my-1 rounded-2xl bg-gradient-to-br ${asset.ring} p-[2px] ${asset.glow} transition-transform duration-300`}>
             <div className="w-full h-full rounded-[14px] bg-gradient-to-b from-white/95 to-white/75 flex items-center justify-center relative overflow-hidden">
                 <div className="absolute -top-6 -left-6 w-14 h-14 rounded-full bg-white/80 blur-sm pointer-events-none" />
-                {!imgFailed ? (
-                    <img
-                        src={asset.img}
-                        alt={gift?.name || 'Regalo 3D'}
-                        onError={() => setImgFailed(true)}
-                        className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] relative z-10"
-                    />
-                ) : (
-                    <span className="text-4xl sm:text-5xl drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] relative z-10">
-                        {asset.fallback}
-                    </span>
-                )}
+                <span className="text-4xl sm:text-5xl drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] relative z-10 select-none">
+                    {asset.fallback}
+                </span>
             </div>
         </div>
     );
 };
+
 
 const GiftItem = ({ gift, onSelect, isSelected, disabled }) => {
     const price = Number(gift?.price_usd) || 0;
