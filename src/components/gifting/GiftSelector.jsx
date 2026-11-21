@@ -11,34 +11,35 @@ import { createPageUrl } from '@/utils';
 const FLUENT_3D = 'https://jsdelivr.net';
 
 const GIFT_3D_ASSETS = {
-    '68f4b3c11dc146998b762496': { img: `${FLUENT_3D}/Sparkles/3D/sparkles_3d.png`, fallback: '✨', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_12px_20px_-4px_rgba(245,158,11,0.5)]' },
-    '68f55d975162c3bafe50ee03': { img: `${FLUENT_3D}/Musical%20notes/3D/musical_notes_3d.png`, fallback: '🎵', ring: 'from-purple-200 via-fuchsia-100 to-indigo-300', glow: 'shadow-[0_12px_20px_-4px_rgba(168,85,247,0.5)]' },
-    '68f4b3c11dc146998b762497': { img: `${FLUENT_3D}/Sparkling%20heart/3D/sparkling_heart_3d.png`, fallback: '💖', ring: 'from-pink-200 via-rose-100 to-pink-300', glow: 'shadow-[0_12px_20px_-4px_rgba(244,63,94,0.5)]' },
-    '68f55d975162c3bafe50ee04': { img: `${FLUENT_3D}/Studio%20microphone/3D/studio_microphone_3d.png`, fallback: '🎙️', ring: 'from-amber-200 via-yellow-100 to-orange-300', glow: 'shadow-[0_12px_20px_-4px_rgba(217,119,6,0.5)]' },
-    '68f6a46c08620e098533b106': { img: `${FLUENT_3D}/Clapping%20hands/Default/3D/clapping_hands_3d_default.png`, fallback: '👏', ring: 'from-yellow-200 via-amber-100 to-orange-200', glow: 'shadow-[0_12px_20px_-4px_rgba(234,179,8,0.45)]' },
-    '68f55d975162c3bafe50ee05': { img: `${FLUENT_3D}/Guitar/3D/guitar_3d.png`, fallback: '🎸', ring: 'from-red-200 via-rose-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(220,38,38,0.55)]' },
-    '68f6a46c08620e098533b107': { img: `${FLUENT_3D}/Rose/3D/rose_3d.png`, fallback: '🌹', ring: 'from-rose-200 via-pink-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(225,29,72,0.55)]' },
-    '68f4b3c11dc146998b762493': { img: `${FLUENT_3D}/Drum/3D/drum_3d.png`, fallback: '🥁', ring: 'from-orange-200 via-amber-100 to-red-200', glow: 'shadow-[0_12px_22px_-4px_rgba(217,119,6,0.5)]' },
-    '68f55d975162c3bafe50ee06': { img: `${FLUENT_3D}/Long%20drum/3D/long_drum_3d.png`, fallback: '🪘', ring: 'from-amber-200 via-orange-100 to-amber-300', glow: 'shadow-[0_12px_22px_-4px_rgba(180,83,9,0.5)]' },
-    '68f6a46c08620e098533b108': { img: `${FLUENT_3D}/Fire/3D/fire_3d.png`, fallback: '🔥', ring: 'from-orange-200 via-yellow-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(249,115,22,0.6)]' },
-    '68f4b3c11dc146998b762491': { img: `${FLUENT_3D}/Ribbon/3D/ribbon_3d.png`, fallback: '🎀', ring: 'from-pink-200 via-fuchsia-100 to-pink-300', glow: 'shadow-[0_12px_22px_-4px_rgba(236,72,153,0.55)]' },
-    '68f4b3c11dc146998b762490': { img: `${FLUENT_3D}/Military%20medal/3D/military_medal_3d.png`, fallback: '🎖️', ring: 'from-blue-200 via-sky-100 to-indigo-300', glow: 'shadow-[0_12px_22px_-4px_rgba(59,130,246,0.55)]' },
-    '68f4b3c11dc146998b76248e': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-yellow-300 via-amber-100 to-yellow-400', glow: 'shadow-[0_14px_24px_-4px_rgba(234,179,8,0.65)]' },
-    '68f55d975162c3bafe50ee07': { img: `${FLUENT_3D}/Glowing%20star/3D/glowing_star_3d.png`, fallback: '🌟', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_14px_24px_-4px_rgba(250,204,21,0.65)]' },
-    '68f4b3c11dc146998b762498': { img: `${FLUENT_3D}/High%20voltage/3D/high_voltage_3d.png`, fallback: '⚡', ring: 'from-yellow-200 via-amber-100 to-orange-300', glow: 'shadow-[0_14px_24px_-4px_rgba(245,158,11,0.65)]' },
-    '68f4b3c11dc146998b76248f': { img: `${FLUENT_3D}/Ring/3D/ring_3d.png`, fallback: '💍', ring: 'from-pink-200 via-purple-100 to-fuchsia-300', glow: 'shadow-[0_14px_24px_-4px_rgba(236,72,153,0.65)]' },
-    '68f4b3c11dc146998b762495': { img: `${FLUENT_3D}/Trophy/3D/trophy_3d.png`, fallback: '🏆', ring: 'from-yellow-300 via-amber-100 to-orange-300', glow: 'shadow-[0_14px_26px_-4px_rgba(234,179,8,0.7)]' },
-    '68f55d975162c3bafe50ee08': { img: `${FLUENT_3D}/Heart%20on%20fire/3D/heart_on_fire_3d.png`, fallback: '❤️‍🔥', ring: 'from-red-200 via-orange-100 to-rose-300', glow: 'shadow-[0_14px_26px_-4px_rgba(239,68,68,0.7)]' },
-    '68f6a46c08620e098533b10a': { img: `${FLUENT_3D}/Rocket/3D/rocket_3d.png`, fallback: '🚀', ring: 'from-indigo-200 via-purple-100 to-pink-300', glow: 'shadow-[0_14px_26px_-4px_rgba(147,51,234,0.65)]' },
-    '68f4b3c11dc146998b762499': { img: `${FLUENT_3D}/Shooting%20star/3D/shooting_star_3d.png`, fallback: '🌠', ring: 'from-purple-200 via-pink-100 to-indigo-300', glow: 'shadow-[0_14px_26px_-4px_rgba(168,85,247,0.7)]' },
-    '68f4b3c11dc146998b762494': { img: `${FLUENT_3D}/Automobile/3D/automobile_3d.png`, fallback: '🚗', ring: 'from-red-300 via-rose-100 to-red-400', glow: 'shadow-[0_16px_28px_-4px_rgba(220,38,38,0.7)]' },
-    '68f55d975162c3bafe50ee09': { img: `${FLUENT_3D}/Flying%20saucer/3D/flying_saucer_3d.png`, fallback: '🛸', ring: 'from-sky-200 via-cyan-100 to-indigo-300', glow: 'shadow-[0_16px_28px_-4px_rgba(56,189,248,0.7)]' },
-    '68f6a46c08620e098533b10b': { img: `${FLUENT_3D}/1st%20place%20medal/3D/1st_place_medal_3d.png`, fallback: '🥇', ring: 'from-amber-300 via-yellow-100 to-amber-400', glow: 'shadow-[0_16px_28px_-4px_rgba(234,179,8,0.75)]' },
-    '68f4b3c11dc146998b76249a': { img: `${FLUENT_3D}/Gem%20stone/3D/gem_stone_3d.png`, fallback: '💎', ring: 'from-cyan-200 via-sky-100 to-blue-300', glow: 'shadow-[0_16px_28px_-4px_rgba(14,165,233,0.75)]' },
-    '68f55d975162c3bafe50ee0e': { img: `${FLUENT_3D}/Racing%20car/3D/racing_car_3d.png`, fallback: '🏎️', ring: 'from-red-300 via-amber-100 to-orange-300', glow: 'shadow-[0_18px_30px_-4px_rgba(239,68,68,0.75)]' },
-    '68f55d975162c3bafe50ee0f': { img: `${FLUENT_3D}/Crystal%20ball/3D/crystal_ball_3d.png`, fallback: '🔮', ring: 'from-purple-300 via-fuchsia-100 to-pink-300', glow: 'shadow-[0_18px_30px_-4px_rgba(168,85,247,0.8)]' },
-    '68f4b3c11dc146998b76249b': { img: `${FLUENT_3D}/Wrapped%20gift/3D/wrapped_gift_3d.png`, fallback: '🎁', ring: 'from-pink-300 via-amber-100 to-purple-300', glow: 'shadow-[0_18px_30px_-4px_rgba(236,72,153,0.8)]' }
+    '68f4b3c11dc146998b762496': { img: `${FLUENT_3D}/Star/3D/star_3d.png`, fallback: '⭐', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_12px_20px_-4px_rgba(245,158,11,0.5)]' }, // Estrella Brillante
+    '68f55d975162c3bafe50ee03': { img: `${FLUENT_3D}/Musical%20notes/3D/musical_notes_3d.png`, fallback: '🎵', ring: 'from-purple-200 via-fuchsia-100 to-indigo-300', glow: 'shadow-[0_12px_20px_-4px_rgba(168,85,247,0.5)]' }, // Nota Musical
+    '68f4b3c11dc146998b762497': { img: `${FLUENT_3D}/Sparkling%20heart/3D/sparkling_heart_3d.png`, fallback: '💖', ring: 'from-pink-200 via-rose-100 to-pink-300', glow: 'shadow-[0_12px_20px_-4px_rgba(244,63,94,0.5)]' }, // Corazón de Fan
+    '68f55d975162c3bafe50ee04': { img: `${FLUENT_3D}/Studio%20microphone/3D/studio_microphone_3d.png`, fallback: '🎙️', ring: 'from-amber-200 via-yellow-100 to-orange-300', glow: 'shadow-[0_12px_20px_-4px_rgba(217,119,6,0.5)]' }, // Micrófono de Oro
+    '68f6a46c08620e098533b106': { img: `${FLUENT_3D}/Clapping%20hands/Default/3D/clapping_hands_3d_default.png`, fallback: '👏', ring: 'from-yellow-200 via-amber-100 to-orange-200', glow: 'shadow-[0_12px_20px_-4px_rgba(234,179,8,0.45)]' }, // Aplauso
+    '68f55d975162c3bafe50ee05': { img: `${FLUENT_3D}/Guitar/3D/guitar_3d.png`, fallback: '🎸', ring: 'from-red-200 via-rose-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(220,38,38,0.55)]' }, // Guitarra Eléctrica
+    '68f6a46c08620e098533b107': { img: `${FLUENT_3D}/Rose/3D/rose_3d.png`, fallback: '🌹', ring: 'from-rose-200 via-pink-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(225,29,72,0.55)]' }, // Rosa Roja
+    '68f4b3c11dc146998b762493': { img: `${FLUENT_3D}/Drum/3D/drum_3d.png`, fallback: '🥁', ring: 'from-orange-200 via-amber-100 to-red-200', glow: 'shadow-[0_12px_22px_-4px_rgba(217,119,6,0.5)]' }, // Bombo
+    '68f55d975162c3bafe50ee06': { img: `${FLUENT_3D}/Drum/3D/drum_3d.png`, fallback: '🥁', ring: 'from-indigo-200 via-sky-100 to-amber-300', glow: 'shadow-[0_12px_22px_-4px_rgba(59,130,246,0.55)]' }, // Batería
+    '68f6a46c08620e098533b108': { img: `${FLUENT_3D}/Fire/3D/fire_3d.png`, fallback: '🔥', ring: 'from-orange-200 via-yellow-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(249,115,22,0.6)]' }, // Fuego
+    '68f4b3c11dc146998b762491': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-pink-300 via-rose-100 to-pink-400', glow: 'shadow-[0_12px_22px_-4px_rgba(236,72,153,0.55)]' }, // Corona de Princesa
+    '68f4b3c11dc146998b762490': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-blue-300 via-sky-100 to-indigo-400', glow: 'shadow-[0_12px_22px_-4px_rgba(59,130,246,0.55)]' }, // Corona de Príncipe
+    '68f4b3c11dc146998b76248e': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-yellow-300 via-amber-100 to-yellow-400', glow: 'shadow-[0_14px_24px_-4px_rgba(234,179,8,0.65)]' }, // Corona de Rey
+    '68f55d975162c3bafe50ee07': { img: `${FLUENT_3D}/Glowing%20star/3D/glowing_star_3d.png`, fallback: '🌟', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_14px_24px_-4px_rgba(250,204,21,0.65)]' }, // Estrella Dorada
+    '68f4b3c11dc146998b762498': { img: `${FLUENT_3D}/Fire/3D/fire_3d.png`, fallback: '🔥', ring: 'from-red-300 via-orange-100 to-amber-400', glow: 'shadow-[0_14px_24px_-4px_rgba(239,68,68,0.7)]' }, // Fuego Ardiente
+    '68f4b3c11dc146998b76248f': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-fuchsia-300 via-pink-100 to-purple-400', glow: 'shadow-[0_14px_24px_-4px_rgba(217,70,239,0.65)]' }, // Corona de Reina
+    '68f4b3c11dc146998b762495': { img: `${FLUENT_3D}/Trophy/3D/trophy_3d.png`, fallback: '🏆', ring: 'from-yellow-300 via-amber-100 to-orange-300', glow: 'shadow-[0_14px_26px_-4px_rgba(234,179,8,0.7)]' }, // Trofeo de Campeón
+    '68f55d975162c3bafe50ee08': { img: `${FLUENT_3D}/Heart%20on%20fire/3D/heart_on_fire_3d.png`, fallback: '❤️‍🔥', ring: 'from-red-200 via-orange-100 to-rose-300', glow: 'shadow-[0_14px_26px_-4px_rgba(239,68,68,0.7)]' }, // Corazón en Llamas
+    '68f6a46c08620e098533b10a': { img: `${FLUENT_3D}/Rocket/3D/rocket_3d.png`, fallback: '🚀', ring: 'from-indigo-200 via-purple-100 to-pink-300', glow: 'shadow-[0_14px_26px_-4px_rgba(147,51,234,0.65)]' }, // Cohete al Éxito
+    '68f4b3c11dc146998b762499': { img: `${FLUENT_3D}/Rocket/3D/rocket_3d.png`, fallback: '🚀', ring: 'from-amber-200 via-yellow-100 to-purple-300', glow: 'shadow-[0_14px_26px_-4px_rgba(234,179,8,0.7)]' }, // Cohete al Estrellato
+    '68f4b3c11dc146998b762494': { img: `${FLUENT_3D}/Automobile/3D/automobile_3d.png`, fallback: '🚗', ring: 'from-red-300 via-rose-100 to-red-400', glow: 'shadow-[0_16px_28px_-4px_rgba(220,38,38,0.7)]' }, // Auto Rojo de Lujo
+    '68f55d975162c3bafe50ee09': { img: `${FLUENT_3D}/Rocket/3D/rocket_3d.png`, fallback: '🚀', ring: 'from-sky-300 via-cyan-100 to-indigo-400', glow: 'shadow-[0_16px_28px_-4px_rgba(56,189,248,0.7)]' }, // Cohete Espacial
+    '68f6a46c08620e098533b10b': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-amber-300 via-purple-100 to-yellow-400', glow: 'shadow-[0_16px_28px_-4px_rgba(234,179,8,0.75)]' }, // Corona de Rey/Reina
+    '68f4b3c11dc146998b76249a': { img: `${FLUENT_3D}/Gem%20stone/3D/gem_stone_3d.png`, fallback: '💎', ring: 'from-cyan-200 via-sky-100 to-blue-300', glow: 'shadow-[0_16px_28px_-4px_rgba(14,165,233,0.75)]' }, // Diamante Eterno
+    '68f55d975162c3bafe50ee0e': { img: `${FLUENT_3D}/Racing%20car/3D/racing_car_3d.png`, fallback: '🏎️', ring: 'from-red-300 via-amber-100 to-orange-300', glow: 'shadow-[0_18px_30px_-4px_rgba(239,68,68,0.75)]' }, // Auto Deportivo
+    '68f55d975162c3bafe50ee0f': { img: `${FLUENT_3D}/Gem%20stone/3D/gem_stone_3d.png`, fallback: '💎', ring: 'from-purple-300 via-fuchsia-100 to-pink-400', glow: 'shadow-[0_18px_30px_-4px_rgba(168,85,247,0.85)]' }, // Diamante Legendario
+    '68f4b3c11dc146998b76249b': { img: `${FLUENT_3D}/Gem%20stone/3D/gem_stone_3d.png`, fallback: '💎', ring: 'from-amber-300 via-cyan-100 to-yellow-400', glow: 'shadow-[0_18px_30px_-4px_rgba(234,179,8,0.85)]' }  // Mega Diamante
 };
+
 
 const GiftRender3D = ({ gift }) => {
     const asset = GIFT_3D_ASSETS[gift?.id] || {
