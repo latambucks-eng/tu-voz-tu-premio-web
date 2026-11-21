@@ -8,53 +8,52 @@ import {
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 
-const FLUENT_CDN = 'https://jsdelivr.net';
-
 const GIFT_3D_ASSETS = {
-    '68f4b3c11dc146998b762496': { url: `${FLUENT_CDN}/Sparkles/3D/sparkles_3d.png`, glow: 'drop-shadow-[0_8px_12px_rgba(250,204,21,0.45)]', scale: 'scale-100' },
-    '68f55d975162c3bafe50ee03': { url: `${FLUENT_CDN}/Musical%20notes/3D/musical_notes_3d.png`, glow: 'drop-shadow-[0_8px_12px_rgba(168,85,247,0.45)]', scale: 'scale-100' },
-    '68f4b3c11dc146998b762497': { url: `${FLUENT_CDN}/Sparkling%20heart/3D/sparkling_heart_3d.png`, glow: 'drop-shadow-[0_8px_12px_rgba(244,63,94,0.45)]', scale: 'scale-100' },
-    '68f55d975162c3bafe50ee04': { url: `${FLUENT_CDN}/Studio%20microphone/3D/studio_microphone_3d.png`, glow: 'drop-shadow-[0_8px_12px_rgba(217,119,6,0.45)]', scale: 'scale-100' },
-    '68f6a46c08620e098533b106': { url: `${FLUENT_CDN}/Clapping%20hands/Default/3D/clapping_hands_3d_default.png`, glow: 'drop-shadow-[0_8px_12px_rgba(234,179,8,0.4)]', scale: 'scale-100' },
-    '68f55d975162c3bafe50ee05': { url: `${FLUENT_CDN}/Guitar/3D/guitar_3d.png`, glow: 'drop-shadow-[0_10px_14px_rgba(220,38,38,0.45)]', scale: 'scale-105' },
-    '68f6a46c08620e098533b107': { url: `${FLUENT_CDN}/Rose/3D/rose_3d.png`, glow: 'drop-shadow-[0_10px_14px_rgba(225,29,72,0.45)]', scale: 'scale-105' },
-    '68f4b3c11dc146998b762493': { url: `${FLUENT_CDN}/Drum/3D/drum_3d.png`, glow: 'drop-shadow-[0_10px_14px_rgba(217,119,6,0.45)]', scale: 'scale-105' },
-    '68f55d975162c3bafe50ee06': { url: `${FLUENT_CDN}/Long%20drum/3D/long_drum_3d.png`, glow: 'drop-shadow-[0_10px_14px_rgba(180,83,9,0.45)]', scale: 'scale-105' },
-    '68f6a46c08620e098533b108': { url: `${FLUENT_CDN}/Fire/3D/fire_3d.png`, glow: 'drop-shadow-[0_10px_14px_rgba(249,115,22,0.5)]', scale: 'scale-105' },
-    '68f4b3c11dc146998b762491': { url: `${FLUENT_CDN}/Ribbon/3D/ribbon_3d.png`, glow: 'drop-shadow-[0_10px_14px_rgba(236,72,153,0.45)]', scale: 'scale-105' },
-    '68f4b3c11dc146998b762490': { url: `${FLUENT_CDN}/Military%20medal/3D/military_medal_3d.png`, glow: 'drop-shadow-[0_10px_14px_rgba(59,130,246,0.45)]', scale: 'scale-105' },
-    '68f4b3c11dc146998b76248e': { url: `${FLUENT_CDN}/Crown/3D/crown_3d.png`, glow: 'drop-shadow-[0_10px_15px_rgba(234,179,8,0.55)]', scale: 'scale-110' },
-    '68f55d975162c3bafe50ee07': { url: `${FLUENT_CDN}/Glowing%20star/3D/glowing_star_3d.png`, glow: 'drop-shadow-[0_10px_15px_rgba(250,204,21,0.55)]', scale: 'scale-110' },
-    '68f4b3c11dc146998b762498': { url: `${FLUENT_CDN}/High%20voltage/3D/high_voltage_3d.png`, glow: 'drop-shadow-[0_10px_15px_rgba(245,158,11,0.55)]', scale: 'scale-110' },
-    '68f4b3c11dc146998b76248f': { url: `${FLUENT_CDN}/Ring/3D/ring_3d.png`, glow: 'drop-shadow-[0_10px_15px_rgba(236,72,153,0.55)]', scale: 'scale-110' },
-    '68f4b3c11dc146998b762495': { url: `${FLUENT_CDN}/Trophy/3D/trophy_3d.png`, glow: 'drop-shadow-[0_12px_16px_rgba(234,179,8,0.6)]', scale: 'scale-110' },
-    '68f55d975162c3bafe50ee08': { url: `${FLUENT_CDN}/Heart%20on%20fire/3D/heart_on_fire_3d.png`, glow: 'drop-shadow-[0_12px_16px_rgba(239,68,68,0.6)]', scale: 'scale-110' },
-    '68f6a46c08620e098533b10a': { url: `${FLUENT_CDN}/Rocket/3D/rocket_3d.png`, glow: 'drop-shadow-[0_12px_16px_rgba(239,68,68,0.55)]', scale: 'scale-110' },
-    '68f4b3c11dc146998b762499': { url: `${FLUENT_CDN}/Shooting%20star/3D/shooting_star_3d.png`, glow: 'drop-shadow-[0_12px_16px_rgba(168,85,247,0.6)]', scale: 'scale-110' },
-    '68f4b3c11dc146998b762494': { url: `${FLUENT_CDN}/Automobile/3D/automobile_3d.png`, glow: 'drop-shadow-[0_12px_16px_rgba(220,38,38,0.6)]', scale: 'scale-110' },
-    '68f55d975162c3bafe50ee09': { url: `${FLUENT_CDN}/Flying%20saucer/3D/flying_saucer_3d.png`, glow: 'drop-shadow-[0_12px_16px_rgba(56,189,248,0.6)]', scale: 'scale-110' },
-    '68f6a46c08620e098533b10b': { url: `${FLUENT_CDN}/1st%20place%20medal/3D/1st_place_medal_3d.png`, glow: 'drop-shadow-[0_12px_18px_rgba(234,179,8,0.65)]', scale: 'scale-110' },
-    '68f4b3c11dc146998b76249a': { url: `${FLUENT_CDN}/Gem%20stone/3D/gem_stone_3d.png`, glow: 'drop-shadow-[0_12px_18px_rgba(14,165,233,0.65)]', scale: 'scale-110' },
-    '68f55d975162c3bafe50ee0e': { url: `${FLUENT_CDN}/Racing%20car/3D/racing_car_3d.png`, glow: 'drop-shadow-[0_14px_18px_rgba(239,68,68,0.65)]', scale: 'scale-115' },
-    '68f55d975162c3bafe50ee0f': { url: `${FLUENT_CDN}/Crystal%20ball/3D/crystal_ball_3d.png`, glow: 'drop-shadow-[0_14px_20px_rgba(168,85,247,0.7)]', scale: 'scale-115' },
-    '68f4b3c11dc146998b76249b': { url: `${FLUENT_CDN}/Wrapped%20gift/3D/wrapped_gift_3d.png`, glow: 'drop-shadow-[0_14px_20px_rgba(236,72,153,0.7)]', scale: 'scale-115' }
+    '68f4b3c11dc146998b762496': { emoji: '✨', bg: 'from-yellow-100 to-amber-200', shadow: 'drop-shadow-[0_10px_10px_rgba(245,158,11,0.45)]' },
+    '68f55d975162c3bafe50ee03': { emoji: '🎵', bg: 'from-purple-100 to-fuchsia-200', shadow: 'drop-shadow-[0_10px_10px_rgba(168,85,247,0.45)]' },
+    '68f4b3c11dc146998b762497': { emoji: '💖', bg: 'from-pink-100 to-rose-200', shadow: 'drop-shadow-[0_10px_10px_rgba(244,63,94,0.45)]' },
+    '68f55d975162c3bafe50ee04': { emoji: '🎙️', bg: 'from-amber-100 to-yellow-200', shadow: 'drop-shadow-[0_10px_10px_rgba(217,119,6,0.45)]' },
+    '68f6a46c08620e098533b106': { emoji: '👏', bg: 'from-yellow-100 to-orange-200', shadow: 'drop-shadow-[0_10px_10px_rgba(234,179,8,0.45)]' },
+    '68f55d975162c3bafe50ee05': { emoji: '🎸', bg: 'from-red-100 to-rose-200', shadow: 'drop-shadow-[0_10px_12px_rgba(220,38,38,0.45)]' },
+    '68f6a46c08620e098533b107': { emoji: '🌹', bg: 'from-rose-100 to-red-200', shadow: 'drop-shadow-[0_10px_12px_rgba(225,29,72,0.45)]' },
+    '68f4b3c11dc146998b762493': { emoji: '🥁', bg: 'from-orange-100 to-amber-200', shadow: 'drop-shadow-[0_10px_12px_rgba(217,119,6,0.45)]' },
+    '68f55d975162c3bafe50ee06': { emoji: '🪘', bg: 'from-amber-100 to-orange-200', shadow: 'drop-shadow-[0_10px_12px_rgba(180,83,9,0.45)]' },
+    '68f6a46c08620e098533b108': { emoji: '🔥', bg: 'from-orange-100 to-red-200', shadow: 'drop-shadow-[0_10px_12px_rgba(249,115,22,0.5)]' },
+    '68f4b3c11dc146998b762491': { emoji: '🎀', bg: 'from-pink-100 to-fuchsia-200', shadow: 'drop-shadow-[0_10px_12px_rgba(236,72,153,0.45)]' },
+    '68f4b3c11dc146998b762490': { emoji: '🎖️', bg: 'from-blue-100 to-indigo-200', shadow: 'drop-shadow-[0_10px_12px_rgba(59,130,246,0.45)]' },
+    '68f4b3c11dc146998b76248e': { emoji: '👑', bg: 'from-yellow-200 to-amber-300', shadow: 'drop-shadow-[0_12px_14px_rgba(234,179,8,0.55)]' },
+    '68f55d975162c3bafe50ee07': { emoji: '🌟', bg: 'from-amber-100 to-yellow-300', shadow: 'drop-shadow-[0_12px_14px_rgba(250,204,21,0.55)]' },
+    '68f4b3c11dc146998b762498': { emoji: '⚡', bg: 'from-yellow-100 to-orange-300', shadow: 'drop-shadow-[0_12px_14px_rgba(245,158,11,0.55)]' },
+    '68f4b3c11dc146998b76248f': { emoji: '💍', bg: 'from-pink-100 to-purple-200', shadow: 'drop-shadow-[0_12px_14px_rgba(236,72,153,0.55)]' },
+    '68f4b3c11dc146998b762495': { emoji: '🏆', bg: 'from-yellow-200 to-amber-300', shadow: 'drop-shadow-[0_12px_15px_rgba(234,179,8,0.6)]' },
+    '68f55d975162c3bafe50ee08': { emoji: '❤️‍🔥', bg: 'from-red-100 to-orange-200', shadow: 'drop-shadow-[0_12px_15px_rgba(239,68,68,0.6)]' },
+    '68f6a46c08620e098533b10a': { emoji: '🚀', bg: 'from-indigo-100 to-purple-200', shadow: 'drop-shadow-[0_12px_15px_rgba(147,51,234,0.55)]' },
+    '68f4b3c11dc146998b762499': { emoji: '🌠', bg: 'from-purple-100 to-pink-200', shadow: 'drop-shadow-[0_12px_15px_rgba(168,85,247,0.6)]' },
+    '68f4b3c11dc146998b762494': { emoji: '🚗', bg: 'from-red-100 to-rose-300', shadow: 'drop-shadow-[0_12px_16px_rgba(220,38,38,0.6)]' },
+    '68f55d975162c3bafe50ee09': { emoji: '🛸', bg: 'from-sky-100 to-indigo-200', shadow: 'drop-shadow-[0_12px_16px_rgba(56,189,248,0.6)]' },
+    '68f6a46c08620e098533b10b': { emoji: '🥇', bg: 'from-amber-200 to-yellow-300', shadow: 'drop-shadow-[0_14px_16px_rgba(234,179,8,0.65)]' },
+    '68f4b3c11dc146998b76249a': { emoji: '💎', bg: 'from-cyan-100 to-blue-200', shadow: 'drop-shadow-[0_14px_16px_rgba(14,165,233,0.65)]' },
+    '68f55d975162c3bafe50ee0e': { emoji: '🏎️', bg: 'from-red-200 to-amber-200', shadow: 'drop-shadow-[0_14px_18px_rgba(239,68,68,0.65)]' },
+    '68f55d975162c3bafe50ee0f': { emoji: '🔮', bg: 'from-purple-200 to-pink-300', shadow: 'drop-shadow-[0_14px_18px_rgba(168,85,247,0.7)]' },
+    '68f4b3c11dc146998b76249b': { emoji: '🎁', bg: 'from-pink-200 to-amber-200', shadow: 'drop-shadow-[0_14px_18px_rgba(236,72,153,0.7)]' }
 };
 
 const GiftRender3D = ({ gift }) => {
     const asset = GIFT_3D_ASSETS[gift?.id] || {
-        url: `${FLUENT_CDN}/Wrapped%20gift/3D/wrapped_gift_3d.png`,
-        glow: 'drop-shadow-[0_8px_12px_rgba(168,85,247,0.4)]',
-        scale: 'scale-100'
+        emoji: '🎁',
+        bg: 'from-purple-100 to-pink-200',
+        shadow: 'drop-shadow-[0_10px_12px_rgba(168,85,247,0.45)]'
     };
 
     return (
-        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto flex items-center justify-center">
-            <img
-                src={asset.url}
-                alt={gift?.name || 'Regalo 3D'}
-                loading="lazy"
-                className={`w-14 h-14 sm:w-16 sm:h-16 object-contain transition-transform duration-300 ${asset.scale} ${asset.glow}`}
-            />
+        <div className={`w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br ${asset.bg} flex items-center justify-center shadow-inner border border-white/80`}>
+            <span
+                role="img"
+                aria-label={gift?.name || 'Regalo'}
+                className={`text-4xl sm:text-5xl select-none leading-none transition-transform duration-300 ${asset.shadow}`}
+            >
+                {asset.emoji}
+            </span>
         </div>
     );
 };
@@ -146,7 +145,8 @@ export default function GiftSelector({ artist, fan, onClose }) {
                 const found = (matchingUsers || []).find(
                     u => (u.artist_name || u.full_name || '').trim().toLowerCase() === (artist?.artist_name || '').trim().toLowerCase()
                 );
-                if (found?.id) {                     targetArtistId = found.id;
+                if (found?.id) {
+                    targetArtistId = found.id;
                 } else {
                     targetArtistId = artist?.created_by_id || '71ffd78e-6e83-4616-9f34-a0e002411c81';
                 }
@@ -158,7 +158,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
             const artistWallet = await base44.entities.Wallet.filter({ user_id: targetArtistId }).then(res => Array.isArray(res) ? res.at(0) : res);
             if (artistWallet) {
                 const newArtistStars = (Number(artistWallet.star_credits) || 0) + giftPrice;
-                await base44.entities.Wallet.update(artistWallet.id, { star_credits: newArtistStars });
+                            await base44.entities.Wallet.update(artistWallet.id, { star_credits: newArtistStars });
             } else {
                 await base44.entities.Wallet.create({ user_id: targetArtistId, balance: 0, star_credits: giftPrice });
             }
@@ -342,7 +342,8 @@ export default function GiftSelector({ artist, fan, onClose }) {
             >
                 <motion.div
                     initial={{ scale: 0.9, y: 20 }}
-                    animate={{ scale: 1, y: 0 }}                    exit={{ scale: 0.9, y: 20 }}
+                    animate={{ scale: 1, y: 0 }}
+                    exit={{ scale: 0.9, y: 20 }}
                     className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-purple-100"
                     onClick={(e) => e.stopPropagation()}
                 >
@@ -352,5 +353,6 @@ export default function GiftSelector({ artist, fan, onClose }) {
         </AnimatePresence>
     );
 }
+
 
 
