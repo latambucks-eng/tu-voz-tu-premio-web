@@ -8,53 +8,177 @@ import {
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 
-const FLUENT_3D = 'https://jsdelivr.net';
-
-const GIFT_3D_ASSETS = {
-    '68f4b3c11dc146998b762496': { img: `${FLUENT_3D}/Star/3D/star_3d.png`, fallback: '⭐', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_12px_20px_-4px_rgba(245,158,11,0.5)]' }, // Estrella Brillante
-    '68f55d975162c3bafe50ee03': { img: `${FLUENT_3D}/Musical%20notes/3D/musical_notes_3d.png`, fallback: '🎵', ring: 'from-purple-200 via-fuchsia-100 to-indigo-300', glow: 'shadow-[0_12px_20px_-4px_rgba(168,85,247,0.5)]' }, // Nota Musical
-    '68f4b3c11dc146998b762497': { img: `${FLUENT_3D}/Sparkling%20heart/3D/sparkling_heart_3d.png`, fallback: '💖', ring: 'from-pink-200 via-rose-100 to-pink-300', glow: 'shadow-[0_12px_20px_-4px_rgba(244,63,94,0.5)]' }, // Corazón de Fan
-    '68f55d975162c3bafe50ee04': { img: `${FLUENT_3D}/Studio%20microphone/3D/studio_microphone_3d.png`, fallback: '🎙️', ring: 'from-amber-200 via-yellow-100 to-orange-300', glow: 'shadow-[0_12px_20px_-4px_rgba(217,119,6,0.5)]' }, // Micrófono de Oro
-    '68f6a46c08620e098533b106': { img: `${FLUENT_3D}/Clapping%20hands/Default/3D/clapping_hands_3d_default.png`, fallback: '👏', ring: 'from-yellow-200 via-amber-100 to-orange-200', glow: 'shadow-[0_12px_20px_-4px_rgba(234,179,8,0.45)]' }, // Aplauso
-    '68f55d975162c3bafe50ee05': { img: `${FLUENT_3D}/Guitar/3D/guitar_3d.png`, fallback: '🎸', ring: 'from-red-200 via-rose-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(220,38,38,0.55)]' }, // Guitarra Eléctrica
-    '68f6a46c08620e098533b107': { img: `${FLUENT_3D}/Rose/3D/rose_3d.png`, fallback: '🌹', ring: 'from-rose-200 via-pink-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(225,29,72,0.55)]' }, // Rosa Roja
-    '68f4b3c11dc146998b762493': { img: `${FLUENT_3D}/Drum/3D/drum_3d.png`, fallback: '🥁', ring: 'from-orange-200 via-amber-100 to-red-200', glow: 'shadow-[0_12px_22px_-4px_rgba(217,119,6,0.5)]' }, // Bombo
-    '68f55d975162c3bafe50ee06': { img: `${FLUENT_3D}/Drum/3D/drum_3d.png`, fallback: '🥁', ring: 'from-indigo-200 via-sky-100 to-amber-300', glow: 'shadow-[0_12px_22px_-4px_rgba(59,130,246,0.55)]' }, // Batería
-    '68f6a46c08620e098533b108': { img: `${FLUENT_3D}/Fire/3D/fire_3d.png`, fallback: '🔥', ring: 'from-orange-200 via-yellow-100 to-red-300', glow: 'shadow-[0_12px_22px_-4px_rgba(249,115,22,0.6)]' }, // Fuego
-    '68f4b3c11dc146998b762491': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-pink-300 via-rose-100 to-pink-400', glow: 'shadow-[0_12px_22px_-4px_rgba(236,72,153,0.55)]' }, // Corona de Princesa
-    '68f4b3c11dc146998b762490': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-blue-300 via-sky-100 to-indigo-400', glow: 'shadow-[0_12px_22px_-4px_rgba(59,130,246,0.55)]' }, // Corona de Príncipe
-    '68f4b3c11dc146998b76248e': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-yellow-300 via-amber-100 to-yellow-400', glow: 'shadow-[0_14px_24px_-4px_rgba(234,179,8,0.65)]' }, // Corona de Rey
-    '68f55d975162c3bafe50ee07': { img: `${FLUENT_3D}/Glowing%20star/3D/glowing_star_3d.png`, fallback: '🌟', ring: 'from-amber-200 via-yellow-100 to-amber-300', glow: 'shadow-[0_14px_24px_-4px_rgba(250,204,21,0.65)]' }, // Estrella Dorada
-    '68f4b3c11dc146998b762498': { img: `${FLUENT_3D}/Fire/3D/fire_3d.png`, fallback: '🔥', ring: 'from-red-300 via-orange-100 to-amber-400', glow: 'shadow-[0_14px_24px_-4px_rgba(239,68,68,0.7)]' }, // Fuego Ardiente
-    '68f4b3c11dc146998b76248f': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-fuchsia-300 via-pink-100 to-purple-400', glow: 'shadow-[0_14px_24px_-4px_rgba(217,70,239,0.65)]' }, // Corona de Reina
-    '68f4b3c11dc146998b762495': { img: `${FLUENT_3D}/Trophy/3D/trophy_3d.png`, fallback: '🏆', ring: 'from-yellow-300 via-amber-100 to-orange-300', glow: 'shadow-[0_14px_26px_-4px_rgba(234,179,8,0.7)]' }, // Trofeo de Campeón
-    '68f55d975162c3bafe50ee08': { img: `${FLUENT_3D}/Heart%20on%20fire/3D/heart_on_fire_3d.png`, fallback: '❤️‍🔥', ring: 'from-red-200 via-orange-100 to-rose-300', glow: 'shadow-[0_14px_26px_-4px_rgba(239,68,68,0.7)]' }, // Corazón en Llamas
-    '68f6a46c08620e098533b10a': { img: `${FLUENT_3D}/Rocket/3D/rocket_3d.png`, fallback: '🚀', ring: 'from-indigo-200 via-purple-100 to-pink-300', glow: 'shadow-[0_14px_26px_-4px_rgba(147,51,234,0.65)]' }, // Cohete al Éxito
-    '68f4b3c11dc146998b762499': { img: `${FLUENT_3D}/Rocket/3D/rocket_3d.png`, fallback: '🚀', ring: 'from-amber-200 via-yellow-100 to-purple-300', glow: 'shadow-[0_14px_26px_-4px_rgba(234,179,8,0.7)]' }, // Cohete al Estrellato
-    '68f4b3c11dc146998b762494': { img: `${FLUENT_3D}/Automobile/3D/automobile_3d.png`, fallback: '🚗', ring: 'from-red-300 via-rose-100 to-red-400', glow: 'shadow-[0_16px_28px_-4px_rgba(220,38,38,0.7)]' }, // Auto Rojo de Lujo
-    '68f55d975162c3bafe50ee09': { img: `${FLUENT_3D}/Rocket/3D/rocket_3d.png`, fallback: '🚀', ring: 'from-sky-300 via-cyan-100 to-indigo-400', glow: 'shadow-[0_16px_28px_-4px_rgba(56,189,248,0.7)]' }, // Cohete Espacial
-    '68f6a46c08620e098533b10b': { img: `${FLUENT_3D}/Crown/3D/crown_3d.png`, fallback: '👑', ring: 'from-amber-300 via-purple-100 to-yellow-400', glow: 'shadow-[0_16px_28px_-4px_rgba(234,179,8,0.75)]' }, // Corona de Rey/Reina
-    '68f4b3c11dc146998b76249a': { img: `${FLUENT_3D}/Gem%20stone/3D/gem_stone_3d.png`, fallback: '💎', ring: 'from-cyan-200 via-sky-100 to-blue-300', glow: 'shadow-[0_16px_28px_-4px_rgba(14,165,233,0.75)]' }, // Diamante Eterno
-    '68f55d975162c3bafe50ee0e': { img: `${FLUENT_3D}/Racing%20car/3D/racing_car_3d.png`, fallback: '🏎️', ring: 'from-red-300 via-amber-100 to-orange-300', glow: 'shadow-[0_18px_30px_-4px_rgba(239,68,68,0.75)]' }, // Auto Deportivo
-    '68f55d975162c3bafe50ee0f': { img: `${FLUENT_3D}/Gem%20stone/3D/gem_stone_3d.png`, fallback: '💎', ring: 'from-purple-300 via-fuchsia-100 to-pink-400', glow: 'shadow-[0_18px_30px_-4px_rgba(168,85,247,0.85)]' }, // Diamante Legendario
-    '68f4b3c11dc146998b76249b': { img: `${FLUENT_3D}/Gem%20stone/3D/gem_stone_3d.png`, fallback: '💎', ring: 'from-amber-300 via-cyan-100 to-yellow-400', glow: 'shadow-[0_18px_30px_-4px_rgba(234,179,8,0.85)]' }  // Mega Diamante
+const getCapTier = (price) => {
+    const p = Number(price) || 0;
+    if (p >= 90) {
+        return {
+            tier: 'diamante',
+            ring: 'from-amber-300 via-cyan-100 to-yellow-400',
+            glow: 'shadow-[0_16px_28px_-4px_rgba(234,179,8,0.85)]'
+        };
+    }
+    if (p >= 50) {
+        return {
+            tier: 'oro',
+            ring: 'from-yellow-300 via-amber-100 to-orange-300',
+            glow: 'shadow-[0_16px_26px_-4px_rgba(245,158,11,0.75)]'
+        };
+    }
+    if (p >= 20) {
+        return {
+            tier: 'platino',
+            ring: 'from-purple-300 via-fuchsia-100 to-indigo-300',
+            glow: 'shadow-[0_14px_24px_-4px_rgba(168,85,247,0.65)]'
+        };
+    }
+    if (p >= 5) {
+        return {
+            tier: 'escenario',
+            ring: 'from-rose-200 via-pink-100 to-purple-200',
+            glow: 'shadow-[0_12px_20px_-4px_rgba(236,72,153,0.5)]'
+        };
+    }
+    if (p >= 1) {
+        return {
+            tier: 'rockera',
+            ring: 'from-red-200 via-orange-100 to-amber-200',
+            glow: 'shadow-[0_12px_20px_-4px_rgba(249,115,22,0.45)]'
+        };
+    }
+    return {
+        tier: 'callejera',
+        ring: 'from-sky-200 via-blue-100 to-indigo-200',
+        glow: 'shadow-[0_12px_20px_-4px_rgba(59,130,246,0.4)]'
+    };
 };
 
+const CapArtwork3D = ({ price }) => {
+    const info = getCapTier(price);
+    const uid = `${info.tier}-${String(price).replace('.', '')}`;
 
-const GiftRender3D = ({ gift }) => {
-    const asset = GIFT_3D_ASSETS[gift?.id] || {
-        fallback: '🎁',
-        ring: 'from-purple-200 via-pink-100 to-purple-300',
-        glow: 'shadow-[0_12px_20px_-4px_rgba(168,85,247,0.5)]'
-    };
+    if (info.tier === 'diamante') {
+        return (
+            <svg viewBox="0 0 110 90" className="w-16 h-16 drop-shadow-[0_10px_12px_rgba(234,179,8,0.65)]">
+                <defs>
+                    <linearGradient id={`capDia-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#fef9c3" />
+                        <stop offset="45%" stopColor="#f59e0b" />
+                        <stop offset="100%" stopColor="#92400e" />
+                    </linearGradient>
+                    <linearGradient id={`visorDia-${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#38bdf8" />
+                        <stop offset="50%" stopColor="#e0f2fe" />
+                        <stop offset="100%" stopColor="#0284c7" />
+                    </linearGradient>
+                </defs>
+                <polygon points="40,22 45,10 55,18 65,10 70,22" fill="#fde047" stroke="#b45309" strokeWidth="1" />
+                <path d="M22 56 C22 30, 40 20, 55 20 C70 20, 88 30, 88 56 Z" fill={`url(#capDia-${uid})`} />
+                <path d="M22 54 Q58 46 102 60 Q76 72 26 62 Z" fill={`url(#visorDia-${uid})`} />
+                <polygon points="55,30 63,39 55,49 47,39" fill="#e0f2fe" stroke="#ffffff" strokeWidth="1.5" />
+                <path d="M18 22 L20 27 L25 29 L20 31 L18 36 L16 31 L11 29 L16 27 Z" fill="#fef08a" />
+            </svg>
+        );
+    }
+
+    if (info.tier === 'oro') {
+        return (
+            <svg viewBox="0 0 110 90" className="w-16 h-16 drop-shadow-[0_10px_12px_rgba(245,158,11,0.6)]">
+                <defs>
+                    <linearGradient id={`capGold-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#fef08a" />
+                        <stop offset="50%" stopColor="#eab308" />
+                        <stop offset="100%" stopColor="#854d0e" />
+                    </linearGradient>
+                </defs>
+                <circle cx="55" cy="18" r="4" fill="#fef08a" />
+                <path d="M22 56 C22 30, 40 20, 55 20 C70 20, 88 30, 88 56 Z" fill={`url(#capGold-${uid})`} />
+                <path d="M22 54 Q58 46 100 60 Q75 72 26 62 Z" fill="#78350f" />
+                <polygon points="55,29 58,36 66,37 60,42 62,49 55,45 48,49 50,42 44,37 52,36" fill="#ffffff" />
+            </svg>
+        );
+    }
+
+    if (info.tier === 'platino') {
+        return (
+            <svg viewBox="0 0 110 90" className="w-16 h-16 drop-shadow-[0_10px_12px_rgba(168,85,247,0.55)]">
+                <defs>
+                    <linearGradient id={`capPlat-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#f3e8ff" />
+                        <stop offset="50%" stopColor="#a855f7" />
+                        <stop offset="100%" stopColor="#4c1d95" />
+                    </linearGradient>
+                </defs>
+                <circle cx="55" cy="18" r="4" fill="#e9d5ff" />
+                <path d="M22 56 C22 30, 40 20, 55 20 C70 20, 88 30, 88 56 Z" fill={`url(#capPlat-${uid})`} />
+                <path d="M22 54 Q58 46 100 60 Q75 72 26 62 Z" fill="#cbd5e1" />
+                <circle cx="55" cy="40" r="8" fill="#fef08a" stroke="#ffffff" strokeWidth="1.5" />
+            </svg>
+        );
+    }
+
+    if (info.tier === 'escenario') {
+        return (
+            <svg viewBox="0 0 110 90" className="w-16 h-16 drop-shadow-[0_10px_10px_rgba(236,72,153,0.45)]">
+                <defs>
+                    <linearGradient id={`hatShow-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#f472b6" />
+                        <stop offset="55%" stopColor="#be185d" />
+                        <stop offset="100%" stopColor="#500724" />
+                    </linearGradient>
+                </defs>
+                <ellipse cx="55" cy="60" rx="45" ry="12" fill="#831843" />
+                <ellipse cx="55" cy="58" rx="43" ry="10" fill={`url(#hatShow-${uid})`} />
+                <path d="M32 56 L37 26 C42 21, 68 21, 73 26 L78 56 Z" fill={`url(#hatShow-${uid})`} />
+                <path d="M33 49 Q55 54 77 49 L78 55 Q55 60 32 55 Z" fill="#facc15" />
+            </svg>
+        );
+    }
+
+    if (info.tier === 'rockera') {
+        return (
+            <svg viewBox="0 0 110 90" className="w-16 h-16 drop-shadow-[0_8px_10px_rgba(220,38,38,0.45)]">
+                <defs>
+                    <linearGradient id={`capRock-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#fca5a5" />
+                        <stop offset="50%" stopColor="#ef4444" />
+                        <stop offset="100%" stopColor="#7f1d1d" />
+                    </linearGradient>
+                </defs>
+                <circle cx="55" cy="19" r="3.5" fill="#1e293b" />
+                <path d="M23 56 C23 31, 40 21, 55 21 C70 21, 87 31, 87 56 Z" fill={`url(#capRock-${uid})`} />
+                <path d="M23 54 Q58 47 98 59 Q74 70 27 61 Z" fill="#1e293b" />
+                <circle cx="55" cy="40" r="7" fill="#ffffff" opacity="0.9" />
+            </svg>
+        );
+    }
 
     return (
-        <div className={`relative w-20 h-20 mx-auto my-1 rounded-2xl bg-gradient-to-br ${asset.ring} p-[2px] ${asset.glow} transition-transform duration-300`}>
+        <svg viewBox="0 0 110 90" className="w-16 h-16 drop-shadow-[0_8px_10px_rgba(37,99,235,0.4)]">
+            <defs>
+                <linearGradient id={`capStreet-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#93c5fd" />
+                    <stop offset="50%" stopColor="#3b82f6" />
+                    <stop offset="100%" stopColor="#1e3a8a" />
+                </linearGradient>
+            </defs>
+            <circle cx="55" cy="19" r="3.5" fill="#93c5fd" />
+            <path d="M23 56 C23 31, 40 21, 55 21 C70 21, 87 31, 87 56 Z" fill={`url(#capStreet-${uid})`} />
+            <path d="M23 54 Q58 47 98 59 Q74 70 27 61 Z" fill="#1d4ed8" />
+        </svg>
+    );
+};
+
+const GiftRender3D = ({ gift }) => {
+    const price = Number(gift?.price_usd) || 0;
+    const capInfo = getCapTier(price);
+
+    return (
+        <div className={`relative w-20 h-20 mx-auto my-1 rounded-2xl bg-gradient-to-br ${capInfo.ring} p-[2px] ${capInfo.glow} transition-transform duration-300`}>
             <div className="w-full h-full rounded-[14px] bg-gradient-to-b from-white/95 to-white/75 flex items-center justify-center relative overflow-hidden">
                 <div className="absolute -top-6 -left-6 w-14 h-14 rounded-full bg-white/80 blur-sm pointer-events-none" />
-                <span className="text-4xl sm:text-5xl drop-shadow-[0_8px_10px_rgba(0,0,0,0.28)] relative z-10 select-none">
-                    {asset.fallback}
-                </span>
+                <div className="relative z-10 flex items-center justify-center">
+                    <CapArtwork3D price={price} />
+                </div>
             </div>
         </div>
     );
