@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,276 +8,176 @@ import {
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 
-const RealisticGift3D = ({ gift }) => {
-    const raw = `${gift?.name || ''} ${gift?.icon || ''}`.toLowerCase();
-    const uid = String(gift?.id || 'g').replace(/[^a-zA-Z0-9]/g, '');
+const FLUENT_3D_BASE = 'https://githubusercontent.com';
 
-    if (raw.includes('auto') || raw.includes('coche') || raw.includes('car')) {
-        const isYellow = raw.includes('deportivo') && !raw.includes('rojo');
-        const c1 = isYellow ? '#fde047' : '#ff4d4d';
-        const c2 = isYellow ? '#eab308' : '#dc2626';
-        const c3 = isYellow ? '#a16207' : '#7f1d1d';
-        return (
-            <svg viewBox="0 0 120 90" className="w-20 h-16 mx-auto drop-shadow-[0_10px_10px_rgba(220,38,38,0.35)]">
-                <defs>
-                    <linearGradient id={`carBody-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor={c1} />
-                        <stop offset="50%" stopColor={c2} />
-                        <stop offset="100%" stopColor={c3} />
-                    </linearGradient>
-                    <linearGradient id={`glass-${uid}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#93c5fd" />
-                        <stop offset="50%" stopColor="#1e3a8a" />
-                        <stop offset="100%" stopColor="#0f172a" />
-                    </linearGradient>
-                    <radialGradient id={`wheel-${uid}`} cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor="#e2e8f0" />
-                        <stop offset="55%" stopColor="#475569" />
-                        <stop offset="75%" stopColor="#0f172a" />
-                        <stop offset="100%" stopColor="#020617" />
-                    </radialGradient>
-                </defs>
-                <ellipse cx="60" cy="76" rx="48" ry="7" fill="rgba(0,0,0,0.28)" />
-                <path d="M14 44 L22 36 L28 38 L22 47 Z" fill={c3} />
-                <path
-                    d="M14 58 C14 49, 24 44, 36 43 L48 30 C54 25, 72 25, 82 32 L98 43 C106 45, 110 51, 110 58 C110 63, 106 66, 100 66 L20 66 C15 66, 14 62, 14 58 Z"
-                    fill={`url(#carBody-${uid})`}
-                />
-                <path
-                    d="M49 32 C55 27, 71 27, 80 33 L93 42 L40 42 Z"
-                    fill={`url(#glass-${uid})`}
-                />
-                <path d="M35 50 Q62 47 96 51" stroke="rgba(255,255,255,0.65)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-                <ellipse cx="104" cy="52" rx="4.5" ry="2.5" fill="#fef08a" />
-                <ellipse cx="105" cy="52" rx="2" ry="1.2" fill="#ffffff" />
-                <rect x="14" y="49" width="4" height="5" rx="2" fill="#fca5a5" />
-                <circle cx="34" cy="65" r="11" fill={`url(#wheel-${uid})`} />
-                <circle cx="34" cy="65" r="5" fill="#cbd5e1" />
-                <circle cx="34" cy="65" r="2" fill="#334155" />
-                <circle cx="88" cy="65" r="11" fill={`url(#wheel-${uid})`} />
-                <circle cx="88" cy="65" r="5" fill="#cbd5e1" />
-                <circle cx="88" cy="65" r="2" fill="#334155" />
-            </svg>
-        );
-    }
+// Mapeo exacto 1 a 1 para cada uno de los 27 regalos de tu base de datos
+const GIFT_3D_ASSETS = {
+    // 0.20 - 0.50 USD
+    '68f4b3c11dc146998b762496': {
+        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Sparkles.png`,
+        glow: 'drop-shadow-[0_8px_12px_rgba(250,204,21,0.45)]',
+        scale: 'scale-100'
+    }, // Estrella Brillante
+    '68f55d975162c3bafe50ee03': {
+        url: `${FLUENT_3D_BASE}/Objects/Musical%20Notes.png`,
+        glow: 'drop-shadow-[0_8px_12px_rgba(168,85,247,0.45)]',
+        scale: 'scale-100'
+    }, // Nota Musical
+    '68f4b3c11dc146998b762497': {
+        url: `${FLUENT_3D_BASE}/Smilies/Sparkling%20Heart.png`,
+        glow: 'drop-shadow-[0_8px_12px_rgba(244,63,94,0.45)]',
+        scale: 'scale-100'
+    }, // Corazón de Fan
+    '68f55d975162c3bafe50ee04': {
+        url: `${FLUENT_3D_BASE}/Objects/Studio%20Microphone.png`,
+        glow: 'drop-shadow-[0_8px_12px_rgba(217,119,6,0.45)]',
+        scale: 'scale-100'
+    }, // Micrófono de Oro
+    '68f6a46c08620e098533b106': {
+        url: `${FLUENT_3D_BASE}/Hand%20gestures/Clapping%20Hands.png`,
+        glow: 'drop-shadow-[0_8px_12px_rgba(234,179,8,0.4)]',
+        scale: 'scale-100'
+    }, // Aplauso
 
-    if (raw.includes('diamante') || raw.includes('diamond') || raw.includes('gema')) {
-        const isMega = raw.includes('mega') || raw.includes('legendario');
-        return (
-            <svg viewBox="0 0 110 95" className="w-20 h-16 mx-auto drop-shadow-[0_10px_14px_rgba(56,189,248,0.45)]">
-                <defs>
-                    <linearGradient id={`diaTop-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor={isMega ? '#f0abfc' : '#bae6fd'} />
-                        <stop offset="50%" stopColor={isMega ? '#38bdf8' : '#7dd3fc'} />
-                        <stop offset="100%" stopColor="#0284c7" />
-                    </linearGradient>
-                    <linearGradient id={`diaLeft-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor={isMega ? '#c084fc' : '#38bdf8'} />
-                        <stop offset="100%" stopColor="#1d4ed8" />
-                    </linearGradient>
-                    <linearGradient id={`diaCenter-${uid}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#ffffff" />
-                        <stop offset="45%" stopColor={isMega ? '#67e8f9' : '#7dd3fc'} />
-                        <stop offset="100%" stopColor={isMega ? '#6366f1' : '#0369a1'} />
-                    </linearGradient>
-                    <linearGradient id={`diaRight-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#0ea5e9" />
-                        <stop offset="100%" stopColor="#1e3a8a" />
-                    </linearGradient>
-                </defs>
-                <ellipse cx="55" cy="84" rx="30" ry="5" fill="rgba(14,165,233,0.25)" />
-                <polygon points="32,20 78,20 94,38 16,38" fill={`url(#diaTop-${uid})`} />
-                <polygon points="32,20 55,20 42,38 16,38" fill="rgba(255,255,255,0.45)" />
-                <polygon points="55,20 78,20 68,38 42,38" fill="rgba(255,255,255,0.75)" />
-                <polygon points="16,38 42,38 55,78" fill={`url(#diaLeft-${uid})`} />
-                <polygon points="42,38 68,38 55,78" fill={`url(#diaCenter-${uid})`} />
-                <polygon points="68,38 94,38 55,78" fill={`url(#diaRight-${uid})`} />
-                <path d="M24 14 L26 20 L32 22 L26 24 L24 30 L22 24 L16 22 L22 20 Z" fill="#ffffff" />
-                {isMega && (
-                    <path d="M86 10 L88 15 L93 17 L88 19 L86 24 L84 19 L79 17 L84 15 Z" fill="#fef08a" />
-                )}
-            </svg>
-        );
-    }
+    // 1.00 - 3.00 USD
+    '68f55d975162c3bafe50ee05': {
+        url: `${FLUENT_3D_BASE}/Objects/Guitar.png`,
+        glow: 'drop-shadow-[0_10px_14px_rgba(220,38,38,0.45)]',
+        scale: 'scale-105'
+    }, // Guitarra Eléctrica
+    '68f6a46c08620e098533b107': {
+        url: `${FLUENT_3D_BASE}/Animals%20and%20nature/Rose.png`,
+        glow: 'drop-shadow-[0_10px_14px_rgba(225,29,72,0.45)]',
+        scale: 'scale-105'
+    }, // Rosa Roja
+    '68f4b3c11dc146998b762493': {
+        url: `${FLUENT_3D_BASE}/Objects/Drum.png`,
+        glow: 'drop-shadow-[0_10px_14px_rgba(217,119,6,0.45)]',
+        scale: 'scale-105'
+    }, // Bombo
+    '68f55d975162c3bafe50ee06': {
+        url: `${FLUENT_3D_BASE}/Objects/Long%20Drum.png`,
+        glow: 'drop-shadow-[0_10px_14px_rgba(180,83,9,0.45)]',
+        scale: 'scale-105'
+    }, // Batería
+    '68f6a46c08620e098533b108': {
+        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Fire.png`,
+        glow: 'drop-shadow-[0_10px_14px_rgba(249,115,22,0.5)]',
+        scale: 'scale-105'
+    }, // Fuego
+    '68f4b3c11dc146998b762491': {
+        url: `${FLUENT_3D_BASE}/Objects/Ribbon.png`,
+        glow: 'drop-shadow-[0_10px_14px_rgba(236,72,153,0.45)]',
+        scale: 'scale-105'
+    }, // Corona de Princesa
+    '68f4b3c11dc146998b762490': {
+        url: `${FLUENT_3D_BASE}/Activities/Military%20Medal.png`,
+        glow: 'drop-shadow-[0_10px_14px_rgba(59,130,246,0.45)]',
+        scale: 'scale-105'
+    }, // Corona de Príncipe
 
-    if (raw.includes('corona') || raw.includes('crown') || raw.includes('rey') || raw.includes('reina')) {
-        return (
-            <svg viewBox="0 0 110 95" className="w-20 h-16 mx-auto drop-shadow-[0_10px_12px_rgba(234,179,8,0.45)]">
-                <defs>
-                    <linearGradient id={`goldMain-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#fef08a" />
-                        <stop offset="45%" stopColor="#f59e0b" />
-                        <stop offset="100%" stopColor="#92400e" />
-                    </linearGradient>
-                    <linearGradient id={`goldBack-${uid}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#d97706" />
-                        <stop offset="100%" stopColor="#78350f" />
-                    </linearGradient>
-                </defs>
-                <ellipse cx="55" cy="82" rx="36" ry="6" fill="rgba(0,0,0,0.22)" />
-                <path d="M25 64 L32 34 L55 46 L78 34 L85 64 Z" fill="#991b1b" />
-                <polygon points="33,58 42,26 55,52" fill={`url(#goldBack-${uid})`} />
-                <polygon points="77,58 68,26 55,52" fill={`url(#goldBack-${uid})`} />
-                <path d="M20 65 L16 32 L38 48 L55 22 L72 48 L94 32 L90 65 Z" fill={`url(#goldMain-${uid})`} />
-                <rect x="20" y="63" width="70" height="11" rx="4" fill={`url(#goldMain-${uid})`} stroke="#fef08a" strokeWidth="1" />
-                <circle cx="16" cy="30" r="4.5" fill="#fef08a" />
-                <circle cx="55" cy="19" r="5.5" fill="#fef08a" />
-                <circle cx="94" cy="30" r="4.5" fill="#fef08a" />
-                <circle cx="55" cy="54" r="5" fill="#ef4444" stroke="#fef08a" strokeWidth="1.5" />
-                <circle cx="36" cy="68.5" r="3" fill="#10b981" />
-                <circle cx="55" cy="68.5" r="3.5" fill="#3b82f6" />
-                <circle cx="74" cy="68.5" r="3" fill="#10b981" />
-            </svg>
-        );
-    }
+    // 5.00 - 15.00 USD
+    '68f4b3c11dc146998b76248e': {
+        url: `${FLUENT_3D_BASE}/Objects/Crown.png`,
+        glow: 'drop-shadow-[0_10px_15px_rgba(234,179,8,0.55)]',
+        scale: 'scale-110'
+    }, // Corona de Rey
+    '68f55d975162c3bafe50ee07': {
+        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Glowing%20Star.png`,
+        glow: 'drop-shadow-[0_10px_15px_rgba(250,204,21,0.55)]',
+        scale: 'scale-110'
+    }, // Estrella Dorada
+    '68f4b3c11dc146998b762498': {
+        url: `${FLUENT_3D_BASE}/Travel%20and%20places/High%20Voltage.png`,
+        glow: 'drop-shadow-[0_10px_15px_rgba(245,158,11,0.55)]',
+        scale: 'scale-110'
+    }, // Fuego Ardiente
+    '68f4b3c11dc146998b76248f': {
+        url: `${FLUENT_3D_BASE}/Objects/Ring.png`,
+        glow: 'drop-shadow-[0_10px_15px_rgba(236,72,153,0.55)]',
+        scale: 'scale-110'
+    }, // Corona de Reina
+    '68f4b3c11dc146998b762495': {
+        url: `${FLUENT_3D_BASE}/Activities/Trophy.png`,
+        glow: 'drop-shadow-[0_12px_16px_rgba(234,179,8,0.6)]',
+        scale: 'scale-110'
+    }, // Trofeo de Campeón
+    '68f55d975162c3bafe50ee08': {
+        url: `${FLUENT_3D_BASE}/Smilies/Heart%20on%20Fire.png`,
+        glow: 'drop-shadow-[0_12px_16px_rgba(239,68,68,0.6)]',
+        scale: 'scale-110'
+    }, // Corazón en Llamas
+    '68f6a46c08620e098533b10a': {
+        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Rocket.png`,
+        glow: 'drop-shadow-[0_12px_16px_rgba(239,68,68,0.55)]',
+        scale: 'scale-110'
+    }, // Cohete al Éxito
+    '68f4b3c11dc146998b762499': {
+        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Shooting%20Star.png`,
+        glow: 'drop-shadow-[0_12px_16px_rgba(168,85,247,0.6)]',
+        scale: 'scale-110'
+    }, // Cohete al Estrellato
 
-        if (raw.includes('cohete') || raw.includes('rocket') || raw.includes('estrellato') || raw.includes('exito') || raw.includes('éxito')) {
-        return (
-            <svg viewBox="0 0 110 95" className="w-20 h-16 mx-auto drop-shadow-[0_10px_12px_rgba(147,51,234,0.35)]">
-                <defs>
-                    <linearGradient id={`rocketHull-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#ffffff" />
-                        <stop offset="60%" stopColor="#e2e8f0" />
-                        <stop offset="100%" stopColor="#94a3b8" />
-                    </linearGradient>
-                    <linearGradient id={`rocketNose-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#f87171" />
-                        <stop offset="50%" stopColor="#ef4444" />
-                        <stop offset="100%" stopColor="#991b1b" />
-                    </linearGradient>
-                    <linearGradient id={`flame-${uid}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#fef08a" />
-                        <stop offset="50%" stopColor="#f97316" />
-                        <stop offset="100%" stopColor="#dc2626" />
-                    </linearGradient>
-                </defs>
-                <path d="M45 68 Q55 92 65 68 Q55 76 45 68 Z" fill={`url(#flame-${uid})`} />
-                <path d="M49 68 Q55 83 61 68 Z" fill="#ffffff" />
-                <path d="M38 48 L22 66 L39 64 Z" fill={`url(#rocketNose-${uid})`} />
-                <path d="M72 48 L88 66 L71 64 Z" fill={`url(#rocketNose-${uid})`} />
-                <path d="M55 10 C38 26, 36 48, 41 66 L69 66 C74 48, 72 26, 55 10 Z" fill={`url(#rocketHull-${uid})`} />
-                <path d="M55 10 C47 18, 43 25, 41 31 L69 31 C67 25, 63 18, 55 10 Z" fill={`url(#rocketNose-${uid})`} />
-                <circle cx="55" cy="44" r="9" fill="#64748b" />
-                <circle cx="55" cy="44" r="6.5" fill="#38bdf8" />
-                <circle cx="52.5" cy="41.5" r="2" fill="#ffffff" />
-            </svg>
-        );
-    }
+    // 20.00 - 100.00 USD (VIP & Legendarios)
+    '68f4b3c11dc146998b762494': {
+        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Automobile.png`,
+        glow: 'drop-shadow-[0_12px_16px_rgba(220,38,38,0.6)]',
+        scale: 'scale-110'
+    }, // Auto Rojo de Lujo
+    '68f55d975162c3bafe50ee09': {
+        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Flying%20Saucer.png`,
+        glow: 'drop-shadow-[0_12px_16px_rgba(56,189,248,0.6)]',
+        scale: 'scale-110'
+    }, // Cohete Espacial
+    '68f6a46c08620e098533b10b': {
+        url: `${FLUENT_3D_BASE}/Activities/1st%20Place%20Medal.png`,
+        glow: 'drop-shadow-[0_12px_18px_rgba(234,179,8,0.65)]',
+        scale: 'scale-110'
+    }, // Corona de Rey/Reina
+    '68f4b3c11dc146998b76249a': {
+        url: `${FLUENT_3D_BASE}/Objects/Gem%20Stone.png`,
+        glow: 'drop-shadow-[0_12px_18px_rgba(14,165,233,0.65)]',
+        scale: 'scale-110'
+    }, // Diamante Eterno
+    '68f55d975162c3bafe50ee0e': {
+        url: `${FLUENT_3D_BASE}/Travel%20and%20places/Racing%20Car.png`,
+        glow: 'drop-shadow-[0_14px_18px_rgba(239,68,68,0.65)]',
+        scale: 'scale-115'
+    }, // Auto Deportivo
+    '68f55d975162c3bafe50ee0f': {
+        url: `${FLUENT_3D_BASE}/Activities/Crystal%20Ball.png`,
+        glow: 'drop-shadow-[0_14px_20px_rgba(168,85,247,0.7)]',
+        scale: 'scale-115'
+    }, // Diamante Legendario
+    '68f4b3c11dc146998b76249b': {
+        url: `${FLUENT_3D_BASE}/Objects/Wrapped%20Gift.png`,
+        glow: 'drop-shadow-[0_14px_20px_rgba(236,72,153,0.7)]',
+        scale: 'scale-115'
+    }  // Mega Diamante
+};
 
-    if (raw.includes('mic') || raw.includes('voz') || raw.includes('canto')) {
-        return (
-            <svg viewBox="0 0 110 95" className="w-20 h-16 mx-auto drop-shadow-[0_10px_12px_rgba(217,119,6,0.35)]">
-                <defs>
-                    <radialGradient id={`micHead-${uid}`} cx="35%" cy="35%" r="65%">
-                        <stop offset="0%" stopColor="#fef08a" />
-                        <stop offset="55%" stopColor="#d97706" />
-                        <stop offset="100%" stopColor="#78350f" />
-                    </radialGradient>
-                    <linearGradient id={`micBody-${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#475569" />
-                        <stop offset="45%" stopColor="#cbd5e1" />
-                        <stop offset="100%" stopColor="#1e293b" />
-                    </linearGradient>
-                </defs>
-                <ellipse cx="55" cy="84" rx="22" ry="5" fill="rgba(0,0,0,0.22)" />
-                <polygon points="46,44 64,44 60,78 50,78" fill={`url(#micBody-${uid})`} />
-                <rect x="43" y="41" width="24" height="5" rx="2.5" fill="#fbbf24" />
-                <circle cx="55" cy="28" r="16" fill={`url(#micHead-${uid})`} />
-                <path d="M40 28 L70 28" stroke="#78350f" strokeWidth="2.5" />
-                <ellipse cx="49" cy="21" rx="4" ry="2.5" fill="rgba(255,255,255,0.65)" transform="rotate(-25 49 21)" />
-            </svg>
-        );
-    }
-
-
-    if (raw.includes('coraz') || raw.includes('heart') || raw.includes('amor')) {
-        return (
-            <svg viewBox="0 0 110 95" className="w-20 h-16 mx-auto drop-shadow-[0_10px_12px_rgba(225,29,72,0.4)]">
-                <defs>
-                    <radialGradient id={`heart3d-${uid}`} cx="35%" cy="30%" r="70%">
-                        <stop offset="0%" stopColor="#fda4af" />
-                        <stop offset="40%" stopColor="#f43f5e" />
-                        <stop offset="100%" stopColor="#881337" />
-                    </radialGradient>
-                </defs>
-                <ellipse cx="55" cy="82" rx="24" ry="5" fill="rgba(225,29,72,0.22)" />
-                <path
-                    d="M55 76 C55 76, 20 54, 20 33 C20 20, 31 13, 42 15 C49 16, 53 21, 55 25 C57 21, 61 16, 68 15 C79 13, 90 20, 90 33 C90 54, 55 76, 55 76 Z"
-                    fill={`url(#heart3d-${uid})`}
-                />
-                <ellipse cx="36" cy="27" rx="6" ry="3.5" fill="rgba(255,255,255,0.65)" transform="rotate(-30 36 27)" />
-            </svg>
-        );
-    }
-
-    if (raw.includes('fuego') || raw.includes('fire') || raw.includes('llama')) {
-        return (
-            <svg viewBox="0 0 110 95" className="w-20 h-16 mx-auto drop-shadow-[0_10px_12px_rgba(249,115,22,0.4)]">
-                <defs>
-                    <linearGradient id={`fireOuter-${uid}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#facc15" />
-                        <stop offset="50%" stopColor="#f97316" />
-                        <stop offset="100%" stopColor="#b91c1c" />
-                    </linearGradient>
-                </defs>
-                <path
-                    d="M55 12 C68 28, 84 40, 80 60 C77 73, 66 80, 55 80 C42 80, 30 71, 30 56 C30 43, 39 34, 43 28 C43 35, 47 38, 50 36 C47 26, 51 18, 55 12 Z"
-                    fill={`url(#fireOuter-${uid})`}
-                />
-                <path
-                    d="M55 42 C63 50, 68 57, 65 67 C63 73, 59 76, 55 76 C49 76, 44 71, 44 64 C44 56, 50 49, 55 42 Z"
-                    fill="#fef08a"
-                />
-            </svg>
-        );
-    }
-
-    if (raw.includes('nota') || raw.includes('music') || raw.includes('música') || raw.includes('cancion')) {
-        return (
-            <svg viewBox="0 0 110 95" className="w-20 h-16 mx-auto drop-shadow-[0_10px_12px_rgba(168,85,247,0.4)]">
-                <defs>
-                    <linearGradient id={`note3d-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#f472b6" />
-                        <stop offset="50%" stopColor="#a855f7" />
-                        <stop offset="100%" stopColor="#4f46e5" />
-                    </linearGradient>
-                </defs>
-                <ellipse cx="55" cy="83" rx="28" ry="5" fill="rgba(168,85,247,0.22)" />
-                <path d="M44 62 L44 22 L80 14 L80 54" stroke={`url(#note3d-${uid})`} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                <path d="M44 32 L80 24" stroke={`url(#note3d-${uid})`} strokeWidth="7" fill="none" />
-                <ellipse cx="35" cy="64" rx="12" ry="9" transform="rotate(-20 35 64)" fill={`url(#note3d-${uid})`} />
-                <ellipse cx="71" cy="56" rx="12" ry="9" transform="rotate(-20 71 56)" fill={`url(#note3d-${uid})`} />
-                <ellipse cx="32" cy="61" rx="4" ry="2" transform="rotate(-20 32 61)" fill="rgba(255,255,255,0.65)" />
-                <ellipse cx="68" cy="53" rx="4" ry="2" transform="rotate(-20 68 53)" fill="rgba(255,255,255,0.65)" />
-            </svg>
-        );
-    }
+const GiftRender3D = ({ gift }) => {
+    const asset = GIFT_3D_ASSETS[gift?.id] || {
+        url: `${FLUENT_3D_BASE}/Objects/Wrapped%20Gift.png`,
+        glow: 'drop-shadow-[0_8px_12px_rgba(168,85,247,0.4)]',
+        scale: 'scale-100'
+    };
 
     return (
-        <svg viewBox="0 0 110 95" className="w-20 h-16 mx-auto drop-shadow-[0_10px_12px_rgba(234,179,8,0.4)]">
-            <defs>
-                <linearGradient id={`starGold-${uid}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#fef9c3" />
-                    <stop offset="45%" stopColor="#facc15" />
-                    <stop offset="100%" stopColor="#ca8a04" />
-                </linearGradient>
-            </defs>
-            <ellipse cx="55" cy="83" rx="26" ry="5" fill="rgba(202,138,4,0.25)" />
-            <polygon
-                points="55,12 67,36 93,40 74,58 79,83 55,71 31,83 36,58 17,40 43,36"
-                fill={`url(#starGold-${uid})`}
-                stroke="#fef08a"
-                strokeWidth="1.5"
-                strokeLinejoin="round"
+        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto flex items-center justify-center">
+            <img
+                src={asset.url}
+                alt={gift?.name || 'Regalo 3D'}
+                loading="lazy"
+                className={`w-14 h-14 sm:w-16 sm:h-16 object-contain transition-transform duration-300 ${asset.scale} ${asset.glow}`}
             />
-            <polygon points="55,12 67,36 55,48 43,36" fill="rgba(255,255,255,0.55)" />
-        </svg>
+        </div>
     );
 };
 
 const GiftItem = ({ gift, onSelect, isSelected, disabled }) => {
-    const isVip = gift.price_usd >= 25;
-    const isLegendary = gift.price_usd >= 90;
+    const isVip = gift.price_usd >= 20;
+    const isLegendary = gift.price_usd >= 50;
 
     return (
         <motion.button
@@ -286,13 +186,13 @@ const GiftItem = ({ gift, onSelect, isSelected, disabled }) => {
             whileTap={disabled ? {} : { scale: 0.97 }}
             onClick={() => onSelect(gift)}
             disabled={disabled}
-            className={`relative p-3.5 rounded-2xl text-center transition-all flex flex-col items-center justify-between border-2 ${
+            className={`relative p-3 rounded-2xl text-center transition-all flex flex-col items-center justify-between border-2 ${
                 isSelected
                     ? 'border-purple-600 ring-4 ring-purple-200 bg-gradient-to-b from-purple-50 to-pink-50 shadow-lg'
                     : isLegendary
-                    ? 'border-amber-300 bg-gradient-to-b from-amber-50/80 via-white to-yellow-50/70 hover:border-amber-400 shadow-sm'
+                    ? 'border-amber-300 bg-gradient-to-b from-amber-50/90 via-white to-yellow-50/80 hover:border-amber-400 shadow-sm'
                     : isVip
-                    ? 'border-purple-200 bg-gradient-to-b from-purple-50/50 to-white hover:border-purple-300 shadow-sm'
+                    ? 'border-purple-200 bg-gradient-to-b from-purple-50/60 to-white hover:border-purple-300 shadow-sm'
                     : 'border-gray-200 bg-white hover:border-purple-200 hover:bg-gray-50/80'
             } ${disabled ? 'opacity-45 cursor-not-allowed grayscale-[30%]' : 'cursor-pointer'}`}
         >
@@ -308,9 +208,7 @@ const GiftItem = ({ gift, onSelect, isSelected, disabled }) => {
                 </span>
             )}
 
-            <div className="my-1 flex items-center justify-center">
-                <RealisticGift3D gift={gift} />
-            </div>
+            <GiftRender3D gift={gift} />
 
             <p className="font-bold text-xs sm:text-sm text-gray-900 leading-tight mt-1 line-clamp-2">
                 {gift.name}
@@ -404,7 +302,6 @@ export default function GiftSelector({ artist, fan, onClose }) {
                 status: 'approved'
             });
 
-            // 6. Notificar al artista
             await base44.entities.Notification.create({
                 user_id: targetArtistId,
                 title: `🎁 ¡Has recibido un regalo!`,
@@ -437,7 +334,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
                 return (
                     <div className="text-center p-8">
                         <div className="mb-3">
-                            <RealisticGift3D gift={selectedGift} />
+                            <GiftRender3D gift={selectedGift} />
                         </div>
                         <CheckCircle className="w-10 h-10 mx-auto text-green-500 mb-2" />
                         <h3 className="text-xl font-bold mb-2">¡Regalo Enviado!</h3>
@@ -531,7 +428,7 @@ export default function GiftSelector({ artist, fan, onClose }) {
                 <motion.div
                     initial={{ scale: 0.9, y: 20 }}
                     animate={{ scale: 1, y: 0 }}
-                    exit={{ scale: 0.9, y: 20 }}
+                                   exit={{ scale: 0.9, y: 20 }}
                     className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-purple-100"
                     onClick={(e) => e.stopPropagation()}
                 >
