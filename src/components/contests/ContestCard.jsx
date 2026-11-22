@@ -65,9 +65,9 @@ export default function ContestCard({ contest, index }) {
             <div className="bg-pink-50 rounded-lg p-4 text-center">
               <Icon3D icon={Users} size="sm" gradient="bg-gradient-to-br from-pink-400 via-pink-500 to-rose-600" className="mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">
-                {contest.current_participants}/{contest.max_participants}
+                {contest.max_participants}
               </div>
-              <div className="text-xs text-gray-600">Participantes</div>
+              <div className="text-xs text-gray-600">Cupos del Concurso</div>
             </div>
           </div>
 
